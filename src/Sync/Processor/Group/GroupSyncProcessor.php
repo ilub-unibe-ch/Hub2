@@ -17,6 +17,7 @@ use SRAG\Plugins\Hub2\Sync\IObjectStatusTransition;
 use SRAG\Plugins\Hub2\Sync\Processor\MetadataSyncProcessor;
 use SRAG\Plugins\Hub2\Sync\Processor\ObjectSyncProcessor;
 use SRAG\Plugins\Hub2\Origin\Course\ARCourseOrigin;
+use SRAG\Plugins\Hub2\Sync\Processor\TaxonomySyncProcessor;
 
 /**
  * Class GroupSyncProcessor
@@ -25,6 +26,7 @@ use SRAG\Plugins\Hub2\Origin\Course\ARCourseOrigin;
  */
 class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProcessor {
 
+	use TaxonomySyncProcessor;
 	use MetadataSyncProcessor;
 	/**
 	 * @var GroupOriginProperties
@@ -141,16 +143,6 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 			$ilObjGroup->enableRegistrationAccessCode($dto->getRegAccessCodeEnabled());
 		}
 
-		if ($this->props->get(GroupOriginProperties::SET_ONLINE)) {
-			//			$ilObjGroup->setA(false);
-			//			$ilObjGroup->setActivationType(IL_CRS_ACTIVATION_UNLIMITED);
-		}
-		if ($this->props->get(GroupOriginProperties::CREATE_ICON)) {
-			// TODO
-			//			$this->updateIcon($this->ilias_object);
-			//			$this->ilias_object->update();
-		}
-
 		$ilObjGroup->create();
 		$ilObjGroup->createReference();
 		$ilObjGroup->putInTree($parentRefId);
@@ -213,10 +205,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 		    && $dto->getRegUnlimited() !== null) {
 			$ilObjGroup->enableUnlimitedRegistration($dto->getRegisterMode());
 		}
-		if ($this->props->get(GroupOriginProperties::SET_ONLINE_AGAIN)) {
-			//			$ilObjGroup->setOfflineStatus(false);
-			//			$ilObjGroup->setActivationType(IL_CRS_ACTIVATION_UNLIMITED);
-		}
+
 		if ($this->props->get(GroupOriginProperties::MOVE_GROUP)) {
 			$this->moveGroup($ilObjGroup, $dto);
 		}
@@ -241,8 +230,8 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 		global $DIC;
 		$tree = $DIC->repositoryTree();
 		switch ($this->props->get(GroupOriginProperties::DELETE_MODE)) {
-			case GroupOriginProperties::DELETE_MODE_OFFLINE:
-				$ilObjGroup->setOfflineStatus(true);
+			case GroupOriginProperties::DELETE_MODE_CLOSED:
+				$ilObjGroup->setGroupStatus(2);
 				$ilObjGroup->update();
 				break;
 			case GroupOriginProperties::DELETE_MODE_DELETE:
@@ -251,9 +240,9 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 			case GroupOriginProperties::DELETE_MODE_MOVE_TO_TRASH:
 				$tree->moveToTrash($ilObjGroup->getRefId(), true);
 				break;
-			case GroupOriginProperties::DELETE_MODE_DELETE_OR_OFFLINE:
+			case GroupOriginProperties::DELETE_MODE_DELETE_OR_CLOSE:
 				if ($this->groupActivities->hasActivities($ilObjGroup)) {
-					$ilObjGroup->setOfflineStatus(true);
+					$ilObjGroup->setGroupStatus(2);
 					$ilObjGroup->update();
 				} else {
 					$tree->moveToTrash($ilObjGroup->getRefId(), true);

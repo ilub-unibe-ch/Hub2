@@ -141,6 +141,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI {
 			$origin->setDescription($form->getInput('description'));
 			$origin->setActive($form->getInput('active'));
 			$origin->setImplementationClassName($form->getInput('implementation_class_name'));
+			$origin->setImplementationNamespace($form->getInput('implementation_namespace'));
 			// Get the config data as an array
 			$configData = [];
 			$propertyData = [];
@@ -148,11 +149,9 @@ class hub2ConfigOriginsGUI extends hub2MainGUI {
 				if (strpos($item->getPostVar(), 'config_') === 0) {
 					$key = substr($item->getPostVar(), 7);
 					$configData[$key] = $form->getInput($item->getPostVar());
-				} else {
-					if (strpos($item->getPostVar(), 'prop_') === 0) {
-						$key = substr($item->getPostVar(), 5);
-						$propertyData[$key] = $form->getInput($item->getPostVar());
-					}
+				} elseif (strpos($item->getPostVar(), 'prop_') === 0) {
+					$key = substr($item->getPostVar(), 5);
+					$propertyData[$key] = $form->getInput($item->getPostVar());
 				}
 			}
 			$origin->config()->setData($configData);

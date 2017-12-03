@@ -11,6 +11,7 @@ use SRAG\Plugins\Hub2\Origin\IOrigin;
 use SRAG\Plugins\Hub2\Origin\IOriginImplementation;
 use SRAG\Plugins\Hub2\Origin\Properties\GroupOriginProperties;
 use SRAG\Plugins\Hub2\Sync\IObjectStatusTransition;
+use SRAG\Plugins\Hub2\Sync\Processor\FakeIliasMembershipObject;
 use SRAG\Plugins\Hub2\Sync\Processor\FakeIliasObject;
 use SRAG\Plugins\Hub2\Sync\Processor\ObjectSyncProcessor;
 use SRAG\Plugins\Hub2\Exception\HubException;
@@ -66,7 +67,7 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
 		$user_id = $dto->getUserId();
 		$group->getMembersObject()->add($user_id, $this->mapRole($dto));
 
-		return new FakeIliasObject("{$user_id}" . self::SPLIT . "{$ilias_group_ref_id}");
+		return new FakeIliasMembershipObject($ilias_group_ref_id, $user_id);
 	}
 
 
@@ -77,10 +78,12 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
 		/**
 		 * @var $dto \SRAG\Plugins\Hub2\Object\GroupMembership\GroupMembershipDTO
 		 */
+		$obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
+
 		$ilias_group_ref_id = $dto->getIliasGroupRefId();
 		$user_id = $dto->getUserId();
 		if (!$this->props->updateDTOProperty('role')) {
-			return new FakeIliasObject("{$user_id}" . self::SPLIT . "{$ilias_group_ref_id}");
+			return new FakeIliasMembershipObject($ilias_group_ref_id, $user_id);
 		}
 
 		$group = $this->findILIASGroup($ilias_group_ref_id);
@@ -89,9 +92,13 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
 		}
 
 		$group->getMembersObject()
-		       ->updateRoleAssignments($user_id, [ $this->getILIASRole($dto, $group) ]);
+		      ->updateRoleAssignments($user_id, [ $this->getILIASRole($dto, $group) ]);
 
-		return new FakeIliasObject("{$user_id}" . self::SPLIT . "{$ilias_group_ref_id}");
+		$obj->setUserIdIlias($dto->getUserId());
+		$obj->setContainerIdIlias($group->getRefId());
+		$obj->initId();
+
+		return $obj;
 	}
 
 
@@ -99,11 +106,12 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
 	 * @inheritdoc
 	 */
 	protected function handleDelete($ilias_id) {
-		list ($user_id, $ilias_group_ref_id) = explode(self::SPLIT, $ilias_id);
-		$group = $this->findILIASGroup($ilias_group_ref_id);
-		$group->getMembersObject()->delete($user_id);
+		$obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
 
-		return new FakeIliasObject("{$user_id}" . self::SPLIT . "{$ilias_group_ref_id}");
+		$group = $this->findILIASGroup($obj->getContainerIdIlias());
+		$group->getMembersObject()->delete($obj->getUserIdIlias());
+
+		return $obj;
 	}
 
 
@@ -186,7 +194,7 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
 
 	/**
 	 * @param \SRAG\Plugins\Hub2\Object\GroupMembership\GroupMembershipDTO $object
-	 * @param \ilObjGroup                                           $group
+	 * @param \ilObjGroup                                                  $group
 	 *
 	 * @return int
 	 */

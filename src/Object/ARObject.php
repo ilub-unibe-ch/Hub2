@@ -79,11 +79,11 @@ abstract class ARObject extends \ActiveRecord implements IObject {
 	 */
 	protected $processed_date;
 	/**
-	 * @var int
+	 * @var string
 	 *
 	 * @db_has_field    true
-	 * @db_fieldtype    integer
-	 * @db_length       8
+	 * @db_fieldtype    text
+	 * @db_length       256
 	 */
 	protected $ilias_id;
 	/**
@@ -171,16 +171,22 @@ abstract class ARObject extends \ActiveRecord implements IObject {
 			case 'data':
 				return json_decode($field_value, true);
 			case 'meta_data':
+				if (is_null($field_value)) {
+					return [];
+				}
 				$json_decode = json_decode($field_value, true);
 				$IMetadata = [];
 				if (is_array($json_decode)) {
-					foreach ($json_decode as $metaDatum) {
-						$IMetadata[] = (new Metadata($metaDatum[0]))->setValue($metaDatum[1]);
+					foreach ($json_decode as $key => $value) {
+						$IMetadata[] = (new Metadata($key))->setValue($value);
 					}
 				}
 
 				return $IMetadata;
 			case 'taxonomies':
+				if (is_null($field_value)) {
+					return [];
+				}
 				$json_decode = json_decode($field_value, true);
 				$taxonomies = [];
 				foreach ($json_decode as $tax_title => $nodes) {
@@ -293,7 +299,7 @@ abstract class ARObject extends \ActiveRecord implements IObject {
 	 * @inheritdoc
 	 */
 	public function setILIASId($id) {
-		$this->ilias_id = (int)$id;
+		$this->ilias_id = $id;
 
 		return $this;
 	}
@@ -370,6 +376,18 @@ abstract class ARObject extends \ActiveRecord implements IObject {
 		$hash = '';
 		foreach ($this->data as $property => $value) {
 			$hash .= (is_array($value)) ? implode('', $value) : (string)$value;
+		}
+
+		if (isset($this->meta_data)) {
+			foreach ($this->meta_data as $property => $value) {
+				$hash .= (is_array($value)) ? implode('', $value) : (string)$value;
+			}
+		}
+
+		if (isset($this->taxonomies)) {
+			foreach ($this->taxonomies as $property => $value) {
+				$hash .= (is_array($value)) ? implode('', $value) : (string)$value;
+			}
 		}
 
 		return md5($hash);

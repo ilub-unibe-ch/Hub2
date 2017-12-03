@@ -37,13 +37,18 @@ class demoSession extends AbstractOriginImplementation {
 	 * @return int
 	 */
 	public function parseData() {
+		$this->log()->write("This is a test-log entry");
+
 		for ($x = 1; $x <= 14; $x ++) {
+			if (rand(1, 14) === $x) {
+				continue; // Simulate some random deletions
+			}
 			$rand = rand();
 			$sessionDTO = $this->factory()
 			                   ->session($x)
 			                   ->setParentId(1)
 			                   ->setParentIdType(SessionDTO::PARENT_ID_TYPE_EXTERNAL_EXT_ID)
-			                   ->setTitle("Title {$rand}")
+			                   ->setTitle("Title $x")
 			                   ->setDescription("Description {$rand}")
 			                   ->setLocation("Location {$rand}")
 			                   ->setDetails("Details {$rand}")
@@ -53,6 +58,16 @@ class demoSession extends AbstractOriginImplementation {
 			                   ->setFullDay(false)
 			                   ->setStart(time() + ($x * 600))
 			                   ->setEnd(time() + ($x * 600) + 3600)
+			                   ->addTaxonomy($this->taxonomy()
+			                                      ->select("Taxonomy 1")
+			                                      ->attach($this->taxonomy()
+			                                                    ->node("Node Title 1.1"))
+			                                      ->attach($this->taxonomy()
+			                                                    ->node("Node Title 1.2")))
+			                   ->addTaxonomy($this->taxonomy()
+			                                      ->select("Taxonomy 2")
+			                                      ->attach($this->taxonomy()
+			                                                    ->node("Node Title 2.1")))
 			                   ->addMetadata($this->metadata()
 			                                      ->getDTOWithIliasId(1)
 			                                      ->setValue("Meine Metadaten"))
@@ -60,7 +75,6 @@ class demoSession extends AbstractOriginImplementation {
 			                                      ->getDTOWithIliasId(2)
 			                                      ->setValue(time()));
 			$this->data[] = $sessionDTO;
-			$this->log()->write("Start:" . date(DATE_ATOM, $sessionDTO->getStart()));
 		}
 
 		return count($this->data);
