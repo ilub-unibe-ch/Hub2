@@ -24,16 +24,36 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 	const SUBSCRIPTION_TYPE_REQUEST_MEMBERSHIP = 2;
 	const SUBSCRIPTION_TYPE_DIRECTLY = 3;
 	const SUBSCRIPTION_TYPE_PASSWORD = 4;
-	const VIEW_MODE_SESSIONS = 0;
-	const VIEW_MODE_OBJECTIVES = 1;
-	const VIEW_MODE_TIMING = 2;
-	const VIEW_MODE_SIMPLE = 4;
-	const VIEW_MODE_BY_TYPE = 5;
+
+	const VIEW_MODE_SESSIONS = \ilContainer::VIEW_SESSIONS;
+	const VIEW_MODE_OBJECTIVES = \ilContainer::VIEW_OBJECTIVE;
+	const VIEW_MODE_TIMING = \ilContainer::VIEW_TIMING;
+	const VIEW_MODE_SIMPLE = \ilContainer::VIEW_SIMPLE;
+	const VIEW_MODE_BY_TYPE = \ilContainer::VIEW_BY_TYPE;
+	const VIEW_MODE_INHERIT = \ilContainer::VIEW_INHERIT;
+
 	const PARENT_ID_TYPE_REF_ID = 1;
 	const PARENT_ID_TYPE_EXTERNAL_EXT_ID = 2;
 	const ACTIVATION_OFFLINE = 0;
 	const ACTIVATION_UNLIMITED = 1;
 	const ACTIVATION_LIMITED = 2;
+
+
+	const VIEW_DEFAULT = self::VIEW_MODE_BY_TYPE;
+
+
+	const SORT_TITLE = \ilContainer::SORT_TITLE;
+	const SORT_MANUAL = \ilContainer::SORT_MANUAL;
+	const SORT_ACTIVATION = \ilContainer::SORT_ACTIVATION;
+	const SORT_INHERIT = \ilContainer::SORT_INHERIT;
+	const SORT_CREATION = \ilContainer::SORT_CREATION;
+
+	const SORT_DIRECTION_ASC = \ilContainer::SORT_DIRECTION_ASC;
+	const SORT_DIRECTION_DESC = \ilContainer::SORT_DIRECTION_DESC;
+
+
+
+
 	/**
 	 * @var array
 	 */
@@ -52,7 +72,10 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 		self::VIEW_MODE_TIMING,
 		self::VIEW_MODE_SIMPLE,
 		self::VIEW_MODE_BY_TYPE,
+		self::VIEW_MODE_INHERIT
 	];
+
+
 	/**
 	 * @var array
 	 */
@@ -137,6 +160,35 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 	 */
 	protected $activationType = self::ACTIVATION_OFFLINE;
 
+	/**
+	 * @var bool
+	 */
+	protected $sessionLimitEnabled = false;
+
+	/**
+	 * @var int
+	 */
+	protected $numberOfPreviousSessions = -1;
+
+	/**
+	 * @var int
+	 */
+	protected $numberOfNextSessions = -1;
+
+	/**
+	 * @var int
+	 */
+	protected $orderType = self::SORT_TITLE;
+
+	/**
+	 * @var int
+	 */
+	protected $orderDirection = self::SORT_DIRECTION_ASC;
+
+	/**
+	 * @var null
+	 */
+	protected $appointementsColor = null;
 
 	/**
 	 * @return string
@@ -523,6 +575,104 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 	public function setActivationType($activationType) {
 		$this->activationType = $activationType;
 
+		return $this;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function isSessionLimitEnabled()
+	{
+		return $this->sessionLimitEnabled;
+	}
+
+	/**
+	 * @param boolean $sessionLimitEnabled
+	 */
+	public function enableSessionLimit($sessionLimitEnabled)
+	{
+		$this->sessionLimitEnabled = $sessionLimitEnabled;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getNumberOfPreviousSessions()
+	{
+		return $this->numberOfPreviousSessions;
+	}
+
+	/**
+	 * @param int $numberOfPreviousSessions
+	 */
+	public function setNumberOfPreviousSessions($numberOfPreviousSessions)
+	{
+		$this->numberOfPreviousSessions = $numberOfPreviousSessions;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getNumberOfNextSessions()
+	{
+		return $this->numberOfNextSessions;
+	}
+
+	/**
+	 * @param int $numberOfNextSessions
+	 */
+	public function setNumberOfNextSessions($numberOfNextSessions)
+	{
+		$this->numberOfNextSessions = $numberOfNextSessions;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getOrderType()
+	{
+		return $this->orderType;
+	}
+
+	/**
+	 * @param int $orderType
+	 */
+	public function setOrderType($orderType)
+	{
+		$this->orderType = $orderType;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getOrderDirection()
+	{
+		return $this->orderDirection;
+	}
+
+	/**
+	 * @param int $orderDirection
+	 */
+	public function setOrderDirection($orderDirection)
+	{
+		$this->orderDirection = $orderDirection;
+	}
+
+	/**
+	 * @return null
+	 */
+	public function getAppointementsColor()
+	{
+		return $this->appointementsColor;
+	}
+
+	/**
+	 * @param $appointementsColor
+	 * @return $this
+	 */
+	public function setAppointementsColor($appointementsColor)
+	{
+		$this->appointementsColor = $appointementsColor;
 		return $this;
 	}
 }

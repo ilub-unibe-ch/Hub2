@@ -106,6 +106,8 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 	 * @inheritdoc
 	 */
 	protected function handleCreate(IDataTransferObject $dto) {
+		global $DIC;
+
 		/** @var GroupDTO $dto */
 		$ilObjGroup = new \ilObjGroup();
 		$ilObjGroup->setImportId($this->getImportId($dto));
@@ -147,6 +149,16 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 		$ilObjGroup->createReference();
 		$ilObjGroup->putInTree($parentRefId);
 		$ilObjGroup->setPermissions($parentRefId);
+
+		if($dto->getAppointementsColor()){
+			$DIC["ilObjDataCache"]->deleteCachedEntry($ilObjGroup->getId());
+			/**
+			 * @var $cal_cat \ilCalendarCategory
+			 */
+			$cal_cat = \ilCalendarCategory::_getInstanceByObjId($ilObjGroup->getId());
+			$cal_cat->setColor($dto->getAppointementsColor());
+			$cal_cat->update();
+		}
 
 		return $ilObjGroup;
 	}
