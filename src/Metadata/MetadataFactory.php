@@ -16,8 +16,8 @@ class MetadataFactory implements IMetadataFactory {
 	 *
 	 * @return \SRAG\Plugins\Hub2\Metadata\IMetadata
 	 */
-	public function getDTOWithIliasId(int $id): IMetadata {
-		return new Metadata($id);
+	public function getDTOWithIliasId(int $ilas_id, int $record_id = 1): IMetadata {
+		return new Metadata($ilas_id,$record_id);
 	}
 
 
@@ -27,6 +27,8 @@ class MetadataFactory implements IMetadataFactory {
 	 * @return \SRAG\Plugins\Hub2\Metadata\IMetadata
 	 */
 	public function getDTOWithFirstIliasIdForTitle(string $title): IMetadata {
+		$ilAdvancedMDValues = new \ilAdvancedMDValues(1, $this->getIliasId(), null, "-");
+
 		throw new NotImplementedException('not yet implemented');
 	}
 }
