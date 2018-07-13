@@ -93,6 +93,7 @@ crs_prop_notification_body#:#MISSING
 crs_prop_notification_from#:#MISSING
 crs_prop_send_notification#:#MISSING
 crs_prop_send_notification_info#:#MISSING
+crs_membership_prop_delete_mode_delete#:#Mitgliedschaft löschen
 com_prop_check_amount#:#Mengenvergleich
 com_prop_check_amount_info#:#Fehler, wenn weniger als X% der bestehenden Datensätzen geliefert werden.
 com_prop_check_amount_percentage#:#Prozentwert

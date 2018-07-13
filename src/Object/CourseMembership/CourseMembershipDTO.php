@@ -8,6 +8,7 @@ use SRAG\Plugins\Hub2\Object\DTO\DataTransferObject;
  * @author Fabian Schmid <fs@studer-raimann.ch>
  */
 class CourseMembershipDTO extends DataTransferObject {
+	const GLUE = "|||";
 
 	/**
 	 * @inheritDoc
@@ -18,6 +19,16 @@ class CourseMembershipDTO extends DataTransferObject {
 		$this->userId = $user_id;
 	}
 
+	/**
+	 * @param string $id
+	 *
+	 * @return \SRAG\Plugins\Hub2\Object\CourseMembership\CourseMembershipDTO
+	 */
+	public static function loadInstanceWithConcatenatedId(string $id) {
+		list($course_ext_id, $user_id) = explode(self::GLUE, $id);
+
+		return new self($course_ext_id, $user_id);
+	}
 
 	const ROLE_MEMBER = 2;
 	const ROLE_TUTOR = 3;

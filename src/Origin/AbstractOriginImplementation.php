@@ -8,6 +8,7 @@ use SRAG\Plugins\Hub2\Notification\OriginNotifications;
 use SRAG\Plugins\Hub2\Object\DTO\IDataTransferObjectFactory;
 use SRAG\Plugins\Hub2\Origin\Config\IOriginConfig;
 use SRAG\Plugins\Hub2\Taxonomy\ITaxonomyFactory;
+use SRAG\Plugins\Hub2\Object\HookObject;
 
 /**
  * Class AbstractOriginImplementation
@@ -114,5 +115,15 @@ abstract class AbstractOriginImplementation implements IOriginImplementation {
 	 */
 	final protected function notifications() {
 		return $this->originNotifications;
+	}
+
+	/**
+	 * Last chance to ommit the processing of the delete status. Note that they still will
+	 * be marked as deleted.
+	 *
+	 * @return bool
+	 */
+	public function ignoreDelete(HookObject $object) {
+		return false;
 	}
 }

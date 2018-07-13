@@ -106,6 +106,14 @@ interface IOriginImplementation {
 	 */
 	public function beforeDeleteILIASObject(HookObject $object);
 
+	/**
+	 * Last chance to ommit the processing of the delete status. Note that they still will
+	 * be marked as deleted.
+	 *
+	 * @param HookObject $object
+	 * @return bool, if true, the delete action will be omited.
+	 */
+	public function ignoreDelete(HookObject $object);
 
 	/**
 	 * @param HookObject $object
