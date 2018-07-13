@@ -691,6 +691,7 @@ class UserDTO extends DataTransferObject implements IMetadataAwareDataTransferOb
 			throw new \InvalidArgumentException("'$authMode' is not a valid account type");
 		}
 		$this->authMode = $authMode;
+		return $this;
 	}
 
 
