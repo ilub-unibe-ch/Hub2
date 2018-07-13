@@ -2,6 +2,9 @@
 
 namespace SRAG\Plugins\Hub2\Log;
 
+use ILIAS\Filesystem\Stream\Streams;
+use ILIAS\Filesystem\Stream\Stream;
+
 /**
  * Class Logger
  *
@@ -10,11 +13,10 @@ namespace SRAG\Plugins\Hub2\Log;
  * @internal
  */
 class Logger {
-
 	/**
-	 * @var string
+	 * @var Stream
 	 */
-	protected $path;
+	protected $stream;
 
 
 	/**
@@ -23,7 +25,16 @@ class Logger {
 	 * @param string $path
 	 */
 	public function __construct(string $path) {
+		global $DIC;
+
 		$this->path = $path;
+		if (!$DIC->filesystem()->storage()->has($this->path)) {
+			$DIC->filesystem()->storage()->put($this->path, "");
+		}
+
+		$resource = fopen(CLIENT_DATA_DIR.'/'.$this->path, 'w');
+		$this->stream = Streams::ofResource($resource);
+
 	}
 
 
@@ -31,12 +42,7 @@ class Logger {
 	 * @param $string
 	 */
 	public function write($string) {
-		global $DIC;
-		if (!$this->path) {
-			return;
-		}
-		if ($DIC->filesystem()->storage()->has($this->path)) {
-			$DIC->filesystem()->storage()->put($this->path, $string);
-		}
+		$this->stream->seek($this->stream->getSize());
+		$this->stream->write($string);
 	}
 }

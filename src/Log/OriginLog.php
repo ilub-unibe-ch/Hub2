@@ -49,7 +49,7 @@ class OriginLog implements ILog {
 	 */
 	private function getLogInstance(IOrigin $origin) {
 		if (isset(self::$ilLogInstances[$origin->getId()])) {
-			// return self::$ilLogInstances[$origin->getId()];
+			return self::$ilLogInstances[$origin->getId()];
 		}
 		$filename = implode('-', [
 			\ilHub2Plugin::PLUGIN_ID,
