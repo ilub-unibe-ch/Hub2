@@ -14,7 +14,8 @@ use SRAG\Plugins\Hub2\Object\Session\ARSession;
 use SRAG\Plugins\Hub2\Object\SessionMembership\ARSessionMembership;
 use SRAG\Plugins\Hub2\Object\User\ARUser;
 use SRAG\Plugins\Hub2\Origin\OriginFactory;
-
+use SRAG\Plugins\Hub2\Origin\IOrigin;
+use  SRAG\Plugins\Hub2\Object\CourseMembership\CourseMembershipDTO;
 /**
  * class OriginsTableGUI
  *
@@ -122,7 +123,6 @@ class DataTableGUI extends \ilTable2GUI {
 		/**
 		 * @var $collection \ActiveRecordList
 		 */
-
 		foreach ($classes as $class) {
 			$collection = $class::getCollection();
 			foreach ($this->filtered as $postvar => $value) {
@@ -131,6 +131,7 @@ class DataTableGUI extends \ilTable2GUI {
 				}
 				switch ($postvar) {
 					case 'data':
+                    case 'ext_id':
 						$str = "%{$value}%";
 						$collection = $collection->where([ $postvar => $str ], 'LIKE');
 						break;
@@ -154,15 +155,23 @@ class DataTableGUI extends \ilTable2GUI {
 		$this->ctrl()
 		     ->setParameter($this->parent_obj, self::F_ORIGIN_ID, $a_set[self::F_ORIGIN_ID]);
 
-		foreach ($a_set as $key => $value) {
+        $origin = $this->originFactory->getById($a_set[self::F_ORIGIN_ID]);
+
+        foreach ($a_set as $key => $value) {
 			$this->tpl->setCurrentBlock('cell');
 			switch ($key) {
 				case 'status':
 					$this->tpl->setVariable('VALUE', $this->getAvailableStatus()[$value]);
 					break;
+                case self::F_EXT_ID:
+                    $this->tpl->setVariable('VALUE', $this->getILIASLinkForIliasId($value,$a_set['ilias_id'],$origin));
+                    break;
 				case self::F_ORIGIN_ID:
-					$origin = $this->originFactory->getById($value);
-					$this->tpl->setVariable('VALUE', $origin->getTitle());
+					if(!$origin){
+                        $this->tpl->setVariable('VALUE', " Origin deleted");
+                    }else{
+                        $this->tpl->setVariable('VALUE', $origin->getTitle());
+                    }
 					break;
 				default:
 					$this->tpl->setVariable('VALUE', $value ? $value : "&nbsp;");
@@ -188,6 +197,38 @@ class DataTableGUI extends \ilTable2GUI {
 
 		$this->ctrl()->clearParameters($this->parent_obj);
 	}
+
+    /**
+     * @param $ext_id
+     * @param $ilias_id
+     * @param IOrigin $origin
+     * @return string
+     */
+	protected function getILIASLinkForIliasId($ext_id,$ilias_id,$origin){
+	    if(!$origin){
+	        return $ext_id;
+        }
+
+        $button_factory = $this->ui()->factory()->button();
+        $renderer = $this->ui()->renderer();
+        switch($origin->getObjectType()){
+            case IOrigin::OBJECT_TYPE_COURSE:
+            case IOrigin::OBJECT_TYPE_CATEGORY:
+            case IOrigin::OBJECT_TYPE_GROUP:
+            case IOrigin::OBJECT_TYPE_SESSION:
+                return $renderer->render($button_factory->shy($ext_id,\ilLink::_getLink($ilias_id)));
+            case IOrigin::OBJECT_TYPE_SESSION_MEMBERSHIP:
+            case IOrigin::OBJECT_TYPE_GROUP_MEMBERSHIP:
+            case IOrigin::OBJECT_TYPE_COURSE_MEMBERSHIP:
+                $container_id = CourseMembershipDTO::loadInstanceWithConcatenatedId($ilias_id)->getCourseId();
+                return $renderer->render($button_factory->shy($ext_id,\ilLink::_getLink($container_id)));
+            case IOrigin::OBJECT_TYPE_USER:
+                $this->ctrl()->setParameterByClass("ilobjusergui","ref_id",7);
+                $this->ctrl()->setParameterByClass("ilobjusergui","obj_id",$ilias_id);
+                $url = $this->ctrl()->getLinkTargetByClass(["ilAdministrationGUI","ilobjusergui"],"view");
+                return $renderer->render($button_factory->shy($ext_id,$url));
+        }
+    }
 
 
 	/**
