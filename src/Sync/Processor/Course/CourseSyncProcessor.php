@@ -122,8 +122,10 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 		if ($this->props->get(CourseOriginProperties::SEND_CREATE_NOTIFICATION)) {
 			$this->sendMailNotifications($dto,$ilObjCourse);
 		}
+		$this->setSubscriptionType($dto, $ilObjCourse);
 
 		$this->setLanguage($dto,$ilObjCourse);
+
 
 
 		$ilObjCourse->update();
@@ -144,6 +146,20 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 		$language = $md_general->getLanguage(array_pop($md_general->getLanguageIds()));
 		$language->setLanguage(new \ilMDLanguageItem($dto->getLanguageCode()));
 		$language->update();
+	}
+
+	/**
+	 * @param CourseDTO $dto
+	 * @param \ilObjCourse $ilObjCourse
+	 */
+	protected function setSubscriptionType(CourseDTO $dto, \ilObjCourse $ilObjCourse){
+		//There is some weird connection between subscription limitation type ond subscription type, see e.g. ilObjCourseGUI
+		$ilObjCourse->setSubscriptionType($dto->getSubscriptionLimitationType());
+		if($dto->getSubscriptionLimitationType() == CourseDTO::SUBSCRIPTION_TYPE_DEACTIVATED){
+			$ilObjCourse->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_DEACTIVATED);
+		}else{
+			$ilObjCourse->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_UNLIMITED);
+		}
 	}
 
 	/**
@@ -220,14 +236,8 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 		if ($this->props->updateDTOProperty("enableSessionLimit")) {
 			$ilObjCourse->enableSessionLimit($dto->isSessionLimitEnabled());
 		}
-		//There is some weird connection between subscription limitation type ond subscription type, see e.g. ilObjCourseGUI
         if ($this->props->updateDTOProperty("subscriptionLimitationType")) {
-            $ilObjCourse->setSubscriptionType($dto->getSubscriptionLimitationType());
-            if($dto->getSubscriptionLimitationType() == CourseDTO::SUBSCRIPTION_TYPE_DEACTIVATED){
-                $ilObjCourse->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_DEACTIVATED);
-            }else{
-                $ilObjCourse->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_UNLIMITED);
-            }
+			$this->setSubscriptionType($dto, $ilObjCourse);
         }
 		if ($this->props->updateDTOProperty("languageCode")){
 			$this->setLanguage($dto,$ilObjCourse);
