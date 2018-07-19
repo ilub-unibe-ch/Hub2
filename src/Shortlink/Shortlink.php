@@ -31,7 +31,10 @@ class Shortlink {
 	 */
 	public function __construct($ext_id) {
 		$this->initILIAS();
-		$this->ext_id = $ext_id;
+		if($ext_id === null){
+			$ext_id = "";
+		}
+		$this->setExtId($ext_id);
 	}
 
 
