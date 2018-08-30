@@ -12,7 +12,7 @@ use SRAG\Plugins\Hub2\Object\User\UserDTO;
  *
  * @package SRAG\Plugins\Hub2\MappingStrategy
  */
-class ByExternalAccount extends AMappingStrategy implements IMappingStrategy {
+class ByExternalAccount implements IMappingStrategy {
 
 	/**
 	 * @inheritDoc
