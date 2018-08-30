@@ -21,6 +21,13 @@ class Factory {
 	public function byLogin(): IMappingStrategy {
 		return new ByLogin();
 	}
+	
+	/**
+	 * @inheritdoc
+	 */
+	public function byExternalAccount(): IMappingStrategy {
+		return new ByExternalAccount();
+	}
 
 
 	/**
