@@ -80,6 +80,8 @@ class RunSync extends AbstractJob {
 				$summary->addOriginSync($originSync);
 			}
 
+            $summary->sendNotifications();
+
 			return ResultFactory::ok("everything's fine.");
 		} catch (\Exception $e) {
 			return ResultFactory::error("there was an error");
