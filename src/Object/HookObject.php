@@ -66,9 +66,7 @@ class HookObject {
 	 * @throws HubException
 	 */
 	public function overrideStatus(int $status) {
-		if ($this->getDTO() instanceof NullDTO) {
-			throw new HubException("Overriding status for NullDTOs is not supported!");
-		}
+
 		$this->object->setStatus($status);
 	}
 
