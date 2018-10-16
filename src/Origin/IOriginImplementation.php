@@ -142,7 +142,6 @@ interface IOriginImplementation {
 	 *
 	 * E.G. $object->overrideStatus(IObject::STATUS_TO_UPDATE);
 	 *
-	 * @throws HubException if overriding Status for NullDTOs (deleted objects)
 	 * @throws \InvalidArgumentException if passing not supported Status
 	 *
 	 * @param HookObject $hook

@@ -3,9 +3,7 @@
 namespace SRAG\Plugins\Hub2\Object;
 
 use ilObject;
-use SRAG\Plugins\Hub2\Exception\HubException;
 use SRAG\Plugins\Hub2\Object\DTO\IDataTransferObject;
-use SRAG\Plugins\Hub2\Object\DTO\NullDTO;
 use SRAG\Plugins\Hub2\Sync\Processor\FakeIliasObject;
 
 /**
@@ -63,7 +61,6 @@ class HookObject {
 	/**
 	 * @param int $status
 	 *
-	 * @throws HubException
 	 */
 	public function overrideStatus(int $status) {
 
