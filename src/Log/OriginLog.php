@@ -2,6 +2,8 @@
 
 namespace SRAG\Plugins\Hub2\Log;
 
+use ilHub2Plugin;
+use ILIAS\Filesystem\Exception\IOException;
 use SRAG\Plugins\Hub2\Origin\IOrigin;
 
 /**
@@ -48,14 +50,14 @@ class OriginLog implements ILog {
 	 * @param IOrigin $origin
 	 *
 	 * @return Logger
-	 * @throws \ILIAS\Filesystem\Exception\IOException
+	 * @throws IOException
 	 */
 	private function getLogInstance(IOrigin $origin) {
 		if (isset(self::$ilLogInstances[$origin->getId()])) {
 			return self::$ilLogInstances[$origin->getId()];
 		}
 		$filename = implode('-', [
-			\ilHub2Plugin::PLUGIN_ID,
+			ilHub2Plugin::PLUGIN_ID,
 			'origin',
 			$origin->getObjectType(),
 			$origin->getId(),

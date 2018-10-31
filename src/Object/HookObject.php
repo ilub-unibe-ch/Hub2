@@ -2,8 +2,12 @@
 
 namespace SRAG\Plugins\Hub2\Object;
 
+use ilHub2Plugin;
 use ilObject;
+use srag\DIC\DICTrait;
+use SRAG\Plugins\Hub2\Exception\HubException;
 use SRAG\Plugins\Hub2\Object\DTO\IDataTransferObject;
+use SRAG\Plugins\Hub2\Object\DTO\NullDTO;
 use SRAG\Plugins\Hub2\Sync\Processor\FakeIliasObject;
 
 /**
@@ -15,6 +19,8 @@ use SRAG\Plugins\Hub2\Sync\Processor\FakeIliasObject;
  */
 class HookObject {
 
+	use DICTrait;
+	const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
 	/**
 	 * @var IDataTransferObject
 	 */
@@ -61,9 +67,12 @@ class HookObject {
 	/**
 	 * @param int $status
 	 *
+	 * @throws HubException
 	 */
 	public function overrideStatus(int $status) {
-
+		if ($this->getDTO() instanceof NullDTO) {
+			throw new HubException("Overriding status for NullDTOs is not supported!");
+		}
 		$this->object->setStatus($status);
 	}
 
@@ -112,5 +121,13 @@ class HookObject {
 	 */
 	public function getDTO(): IDataTransferObject {
 		return $this->dto;
+	}
+
+
+	/**
+	 * @return IObject the internal AR Object, not the ILIAS Object
+	 */
+	public function getObject(): IObject {
+		return $this->object;
 	}
 }

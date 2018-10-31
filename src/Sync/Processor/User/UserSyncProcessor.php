@@ -194,7 +194,7 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
 		$mail_field = $dto->getEmail();
 		if ($mail_field) {
 			$mail = new ilMimeMail();
-			$mail->From($this->mailMimeSenderFactory()->system());
+			$mail->From(self::dic()->mailMimeSenderFactory()->system());
 			$mail->To($dto->getEmail());
 			$body = $this->props->get(UserOriginProperties::PASSWORD_MAIL_BODY);
 
@@ -240,7 +240,7 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
 	 */
 	protected function assignILIASRoles(UserDTO $user, ilObjUser $ilObjUser) {
 		foreach ($user->getIliasRoles() as $role_id) {
-			$this->rbac()->admin()->assignUser($role_id, $ilObjUser->getId());
+			self::dic()->rbacadmin()->assignUser($role_id, $ilObjUser->getId());
 		}
 	}
 
