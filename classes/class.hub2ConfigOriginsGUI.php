@@ -1,21 +1,21 @@
 <?php
 require_once __DIR__ . "/../vendor/autoload.php";
 
-use SRAG\Plugins\Hub2\Config\ArConfig;
-use SRAG\Plugins\Hub2\Exception\HubException;
-use SRAG\Plugins\Hub2\Log\OriginLog;
-use SRAG\Plugins\Hub2\Origin\AROrigin;
-use SRAG\Plugins\Hub2\Origin\IOrigin;
-use SRAG\Plugins\Hub2\Origin\IOriginRepository;
-use SRAG\Plugins\Hub2\Origin\OriginFactory;
-use SRAG\Plugins\Hub2\Origin\OriginImplementationTemplateGenerator;
-use SRAG\Plugins\Hub2\Origin\OriginRepository;
-use SRAG\Plugins\Hub2\Origin\User\ARUserOrigin;
-use SRAG\Plugins\Hub2\Sync\OriginSyncFactory;
-use SRAG\Plugins\Hub2\Sync\Summary\OriginSyncSummaryFactory;
-use SRAG\Plugins\Hub2\UI\OriginConfigFormGUI;
-use SRAG\Plugins\Hub2\UI\OriginFormFactory;
-use SRAG\Plugins\Hub2\UI\OriginsTableGUI;
+use srag\Plugins\Hub2\Config\ArConfig;
+use srag\Plugins\Hub2\Exception\HubException;
+use srag\Plugins\Hub2\Log\OriginLog;
+use srag\Plugins\Hub2\Origin\AROrigin;
+use srag\Plugins\Hub2\Origin\IOrigin;
+use srag\Plugins\Hub2\Origin\IOriginRepository;
+use srag\Plugins\Hub2\Origin\OriginFactory;
+use srag\Plugins\Hub2\Origin\OriginImplementationTemplateGenerator;
+use srag\Plugins\Hub2\Origin\OriginRepository;
+use srag\Plugins\Hub2\Origin\User\ARUserOrigin;
+use srag\Plugins\Hub2\Sync\OriginSyncFactory;
+use srag\Plugins\Hub2\Sync\Summary\OriginSyncSummaryFactory;
+use srag\Plugins\Hub2\UI\OriginConfigFormGUI;
+use srag\Plugins\Hub2\UI\OriginFormFactory;
+use srag\Plugins\Hub2\UI\OriginsTableGUI;
 
 /**
  * Class hub2ConfigOriginsGUI
@@ -119,7 +119,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI {
 		self::dic()->toolbar()->addButtonInstance($button);
 
 		$table = new OriginsTableGUI($this, self::CMD_INDEX, new OriginRepository());
-		self::dic()->template()->setContent($table->getHTML());
+		self::dic()->mainTemplate()->setContent($table->getHTML());
 	}
 
 
@@ -136,7 +136,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI {
 	 */
 	protected function addOrigin() {
 		$form = new OriginConfigFormGUI($this, new OriginRepository(), new ARUserOrigin());
-		self::dic()->template()->setContent($form->getHTML());
+		self::dic()->mainTemplate()->setContent($form->getHTML());
 	}
 
 
@@ -155,7 +155,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI {
 			self::dic()->ctrl()->redirect($this, self::CMD_EDIT_ORGIN);
 		}
 		$form->setValuesByPost();
-		self::dic()->template()->setContent($form->getHTML());
+		self::dic()->mainTemplate()->setContent($form->getHTML());
 	}
 
 
@@ -165,7 +165,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI {
 	protected function saveOrigin() {
 		/** @var AROrigin $origin */
 		$origin = $this->getOrigin((int)$_POST[self::ORIGIN_ID]);
-		self::dic()->template()->setTitle($origin->getTitle());
+		self::dic()->mainTemplate()->setTitle($origin->getTitle());
 		$form = $this->getForm($origin);
 		if ($form->checkInput()) {
 			$origin->setTitle($form->getInput('title'));
@@ -205,7 +205,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI {
 			self::dic()->ctrl()->redirect($this, self::CMD_EDIT_ORGIN);
 		}
 		$form->setValuesByPost();
-		self::dic()->template()->setContent($form->getHTML());
+		self::dic()->mainTemplate()->setContent($form->getHTML());
 	}
 
 
@@ -214,9 +214,9 @@ class hub2ConfigOriginsGUI extends hub2MainGUI {
 	 */
 	protected function editOrigin() {
 		$origin = $this->getOrigin((int)$_GET[self::ORIGIN_ID]);
-		self::dic()->template()->setTitle($origin->getTitle());
+		self::dic()->mainTemplate()->setTitle($origin->getTitle());
 		$form = $this->getForm($origin);
-		self::dic()->template()->setContent($form->getHTML());
+		self::dic()->mainTemplate()->setContent($form->getHTML());
 	}
 
 
@@ -320,7 +320,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI {
 		$c->setConfirm(self::plugin()->translate('confirm_delete_button'), self::CMD_DELETE);
 		$c->setCancel(self::plugin()->translate('cancel_delete_button'), self::CMD_INDEX);
 
-		self::dic()->template()->setContent($c->getHTML());
+		self::dic()->mainTemplate()->setContent($c->getHTML());
 	}
 
 
