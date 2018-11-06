@@ -21,6 +21,9 @@ interface IArConfig {
     const KEY_CUSTOM_VIEWS_ACTIVE = 'key_custom_views_active';
     const KEY_CUSTOM_VIEWS_PATH = 'key_custom_views_path';
     const KEY_CUSTOM_VIEWS_CLASS = 'key_custom_views_class';
+    const KEY_GLOBAL_HOCK_ACTIVE = 'key_global_hock_active';
+    const KEY_GLOBAL_HOCK_PATH = 'key_global_hock_path';
+    const KEY_GLOBAL_HOCK_CLASS = 'key_global_hock_class';
 
     /**
 	 * @var string
@@ -36,6 +39,9 @@ interface IArConfig {
     const DEFAULT_CUSTOM_VIEWS_ACTIVE  = false;
     const DEFAULT_CUSTOM_VIEWS_PATH  = '';
     const DEFAULT_CUSTOM_VIEWS_CLASS  = '';
+    const DEFAULT_GLOBAL_HOCK_ACTIVE  = false;
+    const DEFAULT_GLOBAL_HOCK_PATH  = '';
+    const DEFAULT_GLOBAL_HOCK_CLASS  = '';
 
 	/**
 	 * Get the path to the class files of origin implementations
@@ -174,5 +180,34 @@ interface IArConfig {
 	public static function removeUninstallRemovesData()/*: void*/
 	;
 
+    /**
+     * @param bool $active
+     */
+    public static function setGlobalHookActive(bool $active);
+
+    /**
+     * @return bool
+     */
+    public static function isGlobalHookActive(): bool;
+
+    /**
+     * @param string $active
+     */
+    public static function setGlobalHookPath(string $path);
+
+    /**
+     * @return string
+     */
+    public static function getGlobalHookPath(): string;
+
+    /**
+     * @param string $active
+     */
+    public static function setGlobalHookClass(string $path);
+
+    /**
+     * @return string
+     */
+    public static function getGlobalHookClass(): string;
 
 }
