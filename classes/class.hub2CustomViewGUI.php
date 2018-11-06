@@ -15,7 +15,11 @@ use srag\Plugins\Hub2\Config\ArConfig;
 class hub2CustomViewGUI {
 
 	use DICTrait;
+    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
 
+    /**
+     * @throws \srag\DIC\Exception\DICException
+     */
 	public function executeCommand()/*: void*/ {
 
         try{
@@ -28,14 +32,14 @@ class hub2CustomViewGUI {
                 throw new Exception("Class ".$class_name." not found. Note that namespaces need to be entered completely");
 
             }
-            $class = new $class_name();
+            $class = new $class_name($this);
             if(!($class instanceof BaseCustomViewGUI)){
                 throw new Exception("Class ".$class_name." is not an instance of BaseCustomViewGUI");
             }
-            $class->index();
         }catch(\Exception $e){
             ilUtil::sendInfo(self::plugin()->translate("admin_custom_view_class_not_found_1")." '"
                 .ArConfig::getCustomViewsPath()."' ".self::plugin()->translate("admin_custom_view_class_not_found_2"). " Error: " .$e->getMessage());
         }
+        $class->executeCommand();
 	}
 }
