@@ -264,7 +264,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI {
 	/**
 	 * @param bool $force_update
 	 */
-	protected function run(bool $force_update = false)/*: void*/ {
+	public function run(bool $force_update = false)/*: void*/ {
 		$summary = $this->summaryFactory->web();
 		try {
 			$global_hook = new GlobalHook();
