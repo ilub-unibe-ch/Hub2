@@ -185,6 +185,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI {
 			$origin->setTitle($form->getInput('title'));
 			$origin->setDescription($form->getInput('description'));
 			$origin->setAdHoc($form->getInput("adhoc"));
+			$origin->setAdhocParentScope($form->getInput("adhoc_parent_scope")?1:0);
 			$origin->setActive($form->getInput('active'));
 			$origin->setImplementationClassName($form->getInput('implementation_class_name'));
 			$origin->setImplementationNamespace($form->getInput('implementation_namespace'));
