@@ -130,7 +130,7 @@ class ilHub2Plugin extends ilCronHookPlugin {
 	 *
 	 * @return string
 	 */
-	public function txt($a_var): string {
+	public function txt(string $a_var): string {
 		if (!file_exists("Customizing/global/plugins/Libraries/PluginTranslator/class.sragPluginTranslator.php")) {
 			return parent::txt($a_var);
 		}
