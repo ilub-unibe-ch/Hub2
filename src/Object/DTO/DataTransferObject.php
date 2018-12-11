@@ -1,10 +1,13 @@
-<?php namespace SRAG\Plugins\Hub2\Object\DTO;
+<?php
+
+namespace SRAG\Plugins\Hub2\Object\DTO;
 
 /**
  * Class ObjectDTO
  *
+ * @package SRAG\Plugins\Hub2\Object\DTO
  * @author  Stefan Wanzenried <sw@studer-raimann.ch>
- * @package SRAG\Plugins\Hub2\Object
+ * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
 abstract class DataTransferObject implements IDataTransferObject {
 
@@ -19,7 +22,7 @@ abstract class DataTransferObject implements IDataTransferObject {
 
 
 	/**
-	 * @param $ext_id
+	 * @param string $ext_id
 	 */
 	public function __construct($ext_id) {
 		$this->ext_id = $ext_id;
@@ -85,10 +88,10 @@ abstract class DataTransferObject implements IDataTransferObject {
 	}
 
 
-	function __toString() {
+	public function __toString() {
 		return implode(', ', [
-			"ext_id: " . $this->getExtId(),
-			"period: " . $this->getPeriod(),
-		]);
+				"ext_id: " . $this->getExtId(),
+				"period: " . $this->getPeriod(),
+			]);
 	}
 }

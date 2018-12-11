@@ -7,7 +7,8 @@ use SRAG\Plugins\Hub2\Metadata\IMetadata;
 /**
  * Class CustomMetadata
  *
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @package SRAG\Plugins\Hub2\Metadata\Implementation
+ * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
 abstract class AbstractImplementation implements IMetadataImplementation {
 
@@ -24,7 +25,7 @@ abstract class AbstractImplementation implements IMetadataImplementation {
 	/**
 	 * UDF constructor.
 	 *
-	 * @param $metadata
+	 * @param IMetadata $metadata
 	 */
 	public function __construct(IMetadata $metadata, int $ilias_id) {
 		$this->metadata = $metadata;

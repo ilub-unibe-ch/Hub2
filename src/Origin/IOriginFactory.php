@@ -1,9 +1,12 @@
-<?php namespace SRAG\Plugins\Hub2\Origin;
+<?php
+
+namespace SRAG\Plugins\Hub2\Origin;
 
 /**
  * Interface IOriginFactory
  *
  * @package SRAG\Plugins\Hub2\Origin
+ * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
 interface IOriginFactory {
 
@@ -23,11 +26,17 @@ interface IOriginFactory {
 	 *
 	 * @return IOrigin
 	 */
-	public function createByType(string $type);
+	public function createByType(string $type): IOrigin;
 
 
 	/**
 	 * @return IOrigin[]
 	 */
 	public function getAllActive(): array;
+
+
+	/**
+	 * @return IOrigin[]
+	 */
+	public function getAll(): array;
 }

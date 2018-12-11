@@ -2,6 +2,8 @@
 
 namespace SRAG\Plugins\Hub2\Object\Group;
 
+use SRAG\Plugins\Hub2\MappingStrategy\IMappingStrategyAwareDataTransferObject;
+use SRAG\Plugins\Hub2\MappingStrategy\MappingStrategyAwareDataTransferObject;
 use SRAG\Plugins\Hub2\Object\DTO\DataTransferObject;
 use SRAG\Plugins\Hub2\Object\DTO\IMetadataAwareDataTransferObject;
 use SRAG\Plugins\Hub2\Object\DTO\ITaxonomyAwareDataTransferObject;
@@ -11,16 +13,18 @@ use SRAG\Plugins\Hub2\Object\DTO\TaxonomyAwareDataTransferObject;
 /**
  * Class GroupDTO
  *
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @package SRAG\Plugins\Hub2\Object\Group
+ * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferObject, ITaxonomyAwareDataTransferObject {
+class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferObject, ITaxonomyAwareDataTransferObject, IMappingStrategyAwareDataTransferObject {
 
 	use MetadataAwareDataTransferObject;
 	use TaxonomyAwareDataTransferObject;
+	use MappingStrategyAwareDataTransferObject;
 	// View
 	const VIEW_BY_TYPE = 5;
 	// Registration
-	const GRP_REGISTRATION_DEACTIVATED = - 1;
+	const GRP_REGISTRATION_DEACTIVATED = -1;
 	const GRP_REGISTRATION_DIRECT = 0;
 	const GRP_REGISTRATION_REQUEST = 1;
 	const GRP_REGISTRATION_PASSWORD = 2;
@@ -113,7 +117,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
 	 */
 	protected $latitude;
 	/**
-	 * @var  float
+	 * @var float
 	 */
 	protected $longitude;
 	/**

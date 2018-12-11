@@ -2,17 +2,16 @@
 
 namespace SRAG\Plugins\Hub2\Jobs\Result;
 
-require_once('./Services/Cron/classes/class.ilCronJobResult.php');
-
 /**
  * Class AbstractResult
  *
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @package SRAG\Plugins\Hub2\Jobs\Result
+ * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
 class ResultFactory {
 
 	/**
-	 * @param $message
+	 * @param string $message
 	 *
 	 * @return OK
 	 */
@@ -22,7 +21,7 @@ class ResultFactory {
 
 
 	/**
-	 * @param $message
+	 * @param string $message
 	 *
 	 * @return Error
 	 */

@@ -2,6 +2,15 @@
 
 namespace SRAG\Plugins\Hub2\UI;
 
+use ActiveRecordList;
+use hub2DataGUI;
+use ilCheckboxInputGUI;
+use ilFormPropertyGUI;
+use ilHub2Plugin;
+use ilSelectInputGUI;
+use ilTable2GUI;
+use ilTextInputGUI;
+use ReflectionClass;
 use SRAG\Plugins\Hub2\Helper\DIC;
 use SRAG\Plugins\Hub2\Object\Category\ARCategory;
 use SRAG\Plugins\Hub2\Object\Course\ARCourse;
@@ -9,49 +18,64 @@ use SRAG\Plugins\Hub2\Object\CourseMembership\ARCourseMembership;
 use SRAG\Plugins\Hub2\Object\Group\ARGroup;
 use SRAG\Plugins\Hub2\Object\GroupMembership\ARGroupMembership;
 use SRAG\Plugins\Hub2\Object\IObject;
-use SRAG\Plugins\Hub2\Object\IObjectRepository;
+use SRAG\Plugins\Hub2\Object\OrgUnit\AROrgUnit;
+use SRAG\Plugins\Hub2\Object\OrgUnitMembership\AROrgUnitMembership;
 use SRAG\Plugins\Hub2\Object\Session\ARSession;
 use SRAG\Plugins\Hub2\Object\SessionMembership\ARSessionMembership;
 use SRAG\Plugins\Hub2\Object\User\ARUser;
-use SRAG\Plugins\Hub2\Origin\OriginFactory;
 use SRAG\Plugins\Hub2\Origin\IOrigin;
-use  SRAG\Plugins\Hub2\Object\CourseMembership\CourseMembershipDTO;
+use SRAG\Plugins\Hub2\Origin\IOriginRepository;
+use SRAG\Plugins\Hub2\Origin\OriginFactory;
+use SRAG\Plugins\Hub2\Shortlink\ObjectLinkFactory;
+
 /**
- * class OriginsTableGUI
+ * Class OriginsTableGUI
  *
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @package SRAG\Plugins\Hub2\UI
+ * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-class DataTableGUI extends \ilTable2GUI {
+class DataTableGUI extends ilTable2GUI {
 
 	use DIC;
 	const F_ORIGIN_ID = 'origin_id';
 	const F_EXT_ID = 'ext_id';
 	/**
+	 * @var ObjectLinkFactory
+	 */
+	protected $originLinkfactory;
+	/**
 	 * @var array
 	 */
 	protected $filtered = [];
 	/**
-	 * @var \SRAG\Plugins\Hub2\Origin\OriginFactory
+	 * @var OriginFactory
 	 */
 	protected $originFactory;
 	/**
 	 * @var int
 	 */
 	protected $a_parent_obj;
+	/**
+	 * @var ilHub2Plugin
+	 */
 	protected $pl;
+	/**
+	 * @var IOriginRepository
+	 */
 	protected $originRepository;
 
 
 	/**
 	 * DataTableGUI constructor.
 	 *
-	 * @param \hub2DataGUI $a_parent_obj
-	 * @param string       $a_parent_cmd
+	 * @param hub2DataGUI $a_parent_obj
+	 * @param string      $a_parent_cmd
 	 */
-	public function __construct(\hub2DataGUI $a_parent_obj, $a_parent_cmd) {
-		$this->pl = \ilHub2Plugin::getInstance();
+	public function __construct(hub2DataGUI $a_parent_obj, $a_parent_cmd) {
+		$this->pl = ilHub2Plugin::getInstance();
 		$this->a_parent_obj = $a_parent_obj;
 		$this->originFactory = new OriginFactory($this->db());
+		$this->originLinkfactory = new ObjectLinkFactory($this->db());
 		$this->setPrefix('hub2_');
 		$this->setId('origins');
 		$this->setTitle($this->pl->txt('hub_origins'));
@@ -60,6 +84,13 @@ class DataTableGUI extends \ilTable2GUI {
 		$this->setRowTemplate('tpl.std_row_template.html', 'Services/ActiveRecord');
 		$this->initFilter();
 		$this->initColumns();
+		$this->setExternalSegmentation(true);
+		$this->setExternalSorting(true);
+		$this->determineLimit();
+		if($this->getLimit() > 999){
+		    $this->setLimit(999);
+        }
+        $this->determineOffsetAndOrder();
 		$this->initTableData();
 	}
 
@@ -68,30 +99,30 @@ class DataTableGUI extends \ilTable2GUI {
 	 * @inheritDoc
 	 */
 	public function initFilter() {
-		$origin = new \ilSelectInputGUI($this->pl->txt('data_table_header_origin_id'), 'origin_id');
+		$origin = new ilSelectInputGUI($this->pl->txt('data_table_header_origin_id'), 'origin_id');
 		$origin->setOptions($this->getAvailableOrigins());
 		$this->addAndReadFilterItem($origin);
 
 		// Status
-		$status = new \ilSelectInputGUI($this->pl->txt('data_table_header_status'), 'status');
+		$status = new ilSelectInputGUI($this->pl->txt('data_table_header_status'), 'status');
 		$status->setOptions($this->getAvailableStatus());
 		$this->addAndReadFilterItem($status);
 
-		$ext_id = new \ilTextInputGUI($this->pl->txt('data_table_header_ext_id'), 'ext_id');
+		$ext_id = new ilTextInputGUI($this->pl->txt('data_table_header_ext_id'), 'ext_id');
 		$this->addAndReadFilterItem($ext_id);
 
-		$data = new \ilTextInputGUI($this->pl->txt('data_table_header_data'), 'data');
+		$data = new ilTextInputGUI($this->pl->txt('data_table_header_data'), 'data');
 		$this->addAndReadFilterItem($data);
 	}
 
 
 	/**
-	 * @param $item
+	 * @param ilFormPropertyGUI $item
 	 */
-	protected function addAndReadFilterItem(\ilFormPropertyGUI $item) {
+	protected function addAndReadFilterItem(ilFormPropertyGUI $item) {
 		$this->addFilterItem($item);
 		$item->readFromSession();
-		if ($item instanceof \ilCheckboxInputGUI) {
+		if ($item instanceof ilCheckboxInputGUI) {
 			$this->filtered[$item->getPostVar()] = $item->getChecked();
 		} else {
 			$this->filtered[$item->getPostVar()] = $item->getValue();
@@ -99,6 +130,9 @@ class DataTableGUI extends \ilTable2GUI {
 	}
 
 
+	/**
+	 *
+	 */
 	protected function initColumns() {
 		foreach ($this->getFields() as $field) {
 			$this->addColumn($this->pl->txt('data_table_header_' . $field), $field);
@@ -107,6 +141,9 @@ class DataTableGUI extends \ilTable2GUI {
 	}
 
 
+	/**
+	 *
+	 */
 	protected function initTableData() {
 		$fields = $this->getFields();
 		$classes = [
@@ -118,10 +155,12 @@ class DataTableGUI extends \ilTable2GUI {
 			ARCourseMembership::class,
 			ARGroupMembership::class,
 			ARSessionMembership::class,
+			AROrgUnit::class,
+			AROrgUnitMembership::class,
 		];
 		$data = [];
 		/**
-		 * @var $collection \ActiveRecordList
+		 * @var ActiveRecordList $collection
 		 */
 		foreach ($classes as $class) {
 			$collection = $class::getCollection();
@@ -131,7 +170,7 @@ class DataTableGUI extends \ilTable2GUI {
 				}
 				switch ($postvar) {
 					case 'data':
-                    case 'ext_id':
+					case 'ext_id':
 						$str = "%{$value}%";
 						$collection = $collection->where([ $postvar => $str ], 'LIKE');
 						break;
@@ -140,9 +179,25 @@ class DataTableGUI extends \ilTable2GUI {
 						break;
 				}
 			}
-			$data = array_merge($data, $collection->getArray(null, $fields));
+			$data = array_merge($data, $collection->getArray(NULL, $fields));
 		}
 
+		uasort($data, function($valuesA,$valuesB) {
+            $a = $valuesA[$this->getOrderField()];
+            $b = $valuesB[$this->getOrderField()];
+
+            if ($a == $b) {
+                return 0;
+            }
+
+            if($this->getOrderDirection() == "asc"){
+                return ($a < $b) ? -1 : 1;
+            }
+            return ($a < $b) ? 1 : -1;
+        });
+
+		$this->setMaxCount(count($data));
+        $data = array_slice($data,$this->getOffset(),$this->getLimit());
 		$this->setData($data);
 	}
 
@@ -152,26 +207,25 @@ class DataTableGUI extends \ilTable2GUI {
 	 */
 	protected function fillRow($a_set) {
 		$this->ctrl()->setParameter($this->parent_obj, self::F_EXT_ID, $a_set[self::F_EXT_ID]);
-		$this->ctrl()
-		     ->setParameter($this->parent_obj, self::F_ORIGIN_ID, $a_set[self::F_ORIGIN_ID]);
+		$this->ctrl()->setParameter($this->parent_obj, self::F_ORIGIN_ID, $a_set[self::F_ORIGIN_ID]);
 
-        $origin = $this->originFactory->getById($a_set[self::F_ORIGIN_ID]);
+		$origin = $this->originFactory->getById($a_set[self::F_ORIGIN_ID]);
 
-        foreach ($a_set as $key => $value) {
+		foreach ($a_set as $key => $value) {
 			$this->tpl->setCurrentBlock('cell');
 			switch ($key) {
 				case 'status':
 					$this->tpl->setVariable('VALUE', $this->getAvailableStatus()[$value]);
 					break;
-                case self::F_EXT_ID:
-                    $this->tpl->setVariable('VALUE', $this->getILIASLinkForIliasId($value,$a_set['ilias_id'],$origin));
-                    break;
+				case self::F_EXT_ID:
+					$this->tpl->setVariable('VALUE', $this->renderILIASLinkForIliasId($value, $origin));
+					break;
 				case self::F_ORIGIN_ID:
-					if(!$origin){
-                        $this->tpl->setVariable('VALUE', " Origin deleted");
-                    }else{
-                        $this->tpl->setVariable('VALUE', $origin->getTitle());
-                    }
+					if (!$origin) {
+						$this->tpl->setVariable('VALUE', " Origin deleted");
+					} else {
+						$this->tpl->setVariable('VALUE', $origin->getTitle());
+					}
 					break;
 				default:
 					$this->tpl->setVariable('VALUE', $value ? $value : "&nbsp;");
@@ -184,12 +238,10 @@ class DataTableGUI extends \ilTable2GUI {
 		// Adds view Glyph
 		$factory = $this->ui()->factory();
 		$renderer = $this->ui()->renderer();
-		$modal = $factory->modal()
-		                 ->roundtrip($a_set[self::F_EXT_ID], $factory->legacy(''))
-		                 ->withAsyncRenderUrl($this->ctrl()
-		                                           ->getLinkTarget($this->parent_obj, 'renderData', '', true));
+		$modal = $factory->modal()->roundtrip($a_set[self::F_EXT_ID], $factory->legacy(''))->withAsyncRenderUrl($this->ctrl()
+			->getLinkTarget($this->parent_obj, 'renderData', '', true));
 
-		$button = $factory->button()->shy("View", "#")->withOnClick($modal->getShowSignal());
+		$button = $factory->button()->shy($this->pl->txt("data_table_header_view"), "#")->withOnClick($modal->getShowSignal());
 
 		$this->tpl->setCurrentBlock('cell');
 		$this->tpl->setVariable('VALUE', $renderer->render([ $button, $modal ]));
@@ -198,37 +250,24 @@ class DataTableGUI extends \ilTable2GUI {
 		$this->ctrl()->clearParameters($this->parent_obj);
 	}
 
-    /**
-     * @param $ext_id
-     * @param $ilias_id
-     * @param IOrigin $origin
-     * @return string
-     */
-	protected function getILIASLinkForIliasId($ext_id,$ilias_id,$origin){
-	    if(!$origin){
-	        return $ext_id;
-        }
 
-        $button_factory = $this->ui()->factory()->button();
-        $renderer = $this->ui()->renderer();
-        switch($origin->getObjectType()){
-            case IOrigin::OBJECT_TYPE_COURSE:
-            case IOrigin::OBJECT_TYPE_CATEGORY:
-            case IOrigin::OBJECT_TYPE_GROUP:
-            case IOrigin::OBJECT_TYPE_SESSION:
-                return $renderer->render($button_factory->shy($ext_id,\ilLink::_getLink($ilias_id)));
-            case IOrigin::OBJECT_TYPE_SESSION_MEMBERSHIP:
-            case IOrigin::OBJECT_TYPE_GROUP_MEMBERSHIP:
-            case IOrigin::OBJECT_TYPE_COURSE_MEMBERSHIP:
-                $container_id = CourseMembershipDTO::loadInstanceWithConcatenatedId($ilias_id)->getCourseId();
-                return $renderer->render($button_factory->shy($ext_id,\ilLink::_getLink($container_id)));
-            case IOrigin::OBJECT_TYPE_USER:
-                $this->ctrl()->setParameterByClass("ilobjusergui","ref_id",7);
-                $this->ctrl()->setParameterByClass("ilobjusergui","obj_id",$ilias_id);
-                $url = $this->ctrl()->getLinkTargetByClass(["ilAdministrationGUI","ilobjusergui"],"view");
-                return $renderer->render($button_factory->shy($ext_id,$url));
-        }
-    }
+	/**
+	 * @param string  $ext_id
+	 * @param IOrigin $origin
+	 *
+	 * @return string
+	 */
+	protected function renderILIASLinkForIliasId($ext_id, IOrigin $origin) {
+		if (!$origin) {
+			return $ext_id;
+		}
+
+		$link = $this->originLinkfactory->findByExtIdAndOrigin($ext_id, $origin);
+		$button_factory = $this->ui()->factory()->button();
+		$renderer = $this->ui()->renderer();
+
+		return $renderer->render($button_factory->shy($ext_id, $link->getAccessGrantedInternalLink()));
+	}
 
 
 	/**
@@ -257,11 +296,11 @@ class DataTableGUI extends \ilTable2GUI {
 		if (is_array($status)) {
 			return $status;
 		}
-		$r = new \ReflectionClass(IObject::class);
-		$status = [ 0 => "ALL" ];
+		$r = new ReflectionClass(IObject::class);
+		$status = [ 0 => $this->pl->txt("data_table_all") ];
 		foreach ($r->getConstants() as $name => $value) {
 			if (strpos($name, "STATUS_") === 0) {
-				$status[$value] = $name;
+				$status[$value] = $name; // TODO: Translate status
 			}
 		}
 
@@ -278,8 +317,8 @@ class DataTableGUI extends \ilTable2GUI {
 			return $origins;
 		}
 
-		$origins = [ 0 => "ALL" ];
-		foreach ($this->originFactory->getAllActive() as $origin) {
+		$origins = [ 0 => $this->pl->txt("data_table_all") ];
+		foreach ($this->originFactory->getAll() as $origin) {
 			$origins[$origin->getId()] = $origin->getTitle();
 		}
 

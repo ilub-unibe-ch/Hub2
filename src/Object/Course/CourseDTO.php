@@ -2,24 +2,25 @@
 
 namespace SRAG\Plugins\Hub2\Object\Course;
 
+use InvalidArgumentException;
 use SRAG\Plugins\Hub2\Exception\LanguageCodeException;
-use SRAG\Plugins\Hub2\Metadata\IMetadata;
+use SRAG\Plugins\Hub2\MappingStrategy\IMappingStrategyAwareDataTransferObject;
+use SRAG\Plugins\Hub2\MappingStrategy\MappingStrategyAwareDataTransferObject;
 use SRAG\Plugins\Hub2\Object\DTO\DataTransferObject;
-use SRAG\Plugins\Hub2\Object\DTO\IMetadataAwareDataTransferObject;
 use SRAG\Plugins\Hub2\Object\DTO\ITaxonomyAndMetadataAwareDataTransferObject;
-use SRAG\Plugins\Hub2\Object\DTO\ITaxonomyAwareDataTransferObject;
 use SRAG\Plugins\Hub2\Object\DTO\TaxonomyAndMetadataAwareDataTransferObject;
-use SRAG\Plugins\Hub2\Taxonomy\ITaxonomy;
 
 /**
  * Class CourseDTO
  *
+ * @package SRAG\Plugins\Hub2\Object\Course
  * @author  Stefan Wanzenried <sw@studer-raimann.ch>
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareDataTransferObject {
+class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareDataTransferObject, IMappingStrategyAwareDataTransferObject {
 
 	use TaxonomyAndMetadataAwareDataTransferObject;
+	use MappingStrategyAwareDataTransferObject;
 	// @see ilCourseConstants
 	const SUBSCRIPTION_TYPE_DEACTIVATED = 1;
 	const SUBSCRIPTION_TYPE_REQUEST_MEMBERSHIP = 2;
@@ -54,26 +55,152 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 		self::VIEW_MODE_SIMPLE,
 		self::VIEW_MODE_BY_TYPE,
 	];
-
 	/**
 	 * Copied from ilMDLanguageItem::_getPossibleLanguageCodes
+	 *
 	 * @var string[]
 	 */
-	private static $available_languages = ["aa","ab","af","am","ar","as","ay","az","ba","be","bg","bh",
-					 "bi","bn","bo","br","ca","co","cs","cy","da","de","dz","el","en","eo",
-					 "es","et","eu","fa","fi","fj","fo","fr","fy","ga","gd","gl","gn","gu",
-					 "ha","he","hi","hr","hu","hy","ia","ie","ik","id","is","it","iu","ja",
-					 "jv","ka","kk","kl","km","kn","ko","ks","ku","ky","la","ln",
-					 "lo","lt","lv","mg","mi","mk","ml","mn","mo","mr","ms","mt",
-					 "my","na","ne","nl","no","oc","om","or","pa","pl","ps","pt",
-					 "qu","rm","rn","ro",
-					 "ru","rw",
-					 "sa","sd","sg","sh","si","sk","sl","sm","sn","so","sq","sr","ss","st",
-					 "su","sv","sw","ta","te","tg","th","ti","tk","tl","tn","to","tr","ts",
-					 "tt","tw","ug","uk","ur","uz","vi","vo","wo","xh","yi","yo","za","zh",
-					 "zu"];
-
-
+	private static $available_languages = [
+		"aa",
+		"ab",
+		"af",
+		"am",
+		"ar",
+		"as",
+		"ay",
+		"az",
+		"ba",
+		"be",
+		"bg",
+		"bh",
+		"bi",
+		"bn",
+		"bo",
+		"br",
+		"ca",
+		"co",
+		"cs",
+		"cy",
+		"da",
+		"de",
+		"dz",
+		"el",
+		"en",
+		"eo",
+		"es",
+		"et",
+		"eu",
+		"fa",
+		"fi",
+		"fj",
+		"fo",
+		"fr",
+		"fy",
+		"ga",
+		"gd",
+		"gl",
+		"gn",
+		"gu",
+		"ha",
+		"he",
+		"hi",
+		"hr",
+		"hu",
+		"hy",
+		"ia",
+		"ie",
+		"ik",
+		"id",
+		"is",
+		"it",
+		"iu",
+		"ja",
+		"jv",
+		"ka",
+		"kk",
+		"kl",
+		"km",
+		"kn",
+		"ko",
+		"ks",
+		"ku",
+		"ky",
+		"la",
+		"ln",
+		"lo",
+		"lt",
+		"lv",
+		"mg",
+		"mi",
+		"mk",
+		"ml",
+		"mn",
+		"mo",
+		"mr",
+		"ms",
+		"mt",
+		"my",
+		"na",
+		"ne",
+		"nl",
+		"no",
+		"oc",
+		"om",
+		"or",
+		"pa",
+		"pl",
+		"ps",
+		"pt",
+		"qu",
+		"rm",
+		"rn",
+		"ro",
+		"ru",
+		"rw",
+		"sa",
+		"sd",
+		"sg",
+		"sh",
+		"si",
+		"sk",
+		"sl",
+		"sm",
+		"sn",
+		"so",
+		"sq",
+		"sr",
+		"ss",
+		"st",
+		"su",
+		"sv",
+		"sw",
+		"ta",
+		"te",
+		"tg",
+		"th",
+		"ti",
+		"tk",
+		"tl",
+		"tn",
+		"to",
+		"tr",
+		"ts",
+		"tt",
+		"tw",
+		"ug",
+		"uk",
+		"ur",
+		"uz",
+		"vi",
+		"vo",
+		"wo",
+		"xh",
+		"yi",
+		"yo",
+		"za",
+		"zh",
+		"zu"
+	];
 	/**
 	 * @var array
 	 */
@@ -157,12 +284,24 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 	 * @var int
 	 */
 	protected $activationType = self::ACTIVATION_OFFLINE;
-
-
 	/**
 	 * @var string
 	 */
 	protected $languageCode = 'en';
+	/**
+	 * @var int
+	 */
+	protected $didacticTemplate;
+	/**
+	 * @var string
+	 */
+	protected $icon;
+
+	/**
+	 * @var \Serializable
+	 */
+	protected $additionalData;
+
 
 	/**
 	 * @return string
@@ -379,7 +518,7 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 	 */
 	public function setSubscriptionLimitationType($subscriptionLimitationType) {
 		if (!in_array($subscriptionLimitationType, self::$subscriptionTypes)) {
-			throw new \InvalidArgumentException("Given $subscriptionLimitationType does not exist");
+			throw new InvalidArgumentException("Given $subscriptionLimitationType does not exist");
 		}
 		$this->subscriptionLimitationType = $subscriptionLimitationType;
 
@@ -402,7 +541,7 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 	 */
 	public function setViewMode($viewMode) {
 		if (!in_array($viewMode, self::$viewModes)) {
-			throw new \InvalidArgumentException("Given $viewMode does not exist");
+			throw new InvalidArgumentException("Given $viewMode does not exist");
 		}
 		$this->viewMode = $viewMode;
 
@@ -445,7 +584,7 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 	 */
 	public function setParentIdType($parentIdType) {
 		if (!in_array($parentIdType, self::$parentIdTypes)) {
-			throw new \InvalidArgumentException("Invalid parentIdType given '$parentIdType'");
+			throw new InvalidArgumentException("Invalid parentIdType given '$parentIdType'");
 		}
 		$this->parentIdType = $parentIdType;
 
@@ -462,7 +601,7 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 
 
 	/**
-	 * @param $syllabus
+	 * @param string $syllabus
 	 *
 	 * @return CourseDTO
 	 */
@@ -482,7 +621,7 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 
 
 	/**
-	 * @param $contactName
+	 * @param string $contactName
 	 *
 	 * @return CourseDTO
 	 */
@@ -502,7 +641,7 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 
 
 	/**
-	 * @param $contactConsultation
+	 * @param string $contactConsultation
 	 *
 	 * @return CourseDTO
 	 */
@@ -522,7 +661,7 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 
 
 	/**
-	 * @param $contactPhone
+	 * @param string $contactPhone
 	 *
 	 * @return CourseDTO
 	 */
@@ -542,7 +681,7 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 
 
 	/**
-	 * @param $activationType
+	 * @param int $activationType
 	 *
 	 * @return CourseDTO
 	 */
@@ -552,35 +691,93 @@ class CourseDTO extends DataTransferObject implements ITaxonomyAndMetadataAwareD
 		return $this;
 	}
 
+
 	/**
 	 * @return string
 	 */
-	public function getLanguageCode()
-	{
+	public function getLanguageCode() {
 		return $this->languageCode;
 	}
 
+
 	/**
-	 * @param $languageCode
-	 * @return $this
+	 * @param string $languageCode
+	 *
+	 * @return CourseDTO
 	 * @throws LanguageCodeException
 	 */
-	public function setLanguageCode($languageCode)
-	{
-		if(!self::isLanguageCode($languageCode))
-		{
+	public function setLanguageCode($languageCode): CourseDTO {
+		if (!self::isLanguageCode($languageCode)) {
 			throw new LanguageCodeException($languageCode);
 		}
 
 		$this->languageCode = $languageCode;
+
+		return $this;
+	}
+
+
+	/**
+	 * @return int
+	 */
+	public function getDidacticTemplate(): int {
+		return (int)$this->didacticTemplate;
+	}
+
+
+	/**
+	 * @param int $didacticTemplate
+	 *
+	 * @return CourseDTO
+	 */
+	public function setDidacticTemplate(int $didacticTemplate): CourseDTO {
+		$this->didacticTemplate = $didacticTemplate;
+
+		return $this;
+	}
+
+
+	/**
+	 * @return string
+	 */
+	public function getIcon(): string {
+		return is_string($this->icon) ? $this->icon : '';
+	}
+
+
+	/**
+	 * @param string $icon
+	 *
+	 * @return CourseDTO
+	 */
+	public function setIcon(string $icon): CourseDTO {
+		$this->icon = $icon;
+
 		return $this;
 	}
 
 	/**
-	 * @param $languageCode
+	 * @return \Serializable
+	 */
+	public function getAdditionalData(): \Serializable
+	{
+		return unserialize($this->additionalData);
+	}
+
+	/**
+	 * @param \Serializable $additionalData
+	 */
+	public function setAdditionalData(\Serializable $additionalData)
+	{
+		$this->additionalData = serialize($additionalData);
+	}
+
+	/**
+	 * @param string $languageCode
+	 *
 	 * @return bool
 	 */
-	public static function isLanguageCode($languageCode){
-		return in_array($languageCode,self::$available_languages);
+	public static function isLanguageCode($languageCode): bool {
+		return in_array($languageCode, self::$available_languages);
 	}
 }

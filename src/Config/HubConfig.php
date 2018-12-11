@@ -5,8 +5,9 @@ namespace SRAG\Plugins\Hub2\Config;
 /**
  * Class HubConfig
  *
- * @author  Stefan Wanzenried <sw@studer-raimann.ch>
  * @package SRAG\Plugins\Hub2\Config
+ * @author  Stefan Wanzenried <sw@studer-raimann.ch>
+ * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
 class HubConfig implements IHubConfig {
 
@@ -23,24 +24,24 @@ class HubConfig implements IHubConfig {
 	/**
 	 * @inheritdoc
 	 */
-	public function getShortLinkNoObject() {
-		return ArConfig::getValueByKey(IHubConfig::SHORTLINK_NOT_FOUND);
+	public function getShortLinkObjectNotFound() {
+		return ArConfig::getValueByKey(IHubConfig::SHORTLINK_OBJECT_NOT_FOUND);
 	}
 
 
 	/**
 	 * @inheritdoc
 	 */
-	public function getShortLinkNoILIASId() {
-		return ArConfig::getValueByKey(IHubConfig::SHORTLINK_NO_ILIAS_ID);
+	public function getShortLinkObjectNotAccessible() {
+		return ArConfig::getValueByKey(IHubConfig::SHORTLINK_OBJECT_NOT_ACCESSIBLE);
 	}
 
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
-	public function getShortLinkNotActive() {
-		return ArConfig::getValueByKey(IHubConfig::SHORTLINK_NOT_ACTIVE);
+	public function getShortlinkSuccess() {
+		return ArConfig::getValueByKey(IHubConfig::SHORTLINK_SUCCESS);
 	}
 
 
@@ -59,9 +60,11 @@ class HubConfig implements IHubConfig {
 		$roles = ArConfig::getValueByKey(IHubConfig::ADMINISTRATE_HUB_ROLE_IDS);
 		$roles = explode(',', $roles);
 
-		return array_map(function ($id) {
-			return (int)$id;
-		}, $roles);
+		return array_map(
+			function ($id) {
+				return (int)$id;
+			}, $roles
+		);
 	}
 
 

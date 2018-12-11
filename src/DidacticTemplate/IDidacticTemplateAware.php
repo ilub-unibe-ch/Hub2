@@ -3,12 +3,13 @@
 /**
  * Interface IDidacticTemplateAware
  *
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @package
+ * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
 interface IDidacticTemplateAware {
 
 	/**
-	 * @param $id
+	 * @param int $id
 	 */
 	public function setTemplateId($id);
 }

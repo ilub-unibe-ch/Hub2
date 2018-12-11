@@ -1,16 +1,19 @@
 <?php
 
-require_once('./Customizing/global/plugins/Services/Cron/CronHook/Hub2/vendor/autoload.php');
+use SRAG\Plugins\Hub2\Helper\DIC;
+
+require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
  * Class ilHub2ConfigGUI
  *
- * @author Stefan Wanzenried <sw@studer-raimann.ch>
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @package
+ * @author  Stefan Wanzenried <sw@studer-raimann.ch>
+ * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
 class ilHub2ConfigGUI extends ilPluginConfigGUI {
 
-	use \SRAG\Plugins\Hub2\Helper\DIC;
+	use DIC;
 
 
 	/**
@@ -30,7 +33,7 @@ class ilHub2ConfigGUI extends ilPluginConfigGUI {
 
 
 	/**
-	 * @param $cmd
+	 * @param string $cmd
 	 */
 	public function performCommand($cmd) {
 		// noting to to here
