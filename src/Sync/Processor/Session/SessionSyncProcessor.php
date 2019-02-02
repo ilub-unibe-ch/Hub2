@@ -6,6 +6,8 @@ use ilDateTime;
 use ilObject2;
 use ilObjSession;
 use ilSessionAppointment;
+use ilMD;
+use ilMDLanguageItem;
 use srag\Plugins\Hub2\Exception\HubException;
 use srag\Plugins\Hub2\Notification\OriginNotifications;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
@@ -112,6 +114,7 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 		 */
 		$ilObjSession->getFirstAppointment()->setSessionId($ilObjSession->getId());
 		$ilObjSession->getFirstAppointment()->create();
+        $this->setLanguage($dto, $ilObjSession);
 
 		return $ilObjSession;
 	}
@@ -142,6 +145,10 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 		$ilObjSession->update();
 		$ilObjSession->getFirstAppointment()->update();
 
+        if ($this->props->updateDTOProperty("languageCode")) {
+            $this->setLanguage($dto, $ilObjSession);
+        }
+
 		return $ilObjSession;
 	}
 
@@ -170,6 +177,16 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 		return $ilObjSession;
 	}
 
+    /**
+     * @param SessionDTO $dto
+     * @param ilObjSession $ilObjCourse
+     */
+    protected function setLanguage(SessionDTO $dto, ilObjSession $ilObjCourse) {
+        $md_general = (new ilMD($ilObjCourse->getId()))->getGeneral();
+        $language = $md_general->getLanguage(array_pop($md_general->getLanguageIds()));
+        $language->setLanguage(new ilMDLanguageItem($dto->getLanguageCode()));
+        $language->update();
+    }
 
 	/**
 	 * @param int $ilias_id

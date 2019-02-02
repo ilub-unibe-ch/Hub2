@@ -2,6 +2,8 @@
 
 namespace srag\Plugins\Hub2\Object\Session;
 
+use srag\Plugins\Hub2\Exception\LanguageCodeException;
+use srag\Plugins\Hub2\Object\Course\CourseDTO;
 use srag\Plugins\Hub2\Object\DTO\DataTransferObject;
 use srag\Plugins\Hub2\Object\DTO\MetadataAwareDataTransferObject;
 use srag\Plugins\Hub2\Object\DTO\TaxonomyAwareDataTransferObject;
@@ -88,7 +90,10 @@ class SessionDTO extends DataTransferObject implements ISessionDTO {
 	 * @var int
 	 */
 	protected $end;
-
+    /**
+     * @var string
+     */
+    protected $languageCode = 'en';
 
 	/**
 	 * @return string
@@ -448,4 +453,27 @@ class SessionDTO extends DataTransferObject implements ISessionDTO {
 
 		return $this;
 	}
+
+    /**
+     * @return string
+     */
+    public function getLanguageCode() {
+        return $this->languageCode;
+    }
+
+
+    /**
+     * @param $languageCode
+     * @return SessionDTO
+     * @throws LanguageCodeException
+     */
+    public function setLanguageCode($languageCode): SessionDTO {
+        if (!CourseDTO::isLanguageCode($languageCode)) {
+            throw new LanguageCodeException($languageCode);
+        }
+
+        $this->languageCode = $languageCode;
+
+        return $this;
+    }
 }

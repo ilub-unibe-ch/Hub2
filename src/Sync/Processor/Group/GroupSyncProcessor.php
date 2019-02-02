@@ -5,6 +5,8 @@ namespace srag\Plugins\Hub2\Sync\Processor\Group;
 use ilDate;
 use ilObjGroup;
 use ilRepUtil;
+use ilMD;
+use ilMDLanguageItem;
 use srag\Plugins\Hub2\Exception\HubException;
 use srag\Plugins\Hub2\Notification\OriginNotifications;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
@@ -152,6 +154,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 		$ilObjGroup->setPermissions($parentRefId);
 
 		$this->handleAppointementsColor($ilObjGroup,$dto);
+        $this->setLanguage($dto, $ilObjGroup);
 
 		return $ilObjGroup;
 	}
@@ -214,7 +217,9 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 		if ($this->props->updateDTOProperty("appointementsColor")){
 			$this->handleAppointementsColor($ilObjGroup,$dto);
 		}
-
+        if ($this->props->updateDTOProperty("languageCode")) {
+            $this->setLanguage($dto, $ilObjGroup);
+        }
 		if ($this->props->get(GroupProperties::MOVE_GROUP)) {
 			$this->moveGroup($ilObjGroup, $dto);
 		}
@@ -277,6 +282,16 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 		return $ilObjGroup;
 	}
 
+    /**
+     * @param GroupDTO $dto
+     * @param ilObjGroup $ilObjCourse
+     */
+    protected function setLanguage(GroupDTO $dto, ilObjGroup $ilObjCourse) {
+        $md_general = (new ilMD($ilObjCourse->getId()))->getGeneral();
+        $language = $md_general->getLanguage(array_pop($md_general->getLanguageIds()));
+        $language->setLanguage(new ilMDLanguageItem($dto->getLanguageCode()));
+        $language->update();
+    }
 
 	/**
 	 * @param GroupDTO $group
