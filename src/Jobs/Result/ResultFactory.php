@@ -15,7 +15,7 @@ final class ResultFactory {
 	/**
 	 * @param string $message
 	 *
-	 * @return AbstractResult
+	 * @return OK
 	 */
 	public static function ok(string $message): ilCronJobResult {
 		return new OK($message);
@@ -25,7 +25,7 @@ final class ResultFactory {
 	/**
 	 * @param string $message
 	 *
-	 * @return AbstractResult
+	 * @return Error
 	 */
 	public static function error(string $message): ilCronJobResult {
 		return new Error($message);

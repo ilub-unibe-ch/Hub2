@@ -176,7 +176,9 @@ class RunSync extends ilCronJob {
 
 			return ResultFactory::ok("everything's fine.");
 		} catch (Throwable $e) {
-			return ResultFactory::error("there was an error");
+		    $result = ResultFactory::error("there was an error");
+		    $result->setError($e);
+			return $result;
 		}
 	}
 }
