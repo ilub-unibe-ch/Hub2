@@ -97,7 +97,7 @@ abstract class AbstractOriginImplementation implements IOriginImplementation {
 	 *
 	 * @return ILog
 	 */
-	protected final function log(IDataTransferObject $dto = NULL): ILog {
+	protected function log(IDataTransferObject $dto = NULL): ILog {
 		return self::logs()->originLog($this->origin, NULL, $dto);
 	}
 
