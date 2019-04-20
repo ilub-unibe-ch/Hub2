@@ -2,6 +2,9 @@
 
 namespace srag\Plugins\Hub2\Sync\Processor\Course;
 
+use ilCalendarCategory;
+use ilContainer;
+use ilContainerSortingSettings;
 use ilCopyWizardOptions;
 use ilLink;
 use ilMailMimeSenderFactory;
@@ -14,7 +17,6 @@ use ilRepUtil;
 use ilSession;
 use ilSoapFunctions;
 use srag\Plugins\Hub2\Exception\HubException;
-use srag\Plugins\Hub2\Notification\OriginNotifications;
 use srag\Plugins\Hub2\Object\Course\CourseDTO;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 use srag\Plugins\Hub2\Object\ObjectFactory;
@@ -78,11 +80,10 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 	 * @param IOrigin                 $origin
 	 * @param IOriginImplementation   $implementation
 	 * @param IObjectStatusTransition $transition
-	 * @param OriginNotifications     $originNotifications
 	 * @param ICourseActivities       $courseActivities
 	 */
-	public function __construct(IOrigin $origin, IOriginImplementation $implementation, IObjectStatusTransition $transition, OriginNotifications $originNotifications, ICourseActivities $courseActivities) {
-		parent::__construct($origin, $implementation, $transition, $originNotifications);
+	public function __construct(IOrigin $origin, IOriginImplementation $implementation, IObjectStatusTransition $transition, ICourseActivities $courseActivities) {
+		parent::__construct($origin, $implementation, $transition);
 		$this->props = $origin->properties();
 		$this->config = $origin->config();
 		$this->courseActivities = $courseActivities;
@@ -99,11 +100,10 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 
 	/**
 	 * @inheritdoc
+	 *
+	 * @param CourseDTO $dto
 	 */
-	protected function handleCreate(IDataTransferObject $dto) {
-		global $DIC;
-
-		/** @var CourseDTO $dto */
+	protected function handleCreate(IDataTransferObject $dto)/*: void*/ {
 		// Find the refId under which this course should be created
 		$parentRefId = $this->determineParentRefId($dto);
 		// Check if we should create some dependence categories
@@ -116,10 +116,10 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 					. $template_id . ' does not exist in ILIAS');
 			}
 			$return = $this->cloneAllObject($parentRefId, $template_id, $this->getCloneOptions($template_id));
-			$ilObjCourse = new ilObjCourse($return);
+			$this->current_ilias_object = $ilObjCourse = new ilObjCourse($return);
 		} else {
 			// create new one
-			$ilObjCourse = new ilObjCourse();
+			$this->current_ilias_object = $ilObjCourse = new ilObjCourse();
 			$ilObjCourse->setImportId($this->getImportId($dto));
 			$ilObjCourse->create();
 			$ilObjCourse->createReference();
@@ -164,29 +164,26 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 
 		$this->handleOrdering($dto, $ilObjCourse);
 
-		$this->handleAppointementsColor($ilObjCourse,$dto);
-
-		return $ilObjCourse;
+		$this->handleAppointementsColor($ilObjCourse, $dto);
 	}
+
 
 	/**
 	 * @param IDataTransferObject $dto
 	 */
-	protected function handleOrdering(IDataTransferObject $dto, \ilObjCourse $ilObjCourse)
-	{
-		$settings = new \ilContainerSortingSettings($ilObjCourse->getId());
+	protected function handleOrdering(IDataTransferObject $dto, ilObjCourse $ilObjCourse) {
+		$settings = new ilContainerSortingSettings($ilObjCourse->getId());
 		$settings->setSortMode($dto->getOrderType());
 
-		switch($dto->getOrderType())
-		{
-			case \ilContainer::SORT_TITLE:
-			case \ilContainer::SORT_ACTIVATION:
-			case \ilContainer::SORT_CREATION:
+		switch ($dto->getOrderType()) {
+			case ilContainer::SORT_TITLE:
+			case ilContainer::SORT_ACTIVATION:
+			case ilContainer::SORT_CREATION:
 				$settings->setSortDirection($dto->getOrderDirection());
 				break;
-			case \ilContainer::SORT_MANUAL:
+			case ilContainer::SORT_MANUAL:
 				/**
-				 * @Todo set order direction for manual sorting
+				 * TODO: set order direction for manual sorting
 				 */
 				break;
 		}
@@ -252,7 +249,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 		$wizard_options->disableSOAP();
 		$wizard_options->read();
 
-		include_once('./webservice/soap/include/inc.soap_functions.php');
+		require_once 'webservice/soap/include/inc.soap_functions.php';
 		$parent_ref_id = ilSoapFunctions::ilClone($new_session_id . '::' . $_COOKIE['ilClientId'], $copy_id);
 
 		return $parent_ref_id;
@@ -340,12 +337,13 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 
 	/**
 	 * @inheritdoc
+	 *
+	 * @param CourseDTO $dto
 	 */
-	protected function handleUpdate(IDataTransferObject $dto, $ilias_id) {
-		/** @var CourseDTO $dto */
-		$ilObjCourse = $this->findILIASCourse($ilias_id);
+	protected function handleUpdate(IDataTransferObject $dto, $ilias_id)/*: void*/ {
+		$this->current_ilias_object = $ilObjCourse = $this->findILIASCourse($ilias_id);
 		if ($ilObjCourse === NULL) {
-			return NULL;
+			return;
 		}
 		// Update some properties if they should be updated depending on the origin config
 		foreach (self::getProperties() as $property) {
@@ -379,8 +377,8 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 		}
 		if ($this->props->get(CourseProperties::SET_ONLINE_AGAIN)) {
 			$ilObjCourse->setOfflineStatus(false);
-            //Does not exist in 5.4
-            //$ilObjCourse->setActivationType(IL_CRS_ACTIVATION_UNLIMITED);
+			//Does not exist in 5.4
+			//$ilObjCourse->setActivationType(IL_CRS_ACTIVATION_UNLIMITED);
 		}
 
 		if ($this->props->updateDTOProperty("enableSessionLimit")) {
@@ -391,44 +389,41 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 			$this->moveCourse($ilObjCourse, $dto);
 		}
 
-
-		if ($this->props->updateDTOProperty("appointementsColor")){
-			$this->handleAppointementsColor($ilObjCourse,$dto);
+		if ($this->props->updateDTOProperty("appointementsColor")) {
+			$this->handleAppointementsColor($ilObjCourse, $dto);
 		}
 
 		$ilObjCourse->update();
-
-		return $ilObjCourse;
 	}
+
 
 	/**
 	 * @param ilObjCourse $ilObjCourse
-	 * @param CourseDTO $dto
+	 * @param CourseDTO   $dto
 	 */
-	protected function handleAppointementsColor(ilObjCourse $ilObjCourse, CourseDTO $dto){
-		global $DIC;
-
-		if($dto->getAppointementsColor()){
-			$DIC["ilObjDataCache"]->deleteCachedEntry($ilObjCourse->getId());
+	protected function handleAppointementsColor(ilObjCourse $ilObjCourse, CourseDTO $dto) {
+		if (!empty($dto->getAppointementsColor())) {
+			self::dic()->objDataCache()->deleteCachedEntry($ilObjCourse->getId());
 			/**
-			 * @var $cal_cat \ilCalendarCategory
+			 * @var $cal_cat ilCalendarCategory
 			 */
-			$cal_cat = \ilCalendarCategory::_getInstanceByObjId($ilObjCourse->getId());
+			$cal_cat = ilCalendarCategory::_getInstanceByObjId($ilObjCourse->getId());
 			$cal_cat->setColor($dto->getAppointementsColor());
 			$cal_cat->update();
 		}
 	}
 
+
 	/**
 	 * @inheritdoc
 	 */
-	protected function handleDelete($ilias_id) {
-		$ilObjCourse = $this->findILIASCourse($ilias_id);
+	protected function handleDelete($ilias_id)/*: void*/ {
+		$this->current_ilias_object = $ilObjCourse = $this->findILIASCourse($ilias_id);
 		if ($ilObjCourse === NULL) {
-			return NULL;
+			return;
 		}
 		if ($this->props->get(CourseProperties::DELETE_MODE) == CourseProperties::DELETE_MODE_NONE) {
-			return $ilObjCourse;
+			return;
 		}
 		switch ($this->props->get(CourseProperties::DELETE_MODE)) {
 			case CourseProperties::DELETE_MODE_OFFLINE:
@@ -450,8 +445,6 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 				}
 				break;
 		}
-
-		return $ilObjCourse;
 	}
 
 
@@ -533,6 +526,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 			&& $object->getFourthDependenceCategory() !== NULL) {
 			$parentRefId = $this->buildDependenceCategory($object->getFourthDependenceCategory(), $parentRefId, 4);
 		}
+
 		return $parentRefId;
 	}
 
@@ -621,7 +615,5 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 		}
 		self::dic()->tree()->moveTree($ilObjCourse->getRefId(), $parentRefId);
 		self::dic()->rbacadmin()->adjustMovedObjectPermissions($ilObjCourse->getRefId(), $oldParentRefId);
-		//			hubLog::getInstance()->write($str);
-		//			hubOriginNotification::addMessage($this->getSrHubOriginId(), $str, 'Moved:');
 	}
 }

@@ -7,7 +7,6 @@ use ilObjSession;
 use ilObjUser;
 use ilSessionParticipants;
 use srag\Plugins\Hub2\Exception\HubException;
-use srag\Plugins\Hub2\Notification\OriginNotifications;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 use srag\Plugins\Hub2\Object\ObjectFactory;
 use srag\Plugins\Hub2\Object\SessionMembership\SessionMembershipDTO;
@@ -46,10 +45,9 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
 	 * @param IOrigin                 $origin
 	 * @param IOriginImplementation   $implementation
 	 * @param IObjectStatusTransition $transition
-	 * @param OriginNotifications     $originNotifications
 	 */
-	public function __construct(IOrigin $origin, IOriginImplementation $implementation, IObjectStatusTransition $transition, OriginNotifications $originNotifications) {
-		parent::__construct($origin, $implementation, $transition, $originNotifications);
+	public function __construct(IOrigin $origin, IOriginImplementation $implementation, IObjectStatusTransition $transition) {
+		parent::__construct($origin, $implementation, $transition);
 		$this->props = $origin->properties();
 		$this->config = $origin->config();
 	}
@@ -65,25 +63,26 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
 
 	/**
 	 * @inheritdoc
+	 *
+	 * @param SessionMembershipDTO $dto
 	 */
-	protected function handleCreate(IDataTransferObject $dto) {
-		/** @var SessionMembershipDTO $dto */
-
+	protected function handleCreate(IDataTransferObject $dto)/*: void*/ {
 		$session_ref_id = $this->buildParentRefId($dto);
 		$ilObjSession = $this->findILIASObject($session_ref_id);
 		$this->handleMembership($ilObjSession, $dto);
 		$this->handleContact($ilObjSession, $dto);
 
-		return new FakeIliasMembershipObject($session_ref_id, $dto->getUserId());
+		$this->current_ilias_object = new FakeIliasMembershipObject($session_ref_id, $dto->getUserId());
 	}
 
 
 	/**
 	 * @inheritdoc
+	 *
+	 * @param SessionMembershipDTO $dto
 	 */
-	protected function handleUpdate(IDataTransferObject $dto, $ilias_id) {
-		/** @var SessionMembershipDTO $dto */
-		$obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
+	protected function handleUpdate(IDataTransferObject $dto, $ilias_id)/*: void*/ {
+		$this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
 
 		$ilObjSession = $this->findILIASObject($obj->getContainerIdIlias());
 		$this->handleMembership($ilObjSession, $dto);
@@ -95,20 +94,16 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
 		if ($this->props->updateDTOProperty("isContact")) {
 			$this->handleContact($ilObjSession, $dto);
 		}
-
-		return $obj;
 	}
 
 
 	/**
 	 * @inheritdoc
 	 */
-	protected function handleDelete($ilias_id) {
-		$obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
+	protected function handleDelete($ilias_id)/*: void*/ {
+		$this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
 		$ilObjSession = $this->findILIASObject($obj->getContainerIdIlias());
 		$this->removeMembership($ilObjSession, $obj->getUserIdIlias());
-
-		return $obj;
 	}
 
 
@@ -193,6 +188,7 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
 		$ilSessionParticipants->register((int)$user_id);
 	}
 
+
 	/**
 	 * @param ilObjSession         $ilObjSession
 	 * @param SessionMembershipDTO $dto
@@ -200,8 +196,6 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
 	 * @throws HubException
 	 */
 	protected function handleContact(ilObjSession $ilObjSession, SessionMembershipDTO $dto) {
-		global $DIC;
-
 		/**
 		 * @var ilSessionParticipants $ilSessionParticipants
 		 */
@@ -225,12 +219,12 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
 		 * $ilSessionParticipants->getEventParticipants()->updateUser();
 		 */
 		$event_id = $ilSessionParticipants->getEventParticipants()->getEventId();
-		$query = "UPDATE event_participants ".
-			"SET contact = ".$DIC->database()->quote($dto->isContact() ,'integer')." ".
-			"WHERE event_id = ".$DIC->database()->quote($event_id ,'integer')." ".
-			"AND usr_id = ".$DIC->database()->quote($user_id ,'integer')." ";
-		$DIC->database()->manipulate($query);
+		$query = "UPDATE event_participants " . "SET contact = " . self::dic()->database()->quote($dto->isContact(), 'integer') . " "
+			. "WHERE event_id = " . self::dic()->database()->quote($event_id, 'integer') . " " . "AND usr_id = " . self::dic()->database()
+				->quote($user_id, 'integer') . " ";
+		self::dic()->database()->manipulate($query);
 	}
+
 
 	/**
 	 * @param ilObjSession $ilObjSession

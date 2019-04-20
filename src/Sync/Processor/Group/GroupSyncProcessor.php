@@ -2,13 +2,11 @@
 
 namespace srag\Plugins\Hub2\Sync\Processor\Group;
 
+use ilCalendarCategory;
 use ilDate;
 use ilObjGroup;
 use ilRepUtil;
-use ilMD;
-use ilMDLanguageItem;
 use srag\Plugins\Hub2\Exception\HubException;
-use srag\Plugins\Hub2\Notification\OriginNotifications;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 use srag\Plugins\Hub2\Object\Group\GroupDTO;
 use srag\Plugins\Hub2\Object\ObjectFactory;
@@ -87,11 +85,10 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 	 * @param IOrigin                 $origin
 	 * @param IOriginImplementation   $implementation
 	 * @param IObjectStatusTransition $transition
-	 * @param OriginNotifications     $originNotifications
 	 * @param IGroupActivities        $groupActivities
 	 */
-	public function __construct(IOrigin $origin, IOriginImplementation $implementation, IObjectStatusTransition $transition, OriginNotifications $originNotifications, IGroupActivities $groupActivities) {
-		parent::__construct($origin, $implementation, $transition, $originNotifications);
+	public function __construct(IOrigin $origin, IOriginImplementation $implementation, IObjectStatusTransition $transition, IGroupActivities $groupActivities) {
+		parent::__construct($origin, $implementation, $transition);
 		$this->props = $origin->properties();
 		$this->config = $origin->config();
 		$this->groupActivities = $groupActivities;
@@ -108,12 +105,11 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 
 	/**
 	 * @inheritdoc
+	 *
+	 * @param GroupDTO $dto
 	 */
-	protected function handleCreate(IDataTransferObject $dto) {
-		global $DIC;
-
-		/** @var GroupDTO $dto */
-		$ilObjGroup = new ilObjGroup();
+	protected function handleCreate(IDataTransferObject $dto)/*: void*/ {
+		$this->current_ilias_object = $ilObjGroup = new ilObjGroup();
 		$ilObjGroup->setImportId($this->getImportId($dto));
 		// Find the refId under which this group should be created
 		$parentRefId = $this->determineParentRefId($dto);
@@ -153,21 +149,19 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 		$ilObjGroup->putInTree($parentRefId);
 		$ilObjGroup->setPermissions($parentRefId);
 
-		$this->handleAppointementsColor($ilObjGroup,$dto);
-        $this->setLanguage($dto, $ilObjGroup);
-
-		return $ilObjGroup;
+		$this->handleAppointementsColor($ilObjGroup, $dto);
 	}
 
 
 	/**
 	 * @inheritdoc
+	 *
+	 * @param GroupDTO $dto
 	 */
-	protected function handleUpdate(IDataTransferObject $dto, $ilias_id) {
-		/** @var GroupDTO $dto */
-		$ilObjGroup = $this->findILIASGroup($ilias_id);
+	protected function handleUpdate(IDataTransferObject $dto, $ilias_id)/*: void*/ {
+		$this->current_ilias_object = $ilObjGroup = $this->findILIASGroup($ilias_id);
 		if ($ilObjGroup === NULL) {
-			return NULL;
+			return;
 		}
 		// Update some properties if they should be updated depending on the origin config
 		foreach (self::getProperties() as $property) {
@@ -214,33 +208,28 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 			$ilObjGroup->enableUnlimitedRegistration($dto->getRegisterMode());
 		}
 
-		if ($this->props->updateDTOProperty("appointementsColor")){
-			$this->handleAppointementsColor($ilObjGroup,$dto);
+		if ($this->props->updateDTOProperty("appointementsColor")) {
+			$this->handleAppointementsColor($ilObjGroup, $dto);
 		}
-        if ($this->props->updateDTOProperty("languageCode")) {
-            $this->setLanguage($dto, $ilObjGroup);
-        }
+
 		if ($this->props->get(GroupProperties::MOVE_GROUP)) {
 			$this->moveGroup($ilObjGroup, $dto);
 		}
 		$ilObjGroup->update();
-
-		return $ilObjGroup;
 	}
+
 
 	/**
 	 * @param ilObjGroup $ilObjGroup
-	 * @param GroupDTO $dto
+	 * @param GroupDTO   $dto
 	 */
-	protected function handleAppointementsColor(ilObjGroup $ilObjGroup, GroupDTO $dto){
-		global $DIC;
-
-		if($dto->getAppointementsColor()){
-			$DIC["ilObjDataCache"]->deleteCachedEntry($ilObjGroup->getId());
+	protected function handleAppointementsColor(ilObjGroup $ilObjGroup, GroupDTO $dto) {
+		if ($dto->getAppointementsColor()) {
+			self::dic()->objDataCache()->deleteCachedEntry($ilObjGroup->getId());
 			/**
-			 * @var $cal_cat \ilCalendarCategory
+			 * @var $cal_cat ilCalendarCategory
 			 */
-			$cal_cat = \ilCalendarCategory::_getInstanceByObjId($ilObjGroup->getId());
+			$cal_cat = ilCalendarCategory::_getInstanceByObjId($ilObjGroup->getId());
 			$cal_cat->setColor($dto->getAppointementsColor());
 			$cal_cat->update();
 		}
@@ -250,13 +239,13 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 	/**
 	 * @inheritdoc
 	 */
-	protected function handleDelete($ilias_id) {
-		$ilObjGroup = $this->findILIASGroup($ilias_id);
+	protected function handleDelete($ilias_id)/*: void*/ {
+		$this->current_ilias_object = $ilObjGroup = $this->findILIASGroup($ilias_id);
 		if ($ilObjGroup === NULL) {
-			return NULL;
+			return;
 		}
 		if ($this->props->get(GroupProperties::DELETE_MODE) == GroupProperties::DELETE_MODE_NONE) {
-			return $ilObjGroup;
+			return;
 		}
 		switch ($this->props->get(GroupProperties::DELETE_MODE)) {
 			case GroupProperties::DELETE_MODE_CLOSED:
@@ -278,20 +267,8 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 				}
 				break;
 		}
-
-		return $ilObjGroup;
 	}
 
-    /**
-     * @param GroupDTO $dto
-     * @param ilObjGroup $ilObjCourse
-     */
-    protected function setLanguage(GroupDTO $dto, ilObjGroup $ilObjCourse) {
-        $md_general = (new ilMD($ilObjCourse->getId()))->getGeneral();
-        $language = $md_general->getLanguage(array_pop($md_general->getLanguageIds()));
-        $language->setLanguage(new ilMDLanguageItem($dto->getLanguageCode()));
-        $language->update();
-    }
 
 	/**
 	 * @param GroupDTO $group

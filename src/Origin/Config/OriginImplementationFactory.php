@@ -2,15 +2,16 @@
 
 namespace srag\Plugins\Hub2\Origin\Config;
 
+use srag\DIC\Hub2\DICTrait;
 use srag\Plugins\Hub2\Config\ArConfig;
 use srag\Plugins\Hub2\Exception\HubException;
 use srag\Plugins\Hub2\MappingStrategy\MappingStrategyFactory;
 use srag\Plugins\Hub2\Metadata\MetadataFactory;
-use srag\Plugins\Hub2\Notification\OriginNotifications;
 use srag\Plugins\Hub2\Object\DTO\DataTransferObjectFactory;
 use srag\Plugins\Hub2\Origin\IOrigin;
 use srag\Plugins\Hub2\Origin\IOriginImplementation;
 use srag\Plugins\Hub2\Taxonomy\TaxonomyFactory;
+use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
  * Class OriginImplementationFactory
@@ -21,23 +22,19 @@ use srag\Plugins\Hub2\Taxonomy\TaxonomyFactory;
  */
 class OriginImplementationFactory {
 
+	use DICTrait;
+	use Hub2Trait;
 	/**
 	 * @var IOrigin
 	 */
 	protected $origin;
-	/**
-	 * @var OriginNotifications
-	 */
-	protected $originNotifications;
 
 
 	/**
-	 * @param IOrigin             $origin
-	 * @param OriginNotifications $originNotifications
+	 * @param IOrigin $origin
 	 */
-	public function __construct(IOrigin $origin, OriginNotifications $originNotifications) {
+	public function __construct(IOrigin $origin) {
 		$this->origin = $origin;
-		$this->originNotifications = $originNotifications;
 	}
 
 
@@ -56,7 +53,10 @@ class OriginImplementationFactory {
 		}
 		require_once $classFile;
 		$class = rtrim($namespace, "\\") . "\\" . $className;
-		$instance = new $class($this->origin->config(), new DataTransferObjectFactory(), $this->originNotifications, new MetadataFactory(), new TaxonomyFactory(), new MappingStrategyFactory(), $this->origin);
+		if (!class_exists($class)) {
+			throw new HubException("Origin implementation namespace\\class does not exist, should be: $class");
+		}
+		$instance = new $class($this->origin->config(), new DataTransferObjectFactory(), new MetadataFactory(), new TaxonomyFactory(), new MappingStrategyFactory(), $this->origin);
 
 		return $instance;
 	}

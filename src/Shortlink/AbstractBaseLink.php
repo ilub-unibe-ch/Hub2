@@ -8,9 +8,10 @@ use srag\Plugins\Hub2\Object\ARObject;
 use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
- * Class NullLink
+ * Class AbstractBaseLink
  *
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @package srag\Plugins\Hub2\Shortlink
+ * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
 abstract class AbstractBaseLink implements IObjectLink {
 

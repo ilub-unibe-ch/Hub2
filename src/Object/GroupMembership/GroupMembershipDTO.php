@@ -16,11 +16,11 @@ class GroupMembershipDTO extends DataTransferObject implements IGroupMembershipD
 	/**
 	 * @var int
 	 */
-	private $ilias_group_ref_id;
+	protected $ilias_group_ref_id;
 	/**
 	 * @var int
 	 */
-	private $user_id;
+	protected $user_id;
 	/**
 	 * @var
 	 */
@@ -37,6 +37,7 @@ class GroupMembershipDTO extends DataTransferObject implements IGroupMembershipD
 	 * @var bool
 	 */
 	protected $isContact = false;
+
 
 	/**
 	 * @inheritdoc
@@ -127,21 +128,23 @@ class GroupMembershipDTO extends DataTransferObject implements IGroupMembershipD
 		return $this;
 	}
 
+
 	/**
 	 * @return bool
 	 */
-	public function isContact(): bool
-	{
+	public function isContact(): bool {
 		return $this->isContact;
 	}
 
+
 	/**
 	 * @param bool $isContact
+	 *
 	 * @return $this
 	 */
-	public function setIsContact(bool $isContact)
-	{
+	public function setIsContact(bool $isContact) {
 		$this->isContact = $isContact;
+
 		return $this;
 	}
 }

@@ -7,7 +7,6 @@ use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Mockery\MockInterface;
 use Pimple\Container as PimpleContainer;
 use srag\DIC\Hub2\DICStatic;
-use srag\Plugins\Hub2\Notification\OriginNotifications;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 use srag\Plugins\Hub2\Origin\Config\IOriginConfig;
 use srag\Plugins\Hub2\Origin\IOrigin;
@@ -33,11 +32,9 @@ abstract class AbstractSyncProcessorTests extends AbstractHub2Tests {
 	 */
 	protected $origin;
 	/**
-	 * @var OriginNotifications
-	 */
-	protected $originNotifications;
-	/**
 	 * @var ObjectStatusTransition
+	 *
+	 * @deprecated
 	 */
 	protected $statusTransition;
 	/**
@@ -67,11 +64,6 @@ abstract class AbstractSyncProcessorTests extends AbstractHub2Tests {
 	protected $originImplementation;
 
 
-	protected function initNotifications() {
-		$this->originNotifications = new OriginNotifications();
-	}
-
-
 	protected function initStatusTransitions() {
 		$this->statusTransition = new ObjectStatusTransition(Mockery::mock(IOriginConfig::class));
 	}
@@ -79,7 +71,6 @@ abstract class AbstractSyncProcessorTests extends AbstractHub2Tests {
 
 	protected function setupGeneralDependencies() {
 		$this->initStatusTransitions();
-		$this->initNotifications();
 		$this->initDIC();
 	}
 

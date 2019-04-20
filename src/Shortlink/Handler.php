@@ -2,9 +2,6 @@
 
 namespace srag\Plugins\Hub2\Shortlink;
 
-require_once __DIR__ . "/../../vendor/autoload.php";
-
-
 use ilContext;
 use ilDBInterface;
 use ilHub2Plugin;
@@ -18,7 +15,7 @@ use srag\Plugins\Hub2\Utils\Hub2Trait;
 /**
  * Class Handler
  *
- * @package srag\Plugins\Hub2\Handler
+ * @package srag\Plugins\Hub2\Shortlink
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
 class Handler {
@@ -52,6 +49,9 @@ class Handler {
 	}
 
 
+	/**
+	 *
+	 */
 	public function storeQuery() {
 		$return = setcookie('xhub_query', $this->ext_id, time() + 10);
 	}
@@ -102,22 +102,28 @@ class Handler {
 	}
 
 
+	/**
+	 *
+	 */
 	public function tryILIASInit() {
 		$this->prepareILIASInit();
 
 		require_once("Services/Init/classes/class.ilInitialisation.php");
-		\ilInitialisation::initILIAS();
+		ilInitialisation::initILIAS();
 
 		$this->init = true;
 	}
 
 
+	/**
+	 *
+	 */
 	public function tryILIASInitPublic() {
 		$this->prepareILIASInit();
 
-		include_once './Services/Context/classes/class.ilContext.php';
+		require_once 'Services/Context/classes/class.ilContext.php';
 		ilContext::init(ilContext::CONTEXT_WAC);
-		require_once("Services/Init/classes/class.ilInitialisation.php");
+		require_once "Services/Init/classes/class.ilInitialisation.php";
 		ilInitialisation::initILIAS();
 		$ilAuthSession = self::dic()->authSession();
 		$ilAuthSession->init();
@@ -145,6 +151,9 @@ class Handler {
 	}
 
 
+	/**
+	 *
+	 */
 	protected function prepareILIASInit() {
 		$GLOBALS['COOKIE_PATH'] = '/';
 		$_GET["client_id"] = $_COOKIE['ilClientId'];

@@ -1,7 +1,6 @@
 {
   "name": "srag/plugins/hub2",
   "description": "",
-  "version": "1.1.2",
   "type": "project",
   "keywords": [
     "ILIAS",
@@ -18,7 +17,7 @@
     }
   ],
   "support": {
-    "email": "support-custom1@studer-raimann.ch"
+    "issues": "https://plugins.studer-raimann.ch/goto.php?target=uihk_srsu_PLHUB2"
   },
   "require": {
     "php": ">=7.0",

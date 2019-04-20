@@ -1,21 +1,26 @@
 <?php
 
-require_once __DIR__ . "/../../vendor/autoload.php";
+//namespace srag\Plugins\Hub2\UI;
 
 use srag\DIC\Hub2\DICTrait;
 use srag\Plugins\Hub2\Config\ArConfig;
+use srag\Plugins\Hub2\Origin\OriginFactory;
+use srag\Plugins\Hub2\Origin\OriginRepository;
+use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
 use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
- * Class hub2MainGUI
+ * Class MainGUI
  *
- * @package
+ * @package           srag\Plugins\Hub2\UI
+ *
  * @author            Fabian Schmid <fs@studer-raimann.ch>
  *
  * @ilCtrl_IsCalledBy hub2MainGUI: ilHub2ConfigGUI
  * @ilCtrl_calls      hub2MainGUI: hub2ConfigOriginsGUI
  * @ilCtrl_calls      hub2MainGUI: hub2ConfigGUI
  * @ilCtrl_calls      hub2MainGUI: hub2CustomViewGUI
+ * @ilCtrl_Calls      hub2MainGUI: ilPropertyFormGUI
  */
 class hub2MainGUI {
 
@@ -29,7 +34,7 @@ class hub2MainGUI {
 
 
 	/**
-	 * hub2MainGUI constructor
+	 * MainGUI constructor
 	 */
 	public function __construct() {
 
@@ -94,5 +99,14 @@ class hub2MainGUI {
 	 */
 	protected function cancel()/*: void*/ {
 		$this->index();
+	}
+
+
+	/**
+	 *
+	 */
+	protected function handleExplorerCommand()/*: void*/ {
+		(new OriginConfigFormGUI(new hub2ConfigOriginsGUI(), new OriginRepository(), (new OriginFactory())->getById(intval(filter_input(INPUT_GET, hub2ConfigOriginsGUI::ORIGIN_ID)))))->getILIASFileRepositorySelector()
+			->handleExplorerCommand();
 	}
 }

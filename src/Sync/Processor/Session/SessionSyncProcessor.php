@@ -6,10 +6,7 @@ use ilDateTime;
 use ilObject2;
 use ilObjSession;
 use ilSessionAppointment;
-use ilMD;
-use ilMDLanguageItem;
 use srag\Plugins\Hub2\Exception\HubException;
-use srag\Plugins\Hub2\Notification\OriginNotifications;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 use srag\Plugins\Hub2\Object\ObjectFactory;
 use srag\Plugins\Hub2\Object\Session\SessionDTO;
@@ -65,10 +62,9 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 	 * @param IOrigin                 $origin
 	 * @param IOriginImplementation   $implementation
 	 * @param IObjectStatusTransition $transition
-	 * @param OriginNotifications     $originNotifications
 	 */
-	public function __construct(IOrigin $origin, IOriginImplementation $implementation, IObjectStatusTransition $transition, OriginNotifications $originNotifications) {
-		parent::__construct($origin, $implementation, $transition, $originNotifications);
+	public function __construct(IOrigin $origin, IOriginImplementation $implementation, IObjectStatusTransition $transition) {
+		parent::__construct($origin, $implementation, $transition);
 		$this->props = $origin->properties();
 		$this->config = $origin->config();
 	}
@@ -82,9 +78,13 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 	}
 
 
-	protected function handleCreate(IDataTransferObject $dto) {
-		/** @var SessionDTO $dto */
-		$ilObjSession = new ilObjSession();
+	/**
+	 * @inheritdoc
+	 *
+	 * @param SessionDTO $dto
+	 */
+	protected function handleCreate(IDataTransferObject $dto)/*: void*/ {
+		$this->current_ilias_object = $ilObjSession = new ilObjSession();
 		$ilObjSession->setImportId($this->getImportId($dto));
 
 		// Properties
@@ -114,20 +114,18 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 		 */
 		$ilObjSession->getFirstAppointment()->setSessionId($ilObjSession->getId());
 		$ilObjSession->getFirstAppointment()->create();
-        $this->setLanguage($dto, $ilObjSession);
-
-		return $ilObjSession;
 	}
 
 
 	/**
 	 * @inheritdoc
+	 *
+	 * @param SessionDTO $dto
 	 */
-	protected function handleUpdate(IDataTransferObject $dto, $ilias_id) {
-		/** @var SessionDTO $dto */
-		$ilObjSession = $this->findILIASObject($ilias_id);
+	protected function handleUpdate(IDataTransferObject $dto, $ilias_id)/*: void*/ {
+		$this->current_ilias_object = $ilObjSession = $this->findILIASObject($ilias_id);
 		if ($ilObjSession === NULL) {
-			return NULL;
+			return;
 		}
 
 		foreach (self::getProperties() as $property) {
@@ -144,26 +142,20 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 		$ilObjSession = $this->setDataForFirstAppointment($dto, $ilObjSession, true);
 		$ilObjSession->update();
 		$ilObjSession->getFirstAppointment()->update();
-
-        if ($this->props->updateDTOProperty("languageCode")) {
-            $this->setLanguage($dto, $ilObjSession);
-        }
-
-		return $ilObjSession;
 	}
 
 
 	/**
 	 * @inheritdoc
 	 */
-	protected function handleDelete($ilias_id) {
-		$ilObjSession = $this->findILIASObject($ilias_id);
+	protected function handleDelete($ilias_id)/*: void*/ {
+		$this->current_ilias_object = $ilObjSession = $this->findILIASObject($ilias_id);
 		if ($ilObjSession === NULL) {
-			return NULL;
+			return;
 		}
 
 		if ($this->props->get(SessionProperties::DELETE_MODE) == SessionProperties::DELETE_MODE_NONE) {
-			return $ilObjSession;
+			return;
 		}
 		switch ($this->props->get(SessionProperties::DELETE_MODE)) {
 			case SessionProperties::DELETE_MODE_DELETE:
@@ -173,20 +165,8 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 				self::dic()->tree()->moveToTrash($ilObjSession->getRefId(), true);
 				break;
 		}
-
-		return $ilObjSession;
 	}
 
-    /**
-     * @param SessionDTO $dto
-     * @param ilObjSession $ilObjCourse
-     */
-    protected function setLanguage(SessionDTO $dto, ilObjSession $ilObjCourse) {
-        $md_general = (new ilMD($ilObjCourse->getId()))->getGeneral();
-        $language = $md_general->getLanguage(array_pop($md_general->getLanguageIds()));
-        $language->setLanguage(new ilMDLanguageItem($dto->getLanguageCode()));
-        $language->update();
-    }
 
 	/**
 	 * @param int $ilias_id

@@ -5,7 +5,6 @@ namespace srag\Plugins\Hub2\Sync\Processor\GroupMembership;
 use ilObject2;
 use ilObjGroup;
 use srag\Plugins\Hub2\Exception\HubException;
-use srag\Plugins\Hub2\Notification\OriginNotifications;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 use srag\Plugins\Hub2\Object\GroupMembership\GroupMembershipDTO;
 use srag\Plugins\Hub2\Object\ObjectFactory;
@@ -41,10 +40,9 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
 	 * @param IOrigin                 $origin
 	 * @param IOriginImplementation   $implementation
 	 * @param IObjectStatusTransition $transition
-	 * @param OriginNotifications     $originNotifications
 	 */
-	public function __construct(IOrigin $origin, IOriginImplementation $implementation, IObjectStatusTransition $transition, OriginNotifications $originNotifications) {
-		parent::__construct($origin, $implementation, $transition, $originNotifications);
+	public function __construct(IOrigin $origin, IOriginImplementation $implementation, IObjectStatusTransition $transition) {
+		parent::__construct($origin, $implementation, $transition);
 		$this->props = $origin->properties();
 		$this->config = $origin->config();
 	}
@@ -52,45 +50,45 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
 
 	/**
 	 * @inheritdoc
+	 *
+	 * @param GroupMembershipDTO $dto
 	 */
-	protected function handleCreate(IDataTransferObject $dto) {
-		/**
-		 * @var GroupMembershipDTO $dto
-		 */
+	protected function handleCreate(IDataTransferObject $dto)/*: void*/ {
 		$ilias_group_ref_id = $this->buildParentRefId($dto);
 
 		$group = $this->findILIASGroup($ilias_group_ref_id);
 		if (!$group) {
-			return NULL;
+			return;
 		}
 
 		$user_id = $dto->getUserId();
 		$membership_obj = $group->getMembersObject();
 		$membership_obj->add($user_id, $this->mapRole($dto));
-		$membership_obj->updateContact($user_id,$dto->isContact());
+		$membership_obj->updateContact($user_id, $dto->isContact());
 
-		return new FakeIliasMembershipObject($ilias_group_ref_id, $user_id);
+		$this->current_ilias_object = new FakeIliasMembershipObject($ilias_group_ref_id, $user_id);
 	}
 
 
 	/**
 	 * @inheritdoc
+	 *
+	 * @param GroupMembershipDTO $dto
 	 */
-	protected function handleUpdate(IDataTransferObject $dto, $ilias_id) {
-		/**
-		 * @var GroupMembershipDTO $dto
-		 */
-		$obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
+	protected function handleUpdate(IDataTransferObject $dto, $ilias_id)/*: void*/ {
+		$this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
 
 		$ilias_group_ref_id = $this->buildParentRefId($dto);
 		$user_id = $dto->getUserId();
 		if (!$this->props->updateDTOProperty('role')) {
-			return new FakeIliasMembershipObject($ilias_group_ref_id, $user_id);
+			$this->current_ilias_object = new FakeIliasMembershipObject($ilias_group_ref_id, $user_id);
+
+			return;
 		}
 
 		$group = $this->findILIASGroup($ilias_group_ref_id);
 		if (!$group) {
-			return NULL;
+			return;
 		}
 
 		$membership_obj = $group->getMembersObject();
@@ -102,21 +100,17 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
 		$obj->setUserIdIlias($dto->getUserId());
 		$obj->setContainerIdIlias($group->getRefId());
 		$obj->initId();
-
-		return $obj;
 	}
 
 
 	/**
 	 * @inheritdoc
 	 */
-	protected function handleDelete($ilias_id) {
-		$obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
+	protected function handleDelete($ilias_id)/*: void*/ {
+		$this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
 
 		$group = $this->findILIASGroup($obj->getContainerIdIlias());
 		$group->getMembersObject()->delete($obj->getUserIdIlias());
-
-		return $obj;
 	}
 
 

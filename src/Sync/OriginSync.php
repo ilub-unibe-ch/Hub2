@@ -2,15 +2,11 @@
 
 namespace srag\Plugins\Hub2\Sync;
 
-use Error;
-use Exception;
 use ilHub2Plugin;
 use srag\DIC\Hub2\DICTrait;
 use srag\Plugins\Hub2\Exception\AbortOriginSyncException;
 use srag\Plugins\Hub2\Exception\AbortOriginSyncOfCurrentTypeException;
 use srag\Plugins\Hub2\Exception\AbortSyncException;
-use srag\Plugins\Hub2\Exception\HubException;
-use srag\Plugins\Hub2\Notification\OriginNotifications;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 use srag\Plugins\Hub2\Object\DTO\NullDTO;
 use srag\Plugins\Hub2\Object\IObject;
@@ -51,15 +47,13 @@ class OriginSync implements IOriginSync {
 	 */
 	protected $dtoObjects = [];
 	/**
-	 * @var Exception[] array
-	 */
-	protected $exceptions = [];
-	/**
 	 * @var IObjectSyncProcessor
 	 */
 	protected $processor;
 	/**
 	 * @var IObjectStatusTransition
+	 *
+	 * @deprecated
 	 */
 	protected $statusTransition;
 	/**
@@ -77,69 +71,52 @@ class OriginSync implements IOriginSync {
 		IObject::STATUS_CREATED => 0,
 		IObject::STATUS_UPDATED => 0,
 		IObject::STATUS_OUTDATED => 0,
-		IObject::STATUS_IGNORED => 0
+		IObject::STATUS_IGNORED => 0,
+		IObject::STATUS_FAILED => 0
 	];
-	/**
-	 * @var OriginNotifications
-	 */
-	protected $notifications;
 
 
 	/**
 	 * @param IOrigin                 $origin
 	 * @param IObjectRepository       $repository
 	 * @param IObjectFactory          $factory
-	 * @param IObjectSyncProcessor    $processor
 	 * @param IObjectStatusTransition $transition
-	 * @param IOriginImplementation   $implementation
-	 * @param OriginNotifications     $notifications
 	 */
-	public function __construct(IOrigin $origin, IObjectRepository $repository, IObjectFactory $factory, IObjectSyncProcessor $processor, IObjectStatusTransition $transition, IOriginImplementation $implementation, OriginNotifications $notifications) {
+	public function __construct(IOrigin $origin, IObjectRepository $repository, IObjectFactory $factory, IObjectStatusTransition $transition) {
 		$this->origin = $origin;
 		$this->repository = $repository;
 		$this->factory = $factory;
-		$this->processor = $processor;
 		$this->statusTransition = $transition;
-		$this->implementation = $implementation;
-		$this->notifications = $notifications;
 	}
 
 
 	/**
-	 * @throws AbortOriginSyncException
-	 * @throws HubException
-	 * @throws Throwable
+	 * @inheritdoc
 	 */
 	public function execute() {
 		// Any exception during the three stages (connect/parse/build hub objects) is forwarded to the global sync
 		// as the sync of this origin cannot continue.
-		try {
-			$this->implementation->beforeSync();
-			$this->implementation->connect();
-			$count = $this->implementation->parseData();
-			$this->countDelivered = $count;
-			// Check if the origin aborts its sync if the amount of delivered data is not enough
-			if ($this->origin->config()->getCheckAmountData()) {
-				$threshold = $this->origin->config()->getCheckAmountDataPercentage();
-				$total = $this->repository->count();
-				$percentage = ($total > 0 && $count > 0) ? (100 / $total * $count) : 0;
-				if ($total > 0 && ($percentage < $threshold)) {
-					$msg = "Amount of delivered data not sufficient: Got {$count} datasets, 
+		$this->implementation->beforeSync();
+
+		$this->implementation->connect();
+
+		$count = $this->implementation->parseData();
+
+		$this->countDelivered = $count;
+
+		// Check if the origin aborts its sync if the amount of delivered data is not enough
+		if ($this->origin->config()->getCheckAmountData()) {
+			$threshold = $this->origin->config()->getCheckAmountDataPercentage();
+			$total = $this->repository->count();
+			$percentage = ($total > 0 && $count > 0) ? (100 / $total * $count) : 0;
+			if ($total > 0 && ($percentage < $threshold)) {
+				$msg = "Amount of delivered data not sufficient: Got {$count} datasets, 
 					which is " . number_format($percentage, 2) . "% of the existing data in hub, 
 					need at least {$threshold}% according to origin config";
-					throw new AbortOriginSyncException($msg);
-				}
+				throw new AbortOriginSyncException($msg);
 			}
-			$this->dtoObjects = $this->implementation->buildObjects();
-		} catch (HubException $e) {
-			$this->exceptions[] = $e;
-			throw $e;
-		} catch (Throwable $e) {
-			// Note: Should not happen in the stages above, as only exceptions of type HubException should be raised.
-			// Throwable collects any exceptions AND Errors from PHP 7
-			$this->exceptions[] = $e;
-			throw $e;
 		}
+		$this->dtoObjects = $this->implementation->buildObjects();
 
 		$type = $this->origin->getObjectType();
 
@@ -192,12 +169,8 @@ class OriginSync implements IOriginSync {
 			$this->processObject($object, $nullDTO);
 		}
 
-		try {
-			$this->implementation->afterSync();
-		} catch (Throwable $e) {
-			$this->exceptions[] = $e;
-			throw $e;
-		}
+		$this->implementation->afterSync();
+
 		$this->getOrigin()->setLastRun(date(DATE_ATOM));
 
 		$this->getOrigin()->update();
@@ -235,14 +208,6 @@ class OriginSync implements IOriginSync {
 	/**
 	 * @inheritdoc
 	 */
-	public function getExceptions() {
-		return $this->exceptions;
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
 	public function getCountProcessedByStatus($status) {
 		return $this->countProcessed[$status];
 	}
@@ -265,48 +230,37 @@ class OriginSync implements IOriginSync {
 
 
 	/**
-	 * @inheritdoc
-	 */
-	public function getNotifications() {
-		return $this->notifications;
-	}
-
-
-	/**
 	 * @param IObject             $object
 	 * @param IDataTransferObject $dto
 	 *
-	 * @throws AbortOriginSyncException
-	 * @throws HubException
+	 * @throws Throwable
 	 */
 	protected function processObject(IObject $object, IDataTransferObject $dto) {
 		try {
 			$this->processor->process($object, $dto, $this->origin->isUpdateForced());
+
 			$this->incrementProcessed($object->getStatus());
-		} catch (AbortSyncException $e) {
+		} catch (AbortSyncException $ex) {
 			// Any exceptions aborting the global or current sync are forwarded to global sync
-			$this->exceptions[] = $e;
 			$object->store();
-			throw $e;
-		} catch (AbortOriginSyncOfCurrentTypeException $e) {
-			$this->exceptions[] = $e;
+
+			throw $ex;
+		} catch (AbortOriginSyncOfCurrentTypeException $ex) {
 			$object->store();
-			throw $e;
-		} catch (AbortOriginSyncException $e) {
-			$this->exceptions[] = $e;
+
+			throw $ex;
+		} catch (AbortOriginSyncException $ex) {
 			$object->store();
-			throw $e;
-		} catch (Exception $e) {
-			// General exceptions during processing the ILIAS objects are forwarded to the origin implementation,
-			// which decides how to proceed, e.g. continue or abort
-			$this->exceptions[] = $e;
+
+			throw $ex;
+		} catch (Throwable $ex) {
+			$object->setStatus(IObject::STATUS_FAILED);
+			$this->incrementProcessed($object->getStatus());
 			$object->store();
-			$this->implementation->handleException($e);
-		} catch (Error $e) {
-			// PHP 7: Throwable of type Error always lead to abort of the sync of current origin
-			$this->exceptions[] = $e;
-			$object->store();
-			throw new AbortOriginSyncException($e->getMessage().", in file: ".$e->getFile()." line: ".$e->getLine());
+			$log = self::logs()->exceptionLog($ex, $this->origin, $object, $dto);
+			$log->store();
+
+			$this->implementation->handleLog($log);
 		}
 	}
 
@@ -324,5 +278,97 @@ class OriginSync implements IOriginSync {
 	 */
 	public function getOrigin() {
 		return $this->origin;
+	}
+
+
+	/**
+	 * @param IOrigin $origin
+	 */
+	public function setOrigin(IOrigin $origin) {
+		$this->origin = $origin;
+	}
+
+
+	/**
+	 * @return IObjectRepository
+	 */
+	public function getRepository(): IObjectRepository {
+		return $this->repository;
+	}
+
+
+	/**
+	 * @param IObjectRepository $repository
+	 */
+	public function setRepository(IObjectRepository $repository) {
+		$this->repository = $repository;
+	}
+
+
+	/**
+	 * @return IObjectFactory
+	 */
+	public function getFactory(): IObjectFactory {
+		return $this->factory;
+	}
+
+
+	/**
+	 * @param IObjectFactory $factory
+	 */
+	public function setFactory(IObjectFactory $factory) {
+		$this->factory = $factory;
+	}
+
+
+	/**
+	 * @return IObjectSyncProcessor
+	 */
+	public function getProcessor(): IObjectSyncProcessor {
+		return $this->processor;
+	}
+
+
+	/**
+	 * @param IObjectSyncProcessor $processor
+	 */
+	public function setProcessor(IObjectSyncProcessor $processor) {
+		$this->processor = $processor;
+	}
+
+
+	/**
+	 * @return IObjectStatusTransition
+	 *
+	 * @deprecated
+	 */
+	public function getStatusTransition(): IObjectStatusTransition {
+		return $this->statusTransition;
+	}
+
+
+	/**
+	 * @param IObjectStatusTransition $statusTransition
+	 *
+	 * @deprecated
+	 */
+	public function setStatusTransition(IObjectStatusTransition $statusTransition) {
+		$this->statusTransition = $statusTransition;
+	}
+
+
+	/**
+	 * @return IOriginImplementation
+	 */
+	public function getImplementation(): IOriginImplementation {
+		return $this->implementation;
+	}
+
+
+	/**
+	 * @param IOriginImplementation $implementation
+	 */
+	public function setImplementation(IOriginImplementation $implementation) {
+		$this->implementation = $implementation;
 	}
 }

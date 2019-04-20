@@ -1,9 +1,7 @@
 <?php
 
-namespace SRAG\Plugins\Hub2\Object\Group;
+namespace srag\Plugins\Hub2\Object\Group;
 
-use srag\Plugins\Hub2\Exception\LanguageCodeException;
-use srag\Plugins\Hub2\Object\Course\CourseDTO;
 use srag\Plugins\Hub2\Object\DTO\DataTransferObject;
 use srag\Plugins\Hub2\Object\DTO\IMetadataAwareDataTransferObject;
 use srag\Plugins\Hub2\Object\DTO\ITaxonomyAwareDataTransferObject;
@@ -13,7 +11,9 @@ use srag\Plugins\Hub2\Object\DTO\TaxonomyAwareDataTransferObject;
 /**
  * Class GroupDTO
  *
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @package srag\Plugins\Hub2\Object\Group
+ *
+ * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
 class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferObject, ITaxonomyAwareDataTransferObject {
 
@@ -141,20 +141,16 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
 	/**
 	 * @var string
 	 */
-    protected $parentId;
+	protected $parentId;
 	/**
 	 * @var int
 	 */
-    protected $parentIdType = self::PARENT_ID_TYPE_REF_ID;
-
+	protected $parentIdType = self::PARENT_ID_TYPE_REF_ID;
 	/**
-	 * @var null
+	 * @var string
 	 */
-	protected $appointementsColor = null;
-    /**
-     * @var string
-     */
-    protected $languageCode = 'en';
+	protected $appointementsColor = '';
+
 
 	/**
 	 * @return string
@@ -695,45 +691,21 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
 		return $this;
 	}
 
+
 	/**
-	 * @return null
+	 * @return string
 	 */
-	public function getAppointementsColor()
-	{
+	public function getAppointementsColor(): string {
 		return $this->appointementsColor;
 	}
 
+
 	/**
-	 * @param $appointementsColor
-	 * @return $this
+	 * @param string $appointementsColor
 	 */
-	public function setAppointementsColor($appointementsColor)
-	{
+	public function setAppointementsColor(string $appointementsColor) {
 		$this->appointementsColor = $appointementsColor;
+
 		return $this;
 	}
-
-    /**
-     * @return string
-     */
-    public function getLanguageCode() {
-        return $this->languageCode;
-    }
-
-
-    /**
-     * @param $languageCode
-     * @return GroupDTO
-     * @throws LanguageCodeException
-     */
-    public function setLanguageCode($languageCode): GroupDTO {
-        if (!CourseDTO::isLanguageCode($languageCode)) {
-            throw new LanguageCodeException($languageCode);
-        }
-
-        $this->languageCode = $languageCode;
-
-        return $this;
-    }
-
 }

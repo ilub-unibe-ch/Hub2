@@ -5,7 +5,8 @@ namespace srag\Plugins\Hub2\Shortlink;
 /**
  * Class NullLink
  *
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @package srag\Plugins\Hub2\Shortlink
+ * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
 class NullLink implements IObjectLink {
 
