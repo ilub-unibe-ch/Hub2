@@ -128,9 +128,9 @@ interface ILog {
 
 
 	/**
-	 * @return int
+	 * @return int | null
 	 */
-	public function getOriginId(): int;
+	public function getOriginId();
 
 
 	/**

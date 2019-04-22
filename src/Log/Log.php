@@ -343,7 +343,7 @@ class Log extends ActiveRecord implements ILog {
 	/**
 	 * @inheritdoc
 	 */
-	public function getOriginId(): int {
+	public function getOriginId() {
 		return $this->origin_id;
 	}
 
