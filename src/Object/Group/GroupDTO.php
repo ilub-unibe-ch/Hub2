@@ -2,11 +2,13 @@
 
 namespace srag\Plugins\Hub2\Object\Group;
 
+use srag\Plugins\Hub2\Exception\LanguageCodeException;
 use srag\Plugins\Hub2\Object\DTO\DataTransferObject;
 use srag\Plugins\Hub2\Object\DTO\IMetadataAwareDataTransferObject;
 use srag\Plugins\Hub2\Object\DTO\ITaxonomyAwareDataTransferObject;
 use srag\Plugins\Hub2\Object\DTO\MetadataAwareDataTransferObject;
 use srag\Plugins\Hub2\Object\DTO\TaxonomyAwareDataTransferObject;
+use srag\Plugins\Hub2\Object\Course\CourseDTO;
 
 /**
  * Class GroupDTO
@@ -151,6 +153,10 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
 	 */
 	protected $appointementsColor = '';
 
+    /**
+     * @var string
+     */
+    protected $languageCode = 'en';
 
 	/**
 	 * @return string
@@ -708,4 +714,28 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
 
 		return $this;
 	}
+
+    /**
+     * @return string
+     */
+    public function getLanguageCode() {
+        return $this->languageCode;
+    }
+
+
+    /**
+     * @param $languageCode
+     * @return GroupDTO
+     * @throws LanguageCodeException
+     */
+    public function setLanguageCode($languageCode): GroupDTO {
+        if (!CourseDTO::isLanguageCode($languageCode)) {
+            throw new LanguageCodeException($languageCode);
+        }
+
+        $this->languageCode = $languageCode;
+
+        return $this;
+    }
+
 }
