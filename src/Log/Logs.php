@@ -302,8 +302,7 @@ final class Logs {
 		$log = $this->originLog($origin, $object, $dto);
 
 		$log->withLevel(ILog::LEVEL_EXCEPTION);
-
-		$log->withMessage($ex->getMessage());
+		$log->withMessage($ex->getMessage()." in File: ".$ex->getFile()." line: ".$ex->getLine());
 
 		return $log;
 	}
