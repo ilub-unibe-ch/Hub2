@@ -8,6 +8,8 @@ use ilObjGroup;
 use ilRepUtil;
 use ilMD;
 use ilMDLanguageItem;
+use ilContainer;
+use ilContainerSortingSettings;
 use srag\Plugins\Hub2\Exception\HubException;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 use srag\Plugins\Hub2\Object\Group\GroupDTO;
@@ -58,7 +60,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 		"registrationStart",
 		"registrationEnd",
 		"password",
-		"registerMode",
+		"registrationType",
 		"minMembers",
 		"maxMembers",
 		"waitingListAutoFill",
@@ -153,6 +155,8 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 
 		$this->handleAppointementsColor($ilObjGroup, $dto);
         $this->setLanguage($dto, $ilObjGroup);
+		$this->handleOrdering($dto, $ilObjGroup);
+
 	}
 
 
@@ -182,9 +186,9 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 				$ilObjGroup->$setter($var);
 			}
 		}
-		if ($this->props->updateDTOProperty("registrationMode")
-			&& $dto->getRegisterMode() !== NULL) {
-			$ilObjGroup->setRegisterMode($dto->getRegisterMode());
+		if ($this->props->updateDTOProperty("registrationType")
+			&& $dto->getRegistrationType() !== NULL) {
+			$ilObjGroup->setRegistrationType($dto->getRegistrationType());
 		}
 
 		if ($this->props->updateDTOProperty("regUnlimited")
@@ -208,7 +212,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 
 		if ($this->props->updateDTOProperty("regUnlimited")
 			&& $dto->getRegUnlimited() !== NULL) {
-			$ilObjGroup->enableUnlimitedRegistration($dto->getRegisterMode());
+			$ilObjGroup->enableUnlimitedRegistration($dto->getRegUnlimited());
 		}
 
 		if ($this->props->updateDTOProperty("appointementsColor")) {
@@ -218,6 +222,12 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
         if ($this->props->updateDTOProperty("languageCode")) {
             $this->setLanguage($dto, $ilObjGroup);
         }
+
+		if ($this->props->updateDTOProperty("orderType")) {
+			$this->handleOrdering($dto,$ilObjGroup);
+		}
+
+
 		if ($this->props->get(GroupProperties::MOVE_GROUP)) {
 			$this->moveGroup($ilObjGroup, $dto);
 		}
@@ -277,14 +287,38 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 
     /**
      * @param GroupDTO $dto
-     * @param ilObjGroup $ilObjCourse
+     * @param ilObjGroup $ilObjGroup
      */
-    protected function setLanguage(GroupDTO $dto, ilObjGroup $ilObjCourse) {
-        $md_general = (new ilMD($ilObjCourse->getId()))->getGeneral();
+    protected function setLanguage(GroupDTO $dto, ilObjGroup $ilObjGroup) {
+        $md_general = (new ilMD($ilObjGroup->getId()))->getGeneral();
         $language = $md_general->getLanguage(array_pop($md_general->getLanguageIds()));
         $language->setLanguage(new ilMDLanguageItem($dto->getLanguageCode()));
         $language->update();
     }
+
+	/**
+	 * @param GroupDTO $dto
+	 * @param ilObjGroup $ilObjGroup
+	 */
+	protected function handleOrdering(GroupDTO $dto, ilObjGroup $ilObjGroup) {
+		$settings = new ilContainerSortingSettings($ilObjGroup->getId());
+		$settings->setSortMode($dto->getOrderType());
+
+		switch ($dto->getOrderType()) {
+			case ilContainer::SORT_TITLE:
+			case ilContainer::SORT_ACTIVATION:
+			case ilContainer::SORT_CREATION:
+				$settings->setSortDirection($dto->getOrderDirection());
+				break;
+			case ilContainer::SORT_MANUAL:
+				/**
+				 * TODO: set order direction for manual sorting
+				 */
+				break;
+		}
+
+		$settings->update();
+	}
 
 	/**
 	 * @param GroupDTO $group

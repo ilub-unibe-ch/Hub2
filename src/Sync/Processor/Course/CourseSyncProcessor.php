@@ -393,6 +393,10 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 			$this->handleAppointementsColor($ilObjCourse, $dto);
 		}
 
+		if ($this->props->updateDTOProperty("orderType")) {
+			$this->handleOrdering($dto,$ilObjCourse);
+		}
+
 		$ilObjCourse->update();
 	}
 

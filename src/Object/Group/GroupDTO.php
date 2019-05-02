@@ -22,19 +22,30 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
 	use MetadataAwareDataTransferObject;
 	use TaxonomyAwareDataTransferObject;
 	// View
+	const VIEW_SIMPLE = 4;
 	const VIEW_BY_TYPE = 5;
+	const VIEW_INHERIT = 6;
 	// Registration
 	const GRP_REGISTRATION_DEACTIVATED = - 1;
 	const GRP_REGISTRATION_DIRECT = 0;
 	const GRP_REGISTRATION_REQUEST = 1;
 	const GRP_REGISTRATION_PASSWORD = 2;
-	// Type
+
 	const GRP_REGISTRATION_LIMITED = 1;
 	const GRP_REGISTRATION_UNLIMITED = 2;
+
+	// Type
 	const GRP_TYPE_UNKNOWN = 0;
 	const GRP_TYPE_CLOSED = 1;
 	const GRP_TYPE_OPEN = 2;
 	const GRP_TYPE_PUBLIC = 3;
+	// Sortation
+	const SORT_TITLE = 0;//\ilContainer::SORT_TITLE;
+	const SORT_MANUAL = 1;//\ilContainer::SORT_MANUAL;
+	const SORT_INHERIT = 3;//\ilContainer::SORT_INHERIT;
+	const SORT_CREATION = 4;//\ilContainer::SORT_CREATION;
+	const SORT_DIRECTION_ASC = 0;//\ilContainer::SORT_DIRECTION_ASC;
+	const SORT_DIRECTION_DESC = 1;//\ilContainer::SORT_DIRECTION_DESC;
 	// Other
 	const MAIL_ALLOWED_ALL = 1;
 	const MAIL_ALLOWED_TUTORS = 2;
@@ -59,7 +70,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
 	/**
 	 * @var int
 	 */
-	protected $registerMode;
+	protected $registrationType;
 	/**
 	 * @var bool
 	 */
@@ -157,6 +168,14 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
      * @var string
      */
     protected $languageCode = 'en';
+	/**
+	 * @var int
+	 */
+	protected $orderType = self::SORT_TITLE;
+	/**
+	 * @var int
+	 */
+	protected $orderDirection = self::SORT_DIRECTION_ASC;
 
 	/**
 	 * @return string
@@ -201,18 +220,18 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
 	/**
 	 * @return int
 	 */
-	public function getRegisterMode() {
-		return $this->registerMode;
+	public function getRegistrationType() {
+		return $this->registrationType;
 	}
 
 
 	/**
-	 * @param int $registerMode
+	 * @param int $registrationType
 	 *
 	 * @return GroupDTO
 	 */
-	public function setRegisterMode($registerMode) {
-		$this->registerMode = $registerMode;
+	public function setRegistrationType($registrationType) {
+		$this->registrationType = $registrationType;
 
 		return $this;
 	}
@@ -737,5 +756,40 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
 
         return $this;
     }
+
+	/**
+	 * @return int
+	 */
+	public function getOrderType(): int {
+		return $this->orderType;
+	}
+
+
+	/**
+	 * @param int $orderType
+	 * @return $this
+	 */
+	public function setOrderType(int $orderType) {
+		$this->orderType = $orderType;
+		return $this;
+	}
+
+
+	/**
+	 * @return int
+	 */
+	public function getOrderDirection(): int {
+		return $this->orderDirection;
+	}
+
+
+	/**
+	 * @param int $orderDirection
+	 * @return $this
+	 */
+	public function setOrderDirection(int $orderDirection) {
+		$this->orderDirection = $orderDirection;
+		return $this;
+	}
 
 }

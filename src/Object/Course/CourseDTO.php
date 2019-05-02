@@ -876,9 +876,11 @@ class CourseDTO extends DataTransferObject implements ICourseDTO {
 
 	/**
 	 * @param int $orderType
+	 * @return $this
 	 */
 	public function setOrderType(int $orderType) {
 		$this->orderType = $orderType;
+		return $this;
 	}
 
 
@@ -892,9 +894,11 @@ class CourseDTO extends DataTransferObject implements ICourseDTO {
 
 	/**
 	 * @param int $orderDirection
+	 * @return $this
 	 */
 	public function setOrderDirection(int $orderDirection) {
 		$this->orderDirection = $orderDirection;
+		return $this;
 	}
 
 
