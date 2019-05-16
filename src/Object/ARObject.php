@@ -359,8 +359,11 @@ abstract class ARObject extends ActiveRecord implements IObject {
 			throw new InvalidArgumentException("'{$status}' is not a valid status");
 		}
 
-		self::logs()->originLog((new OriginFactory())->getById($this->origin_id), $this)->write("Changed status from "
+		/**
+		 * Omit extensive logs
+		 *self::logs()->originLog((new OriginFactory())->getById($this->origin_id), $this)->write("Changed status from "
 			. self::$available_status[$this->status] . " to " . self::$available_status[$status]);
+		 **/
 
 		$this->status = $status;
 
