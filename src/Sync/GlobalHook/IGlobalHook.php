@@ -3,6 +3,7 @@
 namespace srag\Plugins\Hub2\Sync\GlobalHook;
 
 use srag\Plugins\Hub2\Log\ILog;
+use Throwable;
 
 /**
  * Interface IGlobalHook
@@ -38,4 +39,11 @@ interface IGlobalHook {
 	 * @param ILog $log
 	 */
 	public function handleLog(ILog $log);
+
+	/**
+	 * This is executed after afterSync and allows the custom processing of exceptions fired during the sync.
+	 *
+	 * @param Throwable $throwable
+	 */
+	public function handleThrowable(Throwable $throwable);
 }

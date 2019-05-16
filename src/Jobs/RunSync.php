@@ -162,9 +162,9 @@ class RunSync extends ilCronJob {
 					$skip_object_type = $origin->getObjectType();
 					continue;
 				} catch (Throwable $e) {
+					$global_hook->handleThrowable($e);
 					self::logs()->exceptionLog($e, $origin)->store();
 				}
-
 				$this->summary->addOriginSync($originSync);
 			}
 
@@ -176,7 +176,8 @@ class RunSync extends ilCronJob {
 
 			return ResultFactory::ok("everything's fine.");
 		} catch (Throwable $e) {
-		    $result = ResultFactory::error("there was an error");
+			$global_hook->handleThrowable($e);
+			$result = ResultFactory::error("there was an error");
 		    $result->setError($e);
 			return $result;
 		}

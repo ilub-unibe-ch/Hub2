@@ -5,6 +5,7 @@ namespace srag\Plugins\Hub2\Sync\GlobalHook;
 use srag\Plugins\Hub2\Config\ArConfig;
 use srag\Plugins\Hub2\Exception\HubException;
 use srag\Plugins\Hub2\Log\ILog;
+use Throwable;
 
 /**
  * Class GlobalHook
@@ -104,6 +105,15 @@ final class GlobalHook implements IGlobalHook {
 	public function handleLog(ILog $log) {
 		if ($this->global_hook) {
 			$this->global_hook->handleLog($log);
+		}
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function handleThrowable(Throwable $throwable) {
+		if ($this->global_hook) {
+			$this->global_hook->handleThrowable($throwable);
 		}
 	}
 }
