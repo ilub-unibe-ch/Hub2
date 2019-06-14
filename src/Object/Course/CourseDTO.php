@@ -477,7 +477,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO {
 	/**
 	 * @return string
 	 */
-	public function getFourthDependenceCategory(): string {
+	public function getFourthDependenceCategory() {
 		return $this->fourthDependenceCategory;
 	}
 
