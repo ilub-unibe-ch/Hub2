@@ -313,6 +313,15 @@ class CourseDTO extends DataTransferObject implements ICourseDTO {
 	 */
 	protected $appointementsColor = '';
 
+	/**
+	 * @var bool
+	 */
+	protected $showMembers = true;
+
+	/**
+	 * @var bool
+	 */
+	protected $showMembersExport = false;
 
 	/**
 	 * @return string
@@ -917,5 +926,37 @@ class CourseDTO extends DataTransferObject implements ICourseDTO {
 		$this->appointementsColor = $appointementsColor;
 
 		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getShowMembers(): bool
+	{
+		return $this->showMembers;
+	}
+
+	/**
+	 * @param bool $showMembers
+	 */
+	public function setShowMembers(bool $showMembers)
+	{
+		$this->showMembers = $showMembers;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getShowMembersExport(): bool
+	{
+		return $this->showMembersExport;
+	}
+
+	/**
+	 * @param bool $showMembersExport
+	 */
+	public function setShowMembersExport(bool $showMembersExport)
+	{
+		$this->showMembersExport = $showMembersExport;
 	}
 }
