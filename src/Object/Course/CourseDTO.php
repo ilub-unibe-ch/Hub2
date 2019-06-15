@@ -938,10 +938,12 @@ class CourseDTO extends DataTransferObject implements ICourseDTO {
 
 	/**
 	 * @param bool $showMembers
+	 * @return $this
 	 */
 	public function setShowMembers(bool $showMembers)
 	{
 		$this->showMembers = $showMembers;
+		return $this;
 	}
 
 	/**
@@ -954,9 +956,11 @@ class CourseDTO extends DataTransferObject implements ICourseDTO {
 
 	/**
 	 * @param bool $showMembersExport
+	 * @return $this
 	 */
 	public function setShowMembersExport(bool $showMembersExport)
 	{
 		$this->showMembersExport = $showMembersExport;
+		return $this;
 	}
 }

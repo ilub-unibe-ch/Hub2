@@ -96,6 +96,12 @@ class SessionDTO extends DataTransferObject implements ISessionDTO {
     protected $languageCode = 'en';
 
 	/**
+	 * @var bool
+	 */
+	protected $showMembers = false;
+
+
+	/**
 	 * @return string
 	 */
 	public function getTitle() {
@@ -476,4 +482,22 @@ class SessionDTO extends DataTransferObject implements ISessionDTO {
 
         return $this;
     }
+
+	/**
+	 * @return bool
+	 */
+	public function getShowMembers(): bool
+	{
+		return $this->showMembers;
+	}
+
+	/**
+	 * @param bool $showMembers
+	 * @return $this
+	 */
+	public function setShowMembers(bool $showMembers)
+	{
+		$this->showMembers = $showMembers;
+		return $this;
+	}
 }
