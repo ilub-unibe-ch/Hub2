@@ -302,7 +302,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 			$sender = $sender_factory->system();
 		}
 		$mail->From($sender);
-		$mail->To($dto->getNotificationEmails());
+		$mail->Bcc($dto->getNotificationEmails());
 		$mail->Subject($this->props->get(CourseProperties::CREATE_NOTIFICATION_SUBJECT));
 		$mail->Body($this->replaceBodyTextForMail($this->props->get(CourseProperties::CREATE_NOTIFICATION_BODY), $ilObjCourse));
 		$mail->Send();
