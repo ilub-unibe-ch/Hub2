@@ -46,6 +46,7 @@ class SessionOriginConfigFormGUI extends OriginConfigFormGUI {
 		parent::addPropertiesUpdate();
 
 		$cb = new ilCheckboxInputGUI(self::plugin()->translate('sess_prop_move'), $this->prop(SessionProperties::MOVE_SESSION));
+		$cb->setChecked($this->origin->properties()->get(SessionProperties::MOVE_SESSION));
 		$cb->setInfo(self::plugin()->translate('sess_prop_move_info'));
 		$this->addItem($cb);
 	}

@@ -53,6 +53,7 @@ class GroupOriginConfigFormGUI extends OriginConfigFormGUI {
 		parent::addPropertiesUpdate();
 
 		$cb = new ilCheckboxInputGUI(self::plugin()->translate('grp_prop_move'), $this->prop(GroupProperties::MOVE_GROUP));
+		$cb->setChecked($this->origin->properties()->get(GroupProperties::MOVE_GROUP));
 		$cb->setInfo(self::plugin()->translate('grp_prop_move_info'));
 		$this->addItem($cb);
 	}
