@@ -110,4 +110,12 @@ class ilHub2Plugin extends ilCronHookPlugin {
 
 		ilUtil::delDir(ILIAS_DATA_DIR . "/hub/");
 	}
+
+    /**
+     * @return bool
+     */
+    protected function shouldUseOneUpdateStepOnly() : bool
+    {
+        // TODO: Implement shouldUseOneUpdateStepOnly() method.
+    }
 }

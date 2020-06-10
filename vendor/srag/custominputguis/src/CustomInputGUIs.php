@@ -2,10 +2,19 @@
 
 namespace srag\CustomInputGUIs\Hub2;
 
-use ILIAS\UI\Implementation\Component\Chart\ProgressMeter\Factory as ProgressMeterFactoryCore;
-use srag\CustomInputGUIs\Hub2\ProgressMeter\Implementation\Factory as ProgressMeterFactory;
-use srag\CustomInputGUIs\Hub2\ViewControlModeGUI\ViewControlModeGUI;
+use ILIAS\Data\Color;
+use srag\CustomInputGUIs\Hub2\LearningProgressPieUI\LearningProgressPieUI;
+use srag\CustomInputGUIs\Hub2\PieChart\Component\PieChart as PieChartInterface;
+use srag\CustomInputGUIs\Hub2\PieChart\Component\PieChartItem as PieChartItemInterface;
+use srag\CustomInputGUIs\Hub2\PieChart\Implementation\PieChart;
+use srag\CustomInputGUIs\Hub2\PieChart\Implementation\PieChartItem;
+use srag\CustomInputGUIs\Hub2\ViewControlModeUI\ViewControlModeUI;
 use srag\DIC\Hub2\DICTrait;
+
+//use ILIAS\UI\Component\Chart\PieChart\PieChart as PieChartInterfaceCore;
+//use ILIAS\UI\Component\Chart\PieChart\PieChartItem as PieChartItemInterfaceCore;
+//use ILIAS\UI\Implementation\Component\Chart\PieChart\PieChart as PieChartCore;
+//use ILIAS\UI\Implementation\Component\Chart\PieChart\PieChartItem as PieChartItemCore;
 
 /**
  * Class CustomInputGUIs
@@ -13,48 +22,91 @@ use srag\DIC\Hub2\DICTrait;
  * @package srag\CustomInputGUIs\Hub2
  *
  * @author  studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
- *
- * @internal
  */
-final class CustomInputGUIs {
+final class CustomInputGUIs
+{
 
-	use DICTrait;
-	/**
-	 * @var self
-	 */
-	protected static $instance = NULL;
+    use DICTrait;
 
-
-	/**
-	 * @return self
-	 */
-	public static function getInstance(): self {
-		if (self::$instance === NULL) {
-			self::$instance = new self();
-		}
-
-		return self::$instance;
-	}
+    /**
+     * @var self|null
+     */
+    protected static $instance = null;
 
 
-	/**
-	 * @return ProgressMeterFactoryCore|ProgressMeterFactory
-	 *
-	 * @since ILIAS 5.4
-	 */
-	public function progressMeter() {
-		if (self::version()->is54()) {
-			return new ProgressMeterFactoryCore();
-		} else {
-			return new ProgressMeterFactory();
-		}
-	}
+    /**
+     * @return self
+     */
+    public static function getInstance() : self
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
 
 
-	/**
-	 * @return ViewControlModeGUI
-	 */
-	public function viewControlModeGUI() {
-		return new ViewControlModeGUI();
-	}
+    /**
+     * CustomInputGUIs constructor
+     */
+    private function __construct()
+    {
+
+    }
+
+
+    /**
+     * @return LearningProgressPieUI
+     */
+    public function learningProgressPie() : LearningProgressPieUI
+    {
+        return new LearningProgressPieUI();
+    }
+
+
+    /**
+     * @param PieChartItemInterfaceCore[]|PieChartItemInterface[] $pieChartItems
+     *
+     * @return PieChartInterfaceCore|PieChartInterface
+     *
+     * @since ILIAS 6.0
+     */
+    public function pieChart(array $pieChartItems)
+    {
+        /*if (self::version()->is6()) {
+            return new PieChartCore($pieChartItems);
+        } else {*/
+        return new PieChart($pieChartItems);
+        //}
+    }
+
+
+    /**
+     * @param string     $name
+     * @param float      $value
+     * @param Color      $color
+     * @param Color|null $textColor
+     *
+     * @return PieChartItemInterfaceCore|PieChartItemInterface
+     *
+     * @since ILIAS 6.0
+     */
+    public function pieChartItem(string $name, float $value, Color $color, /*?*/ Color $textColor = null)
+    {
+        /*if (self::version()->is6()) {
+            return new PieChartItemCore($name, $value, $color, $textColor);
+        } else {*/
+        return new PieChartItem($name, $value, $color, $textColor);
+        //}
+    }
+
+
+    /**
+     * @return ViewControlModeUI
+     */
+    public function viewControlMode() : ViewControlModeUI
+    {
+        return new ViewControlModeUI();
+    }
 }
