@@ -3,8 +3,7 @@
 namespace srag\Plugins\Hub2\Config;
 
 use ilHub2Plugin;
-use srag\ActiveRecordConfig\Hub2\Config\AbstractFactory;
-use srag\ActiveRecordConfig\Hub2\Config\AbstractRepository;
+use srag\ActiveRecordConfig\Hub2\ActiveRecordConfig;
 use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
@@ -14,7 +13,7 @@ use srag\Plugins\Hub2\Utils\Hub2Trait;
  *
  * @author  studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
  */
-class ArConfig extends  AbstractRepository {
+class ArConfig extends  ActiveRecordConfig {
 
 	use Hub2Trait;
 	const TABLE_NAME = 'sr_hub2_config_n';
@@ -68,32 +67,4 @@ class ArConfig extends  AbstractRepository {
 				return $default_value;
 		}
 	}
-
-    /**
-     * @return AbstractFactory
-     */
-    public function factory() : AbstractFactory
-    {
-        // TODO: Implement factory() method.
-    }
-
-    /**
-     * @return string
-     */
-    protected function getTableName() : string
-    {
-        // TODO: Implement getTableName() method.
-    }
-
-    /**
-     * @return array
-     */
-    protected function getFields() : array
-    {
-        // TODO: Implement getFields() method.
-
-    }
-
-    
-
 }

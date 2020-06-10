@@ -60,7 +60,7 @@ class ActiveRecordConfig extends Config
      *
      * @deprecated
      */
-    protected static final function getDefaultValue(string $name, int $type, $default_value)
+    protected static  function getDefaultValue(string $name, int $type, $default_value)
     {
         throw new ActiveRecordConfigException("getDefaultValue is not supported anymore - please try to use the second parameter in the fields array instead!",
             ActiveRecordConfigException::CODE_INVALID_FIELD);
