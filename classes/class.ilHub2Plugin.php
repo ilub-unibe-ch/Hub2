@@ -116,6 +116,6 @@ class ilHub2Plugin extends ilCronHookPlugin {
      */
     protected function shouldUseOneUpdateStepOnly() : bool
     {
-        // TODO: Implement shouldUseOneUpdateStepOnly() method.
+        return false;
     }
 }
