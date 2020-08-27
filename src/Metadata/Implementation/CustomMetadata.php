@@ -8,6 +8,7 @@ use ilADTInternalLink;
 use ilADTText;
 use ilAdvancedMDValues;
 use ilDateTime;
+use ilADTLocation;
 
 /**
  * Class CustomMetadata
@@ -44,6 +45,11 @@ class CustomMetadata extends AbstractImplementation implements IMetadataImplemen
 			case ($ilADT instanceof ilADTInternalLink):
 				$ilADT->setTargetRefId($value);
 				break;
+            case ($ilADT instanceof ilADTLocation):
+                $ilADT->setLatitude($value['latitude']);
+                $ilADT->setLongitude($value['longitude']);
+                $ilADT->setZoom($value['zoom']);
+                break;
 		}
 
 		$ilAdvancedMDValues->write();
