@@ -407,6 +407,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 		if ($this->props->updateDTOProperty("orderType")) {
 			$this->handleOrdering($dto,$ilObjCourse);
 		}
+        $this->setNewsSetting($dto, $ilObjCourse);
 
 		$ilObjCourse->update();
 	}

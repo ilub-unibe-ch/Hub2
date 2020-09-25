@@ -232,6 +232,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 		if ($this->props->get(GroupProperties::MOVE_GROUP)) {
 			$this->moveGroup($ilObjGroup, $dto);
 		}
+        $this->setNewsSetting($dto,$ilObjGroup);
 		$ilObjGroup->update();
 	}
 
