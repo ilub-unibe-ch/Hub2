@@ -148,6 +148,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 			$ilObjGroup->enableRegistrationAccessCode($dto->getRegAccessCodeEnabled());
 		}
 
+        $this->setNewsSetting($dto,$ilObjGroup);
 		$ilObjGroup->create();
 		$ilObjGroup->createReference();
 		$ilObjGroup->putInTree($parentRefId);
@@ -415,4 +416,13 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 		self::dic()->tree()->moveTree($ilObjGroup->getRefId(), $parentRefId);
 		self::dic()->rbacadmin()->adjustMovedObjectPermissions($ilObjGroup->getRefId(), $oldParentRefId);
 	}
+
+    /**
+     * @param GroupDTO   $dto
+     * @param ilObjGroup $ilObjGroup
+     */
+    protected function setNewsSetting(GroupDTO $dto, ilObjGroup $ilObjGroup) {
+        $ilObjGroup->setUseNews($dto->getNewsSetting());
+        $ilObjGroup->setNewsBlockActivated($dto->getNewsSetting());
+    }
 }

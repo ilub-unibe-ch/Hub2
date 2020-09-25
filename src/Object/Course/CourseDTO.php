@@ -323,6 +323,12 @@ class CourseDTO extends DataTransferObject implements ICourseDTO {
 	 */
 	protected $showMembersExport = false;
 
+
+    /**
+     * @var bool
+     */
+    protected $newsSetting = true;
+
 	/**
 	 * @return string
 	 */
@@ -963,4 +969,22 @@ class CourseDTO extends DataTransferObject implements ICourseDTO {
 		$this->showMembersExport = $showMembersExport;
 		return $this;
 	}
+
+    /**
+     * @return bool
+     */
+    public function getNewsSetting(): bool
+    {
+        return $this->newsSetting;
+    }
+
+    /**
+     * @param bool
+     * @return $this
+     */
+    public function setNewsSetting(bool $newsSetting)
+    {
+        $this->newsSetting = $newsSetting;
+        return $this;
+    }
 }

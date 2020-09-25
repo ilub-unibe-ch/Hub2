@@ -158,6 +158,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 			$this->sendMailNotifications($dto, $ilObjCourse);
 		}
 		$this->setSubscriptionType($dto, $ilObjCourse);
+		$this->setNewsSetting($dto, $ilObjCourse);
 
 		$this->setLanguage($dto, $ilObjCourse);
 		$ilObjCourse->enableSessionLimit($dto->isSessionLimitEnabled());
@@ -288,6 +289,14 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 		}
 	}
 
+    /**
+     * @param CourseDTO   $dto
+     * @param ilObjCourse $ilObjCourse
+     */
+    protected function setNewsSetting(CourseDTO $dto, ilObjCourse $ilObjCourse) {
+            $ilObjCourse->setUseNews($dto->getNewsSetting());
+            $ilObjCourse->setNewsBlockActivated($dto->getNewsSetting());
+    }
 
 	/**
 	 * @param CourseDTO $dto

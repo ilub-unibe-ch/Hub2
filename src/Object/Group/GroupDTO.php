@@ -177,6 +177,11 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
 	 */
 	protected $orderDirection = self::SORT_DIRECTION_ASC;
 
+    /**
+     * @var bool
+     */
+    protected $newsSetting=true;
+
 	/**
 	 * @return string
 	 */
@@ -792,4 +797,22 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
 		return $this;
 	}
 
+
+    /**
+     * @return bool
+     */
+    public function getNewsSetting(): bool
+    {
+        return $this->newsSetting;
+    }
+
+    /**
+     * @param bool
+     * @return $this
+     */
+    public function setNewsSetting(bool $newsSetting)
+    {
+        $this->newsSetting = $newsSetting;
+        return $this;
+    }
 }
