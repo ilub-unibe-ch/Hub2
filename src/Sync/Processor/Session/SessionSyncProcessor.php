@@ -7,6 +7,8 @@ use ilObject2;
 use ilObjSession;
 use ilSessionAppointment;
 use ilRepUtil;
+use ilMD;
+use ilMDLanguageItem;
 use srag\Plugins\Hub2\Exception\HubException;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 use srag\Plugins\Hub2\Object\ObjectFactory;
@@ -93,6 +95,8 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 		foreach (self::getProperties() as $property) {
 			$setter = "set" . ucfirst($property);
 			$getter = "get" . ucfirst($property);
+
+
 			if ($dto->$getter() !== NULL) {
 				$ilObjSession->$setter($dto->$getter());
 			}
@@ -103,6 +107,7 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 		 * create prepareCalendarAppointments by ilAppEventHandler. At this point the
 		 * correct dates need to be set, otherwise, the current date will be used.
 		 **/
+
 		$ilObjSession = $this->setDataForFirstAppointment($dto, $ilObjSession, true);
 		$ilObjSession->create();
 		$ilObjSession->createReference();
@@ -114,6 +119,7 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 		 * creation of the firs appointment, otherwise no event_appointment will be
 		 * generated for the session.
 		 */
+        $this->setLanguage($dto, $ilObjSession);
 		$ilObjSession->getFirstAppointment()->setSessionId($ilObjSession->getId());
 		$ilObjSession->getFirstAppointment()->create();
 	}
@@ -144,7 +150,7 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 		if ($this->props->get(SessionProperties::MOVE_SESSION)) {
 			$this->moveSession($ilObjSession, $dto);
 		}
-
+        $this->setLanguage($dto, $ilObjSession);
 		$ilObjSession = $this->setDataForFirstAppointment($dto, $ilObjSession, true);
 		$ilObjSession->update();
 		$ilObjSession->getFirstAppointment()->update();
@@ -293,4 +299,21 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 		self::dic()->tree()->moveTree($ilObjSession->getRefId(), $parentRefId);
 		self::dic()->rbacadmin()->adjustMovedObjectPermissions($ilObjSession->getRefId(), $oldParentRefId);
 	}
+
+
+
+    /**
+     * @param SessionDTO   $dto
+     * @param ilObjSession $ilObjSession
+     */
+    protected function setLanguage(\srag\Plugins\Hub2\Object\Session\SessionDTO $dto, ilObjSession $ilObjSession) {
+        $md_general = (new ilMD($ilObjSession->getId()))->getGeneral();
+        //Note: this is terribly stupid, but the best (only) way if found to get to the
+        //lang id of the primary language of some object. There seems to be multy lng
+        //support however, not through the GUI. Maybe there is some bug in the generation
+        //of the respective metadata form. See: initQuickEditForm() in ilMDEditorGUI
+        $language = $md_general->getLanguage(array_pop($md_general->getLanguageIds()));
+        $language->setLanguage(new ilMDLanguageItem($dto->getLanguageCode()));
+        $language->update();
+    }
 }
