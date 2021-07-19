@@ -19,4 +19,5 @@ interface ISessionDTO extends IDataTransferObject, IMetadataAwareDataTransferObj
 	const REGISTRATION_TYPE_NONE = 0;
 	const REGISTRATION_TYPE_DIRECT = 1;
 	const REGISTRATION_TYPE_REQUEST = 3;
+	const REGISTRATION_TYPE_IMPOSSIBLE = 4;
 }
