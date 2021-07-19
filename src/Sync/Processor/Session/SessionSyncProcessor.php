@@ -58,8 +58,7 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 		"registrationMaxUsers",
 		"registrationWaitingList",
 		"waitingListAutoFill",
-		'showMembers',
-        "cannotParticipateOption"
+		'showMembers'
 	);
 
 
@@ -100,6 +99,7 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 				$ilObjSession->$setter($dto->$getter());
 			}
 		}
+		$ilObjSession->enableCannotParticipateOption($dto->getCannotParticipateOption());
 
 		/**
 		 * Dates for first appointment need to be fixed before create since create raises
