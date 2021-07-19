@@ -74,6 +74,10 @@ class SessionDTO extends DataTransferObject implements ISessionDTO {
 	 * @var bool
 	 */
 	protected $registrationWaitingList;
+    /**
+     * @var int
+     */
+    protected $cannotParticipateOption;
 	/**
 	 * @var bool
 	 */
@@ -360,6 +364,17 @@ class SessionDTO extends DataTransferObject implements ISessionDTO {
 		return $this;
 	}
 
+
+	public function getCannotParticipateOption()
+    {
+        return $this->cannotParticipateOption;
+    }
+
+    public function setCannotParticipateOption($cannotParticipateOption)
+    {
+        $this->cannotParticipateOption = $cannotParticipateOption;
+        return $this;
+    }
 
 	/**
 	 * @return string

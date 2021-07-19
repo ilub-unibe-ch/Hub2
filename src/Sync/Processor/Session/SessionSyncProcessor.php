@@ -58,7 +58,8 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 		"registrationMaxUsers",
 		"registrationWaitingList",
 		"waitingListAutoFill",
-		'showMembers'
+		'showMembers',
+        "cannotParticipateOption"
 	);
 
 
