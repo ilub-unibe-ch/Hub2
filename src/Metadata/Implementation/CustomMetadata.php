@@ -6,6 +6,7 @@ use ilADTDate;
 use ilADTExternalLink;
 use ilADTInternalLink;
 use ilADTText;
+use ilADTLocalizedText;
 use ilAdvancedMDValues;
 use ilDateTime;
 use ilADTLocation;
@@ -32,6 +33,9 @@ class CustomMetadata extends AbstractImplementation implements IMetadataImplemen
 		$ilADT = $ilADTGroup->getElement($id);
 
 		switch (true) {
+            case ($ilADT instanceof ilADTLocalizedText):
+                $ilADT->setTranslation("de", $value);
+                break;
 			case ($ilADT instanceof ilADTText):
 				$ilADT->setText($value);
 				break;
