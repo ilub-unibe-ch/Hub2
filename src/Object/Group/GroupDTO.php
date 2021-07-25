@@ -22,6 +22,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
 	use MetadataAwareDataTransferObject;
 	use TaxonomyAwareDataTransferObject;
 	// View
+    const VIEW_SESSIONS = 0;
 	const VIEW_SIMPLE = 4;
 	const VIEW_BY_TYPE = 5;
 	const VIEW_INHERIT = 6;
@@ -151,6 +152,18 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
 	 * @var int
 	 */
 	protected $viewMode;
+    /**
+     * @var bool
+     */
+    protected $sessionLimit;
+    /**
+     * @var int
+     */
+    protected $numberOfNextSessions;
+    /**
+     * @var int
+     */
+    protected $numberOfPreviousSessions;
 	/**
 	 * @var string
 	 */
@@ -680,6 +693,43 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
 
 		return $this;
 	}
+
+    public function setSessionLimit($bool)
+    {
+        $this->sessionLimit = $bool;
+        return $this;
+    }
+
+    public function getSessionLimit()
+    {
+        return $this->sessionLimit;
+
+    }
+
+    public function setNumberOfPreviousSessions($number)
+    {
+        $this->numberOfPreviousSessions = $number;
+        return $this;
+    }
+
+    public function setNumberOfNextSessions($number)
+    {
+        $this->numberOfNextSessions = $number;
+        return $this;
+    }
+
+    public function getNumberOfPreviousSessions()
+    {
+        return $this->numberOfPreviousSessions;
+
+    }
+
+    public function getNumberOfNextSessions()
+    {
+        return $this->numberOfNextSessions;
+
+    }
+
 
 
 	/**

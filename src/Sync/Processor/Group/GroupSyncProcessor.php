@@ -57,6 +57,8 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 		"groupType",
 		"owner",
 		"viewMode",
+        "numberOfPreviousSessions",
+        "numberOfNextSession",
 		"registrationStart",
 		"registrationEnd",
 		"password",
@@ -132,6 +134,10 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 			}
 		}
 
+        if ($dto->getSessionLimit()!== NULL){
+            $ilObjGroup->enableSessionLimit($dto->getSessionLimit());
+        }
+
 		if ($dto->getRegUnlimited() !== NULL) {
 			$ilObjGroup->enableUnlimitedRegistration($dto->getRegUnlimited());
 		}
@@ -187,7 +193,12 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 				$ilObjGroup->$setter($var);
 			}
 		}
-		if ($this->props->updateDTOProperty("registrationType")
+
+        if ($dto->getSessionLimit() !== null) {
+            $ilObjGroup->enableSessionLimit($dto->getSessionLimit());
+        }
+
+        if ($this->props->updateDTOProperty("registrationType")
 			&& $dto->getRegistrationType() !== NULL) {
 			$ilObjGroup->setRegistrationType($dto->getRegistrationType());
 		}
