@@ -58,7 +58,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
 		"owner",
 		"viewMode",
         "numberOfPreviousSessions",
-        "numberOfNextSession",
+        "numberOfNextSessions",
 		"registrationStart",
 		"registrationEnd",
 		"password",
