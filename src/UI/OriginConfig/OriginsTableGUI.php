@@ -70,7 +70,6 @@ class OriginsTableGUI extends ilTable2GUI {
 		$this->addColumn(self::plugin()->translate('origin_table_header_description'), 'description');
 		$this->addColumn(self::plugin()->translate('origin_table_header_usage_type'), 'object_type');
 		$this->addColumn(self::plugin()->translate('origin_table_header_last_update'), 'last_sync');
-		$this->addColumn(self::plugin()->translate('origin_table_header_count'), 'n_objects');
 		$this->addColumn(self::plugin()->translate('common_actions'));
 	}
 
@@ -92,7 +91,6 @@ class OriginsTableGUI extends ilTable2GUI {
 			$row['description'] = $origin->getDescription();
 			$row['object_type'] = self::plugin()->translate("origin_object_type_" . $origin->getObjectType());
 			$row['last_sync'] = $origin->getLastRun();
-			$row['n_objects'] = $objectRepository->count();
 			$data[] = $row;
 		}
 		$this->setData($data);
