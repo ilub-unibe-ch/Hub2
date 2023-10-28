@@ -1,34 +1,47 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Taxonomy\Implementation;
 
 use srag\Plugins\Hub2\Taxonomy\ITaxonomy;
 
 /**
  * Interface ITaxonomyImplementation
- *
  * @package srag\Plugins\Hub2\Taxonomy\Implementation
- *
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-interface ITaxonomyImplementation {
+interface ITaxonomyImplementation
+{
+    /**
+     * Writes the Value in the ILIAS representative
+     * @return void
+     */
+    public function write();
 
-	/**
-	 * Writes the Value in the ILIAS representative
-	 *
-	 * @return void
-	 */
-	public function write();
+    /**
+     * @return ITaxonomy
+     */
+    public function getTaxonomy(): ITaxonomy;
 
-
-	/**
-	 * @return ITaxonomy
-	 */
-	public function getTaxonomy(): ITaxonomy;
-
-
-	/**
-	 * @return int
-	 */
-	public function getILIASParentId(): int;
+    /**
+     * @return int
+     */
+    public function getILIASParentId(): int;
 }

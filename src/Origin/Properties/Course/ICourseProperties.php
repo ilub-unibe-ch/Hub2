@@ -1,42 +1,57 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Origin\Properties\Course;
 
 use srag\Plugins\Hub2\Origin\Properties\IOriginProperties;
 
 /**
  * Interface IOrgUnitMembershipOriginProperties
- *
  * @package srag\Plugins\Hub2\Origin\Properties\Course
  * @author  Stefan Wanzenried <sw@studer-raimann.ch>
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-interface ICourseProperties extends IOriginProperties {
+interface ICourseProperties extends IOriginProperties
+{
+    public const SET_ONLINE = 'set_online';
+    public const SET_ONLINE_AGAIN = 'set_online_again';
+    public const CREATE_ICON = 'create_icon';
+    public const SEND_CREATE_NOTIFICATION = 'send_create_notification';
+    public const CREATE_NOTIFICATION_SUBJECT = 'create_notification_subject';
+    public const CREATE_NOTIFICATION_BODY = 'create_notification_body';
+    public const CREATE_NOTIFICATION_FROM = 'create_notification_from';
+    public const DELETE_MODE = 'delete_mode';
+    public const MOVE_COURSE = 'move_course';
+    public const DELETE_MODE_NONE = 0;
+    public const DELETE_MODE_OFFLINE = 1;
+    public const DELETE_MODE_DELETE = 2;
+    public const DELETE_MODE_DELETE_OR_OFFLINE = 3; // Set offline if there were any activities in the course, delete otherwise
+    public const DELETE_MODE_MOVE_TO_TRASH = 4;
 
-	const SET_ONLINE = 'set_online';
-	const SET_ONLINE_AGAIN = 'set_online_again';
-	const CREATE_ICON = 'create_icon';
-	const SEND_CREATE_NOTIFICATION = 'send_create_notification';
-	const CREATE_NOTIFICATION_SUBJECT = 'create_notification_subject';
-	const CREATE_NOTIFICATION_BODY = 'create_notification_body';
-	const CREATE_NOTIFICATION_FROM = 'create_notification_from';
-	const DELETE_MODE = 'delete_mode';
-	const MOVE_COURSE = 'move_course';
-	const DELETE_MODE_NONE = 0;
-	const DELETE_MODE_OFFLINE = 1;
-	const DELETE_MODE_DELETE = 2;
-	const DELETE_MODE_DELETE_OR_OFFLINE = 3; // Set offline if there were any activities in the course, delete otherwise
-	const DELETE_MODE_MOVE_TO_TRASH = 4;
+    /**
+     * @return string
+     */
+    public static function getPlaceHolderStrings(): string;
 
-
-	/**
-	 * @return string
-	 */
-	public static function getPlaceHolderStrings(): string;
-
-
-	/**
-	 * @return array
-	 */
-	public static function getAvailableDeleteModes(): array;
+    /**
+     * @return array
+     */
+    public static function getAvailableDeleteModes(): array;
 }

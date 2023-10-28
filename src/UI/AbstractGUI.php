@@ -1,29 +1,41 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\UI;
 
 use ilHub2Plugin;
-use srag\DIC\Hub2\DICTrait;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
-
 /**
  * Class AbstractGUI
- *
  * @package    srag\Plugins\Hub2\UI
  * @author     Fabian Schmid <fs@studer-raimann.ch>
  * @deprecated TODO: ???
  */
-abstract class AbstractGUI {
+abstract class AbstractGUI
+{
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
 
-	use DICTrait;
-	use Hub2Trait;
-	const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    /**
+     * AbstractGUI constructor
+     */
+    public function __construct()
+    {
 
-
-	/**
-	 * AbstractGUI constructor
-	 */
-	public function __construct() {
-
-	}
+    }
 }

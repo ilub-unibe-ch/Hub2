@@ -1,5 +1,20 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Object\DTO;
 
 use srag\Plugins\Hub2\Object\Category\CategoryDTO;
@@ -15,93 +30,73 @@ use srag\Plugins\Hub2\Object\User\UserDTO;
 
 /**
  * Interface IDataTransferObjectFactory
- *
  * @package srag\Plugins\Hub2\Object\DTO
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-interface IDataTransferObjectFactory {
+interface IDataTransferObjectFactory
+{
+    /**
+     * @param string $ext_id
+     * @return UserDTO
+     */
+    public function user(string $ext_id): UserDTO;
 
-	/**
-	 * @param string $ext_id
-	 *
-	 * @return UserDTO
-	 */
-	public function user($ext_id);
+    /**
+     * @param string $ext_id
+     * @return CourseDTO
+     */
+    public function course(string $ext_id): CourseDTO;
 
+    /**
+     * @param string $ext_id
+     * @return CategoryDTO
+     */
+    public function category(string $ext_id): CategoryDTO;
 
-	/**
-	 * @param string $ext_id
-	 *
-	 * @return CourseDTO
-	 */
-	public function course($ext_id);
+    /**
+     * @param string $ext_id
+     * @return GroupDTO
+     */
+    public function group(string $ext_id): GroupDTO;
 
+    /**
+     * @param string $ext_id
+     * @return SessionDTO
+     */
+    public function session(string $ext_id): SessionDTO;
 
-	/**
-	 * @param string $ext_id
-	 *
-	 * @return CategoryDTO
-	 */
-	public function category($ext_id);
+    /**
+     * @param int $course_id
+     * @param int $user_id
+     * @return CourseMembershipDTO
+     */
+    public function courseMembership(int $course_id, int $user_id): CourseMembershipDTO;
 
+    /**
+     * @param int $group_id
+     * @param int $user_id
+     * @return GroupMembershipDTO
+     */
+    public function groupMembership(int $group_id, int $user_id): GroupMembershipDTO;
 
-	/**
-	 * @param string $ext_id
-	 *
-	 * @return GroupDTO
-	 */
-	public function group($ext_id);
+    /**
+     * @param int $session_id
+     * @param int $user_id
+     * @return SessionMembershipDTO
+     */
+    public function sessionMembership(int $session_id, int $user_id): SessionMembershipDTO;
 
+    /**
+     * @param string $ext_id
+     * @return IOrgUnitDTO
+     */
+    public function orgUnit(string $ext_id): IOrgUnitDTO;
 
-	/**
-	 * @param string $ext_id
-	 *
-	 * @return SessionDTO
-	 */
-	public function session($ext_id);
-
-
-	/**
-	 * @param int $course_id
-	 * @param int $user_id
-	 *
-	 * @return CourseMembershipDTO
-	 */
-	public function courseMembership($course_id, $user_id);
-
-
-	/**
-	 * @param int $group_id
-	 * @param int $user_id
-	 *
-	 * @return GroupMembershipDTO
-	 */
-	public function groupMembership($group_id, $user_id);
-
-
-	/**
-	 * @param int $session_id
-	 * @param int $user_id
-	 *
-	 * @return SessionMembershipDTO
-	 */
-	public function sessionMembership($session_id, $user_id);
-
-
-	/**
-	 * @param string $ext_id
-	 *
-	 * @return IOrgUnitDTO
-	 */
-	public function orgUnit(string $ext_id): IOrgUnitDTO;
-
-
-	/**
-	 * @param int|string $org_unit_id
-	 * @param int        $user_id
-	 * @param int        $position
-	 *
-	 * @return IOrgUnitMembershipDTO
-	 */
-	public function orgUnitMembership($org_unit_id, int $user_id, int $position): IOrgUnitMembershipDTO;
+    /**
+     * @param int|string $org_unit_id
+     * @param int        $user_id
+     * @param int        $position
+     * @return IOrgUnitMembershipDTO
+     */
+    public function orgUnitMembership(int|string $org_unit_id, int $user_id, int $position): IOrgUnitMembershipDTO;
 }

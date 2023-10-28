@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Shortlink;
 
 use srag\Plugins\Hub2\Object\ARObject;
@@ -29,92 +47,88 @@ use srag\Plugins\Hub2\Shortlink\User\UserLink;
 
 /**
  * Class ObjectLinkFactory
- *
  * @package srag\Plugins\Hub2\Shortlink
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-class ObjectLinkFactory {
+class ObjectLinkFactory
+{
+    /**
+     * @var OriginFactory
+     */
+    private OriginFactory $origin_factory;
 
-	/**
-	 * @var OriginFactory
-	 */
-	private $origin_factory;
+    /**
+     * ObjectLinkFactory constructor
+     */
+    public function __construct()
+    {
+        $this->origin_factory = new OriginFactory();
+    }
 
+    /**
+     * @param string $ext_id
+     * @return IObjectLink
+     */
+    public function findByExtId(string $ext_id): IObjectLink
+    {
+        foreach ($this->origin_factory->getAllActive() as $origin) {
+            $l = $this->findByExtIdAndOrigin($ext_id, $origin);
 
-	/**
-	 * ObjectLinkFactory constructor
-	 */
-	public function __construct() {
-		$this->origin_factory = new OriginFactory();
-	}
+            if (!($l instanceof NullLink)) {
+                return $l;
+            }
+        }
 
+        return new NullLink();
+    }
 
-	/**
-	 * @param string $ext_id
-	 *
-	 * @return IObjectLink
-	 */
-	public function findByExtId(string $ext_id): IObjectLink {
-		foreach ($this->origin_factory->getAllActive() as $origin) {
-			$l = $this->findByExtIdAndOrigin($ext_id, $origin);
+    /**
+     * @param string  $ext_id
+     * @param IOrigin $origin
+     * @return IObjectLink
+     */
+    public function findByExtIdAndOrigin(string $ext_id, IOrigin $origin): IObjectLink
+    {
+        $f = new ObjectFactory($origin);
 
-			if (!($l instanceof NullLink)) {
-				return $l;
-			}
-		}
+        $object = $f->undefined($ext_id);
 
-		return new NullLink();
-	}
+        return $this->findByObject($object);
+    }
 
+    /**
+     * @param ARObject $object
+     * @return IObjectLink
+     */
+    public function findByObject(ARObject $object): IObjectLink
+    {
+        if ($object->getILIASId()) {
+            switch (true) {
+                case ($object instanceof ARCourseMembership):
+                    return new CourseMembershipLink($object);
+                case ($object instanceof ARGroupMembership):
+                    return new GroupMembershipLink($object);
+                case ($object instanceof ARSessionMembership):
+                    return new SessionMembershipLink($object);
+                case ($object instanceof ARSession):
+                    return new SessionLink($object);
+                case ($object instanceof ARCategory):
+                    return new CategoryLink($object);
+                case ($object instanceof ARCourse):
+                    return new CourseLink($object);
+                case ($object instanceof ARGroup):
+                    return new GroupLink($object);
+                case ($object instanceof ARUser):
+                    return new UserLink($object);
+                case ($object instanceof IOrgUnit):
+                    return new OrgUnitLink($object);
+                case ($object instanceof IOrgUnitMembership):
+                    return new OrgUnitMembershipLink($object);
+                default:
+                    break;
+            }
+        }
 
-	/**
-	 * @param string  $ext_id
-	 * @param IOrigin $origin
-	 *
-	 * @return IObjectLink
-	 */
-	public function findByExtIdAndOrigin(string $ext_id, IOrigin $origin): IObjectLink {
-		$f = new ObjectFactory($origin);
-
-		$object = $f->undefined($ext_id);
-
-		return $this->findByObject($object);
-	}
-
-
-	/**
-	 * @param ARObject $object
-	 *
-	 * @return IObjectLink
-	 */
-	public function findByObject(ARObject $object): IObjectLink {
-		if ($object->getILIASId()) {
-			switch (true) {
-				case ($object instanceof ARCourseMembership):
-					return new CourseMembershipLink($object);
-				case ($object instanceof ARGroupMembership):
-					return new GroupMembershipLink($object);
-				case ($object instanceof ARSessionMembership):
-					return new SessionMembershipLink($object);
-				case ($object instanceof ARSession):
-					return new SessionLink($object);
-				case ($object instanceof ARCategory):
-					return new CategoryLink($object);
-				case ($object instanceof ARCourse):
-					return new CourseLink($object);
-				case ($object instanceof ARGroup):
-					return new GroupLink($object);
-				case ($object instanceof ARUser):
-					return new UserLink($object);
-				case ($object instanceof IOrgUnit):
-					return new OrgUnitLink($object);
-				case ($object instanceof IOrgUnitMembership):
-					return new OrgUnitMembershipLink($object);
-				default:
-					break;
-			}
-		}
-
-		return new NullLink();
-	}
+        return new NullLink();
+    }
 }

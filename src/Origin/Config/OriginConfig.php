@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Origin\Config;
 
 use ilObjFile;
@@ -7,277 +25,276 @@ use srag\Plugins\Hub2\Exception\ConnectionFailedException;
 
 /**
  * Class OriginConfig
- *
  * @author  Stefan Wanzenried <sw@studer-raimann.ch>
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  * @package srag\Plugins\Hub2\Origin\Config
  */
-class OriginConfig implements IOriginConfig {
-
-	/**
-	 * @var array
-	 */
-	protected $data = [
-		self::CHECK_AMOUNT => false,
-		self::CHECK_AMOUNT_PERCENTAGE => 10,
-		self::SHORT_LINK => false,
-		self::SHORT_LINK_FORCE_LOGIN => false,
-		self::NOTIFICATION_ERRORS => '',
-		self::NOTIFICATION_SUMMARY => '',
-		self::CONNECTION_TYPE => IOriginConfig::CONNECTION_TYPE_PATH,
-		self::PATH => '',
-		self::SERVER_HOST => '',
-		self::SERVER_PORT => '',
-		self::SERVER_USERNAME => '',
-		self::SERVER_PASSWORD => '',
-		self::SERVER_DATABASE => '',
-		self::SERVER_SEARCH_BASE => '',
-		self::ACTIVE_PERIOD => '',
-		self::LINKED_ORIGIN_ID => 0,
-		self::ILIAS_FILE_REF_ID => 0
-	];
-
-
-	/**
-	 * @param array $data
-	 */
-	public function __construct(array $data) {
-		$this->data = array_merge($this->data, $data);
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getData(): array {
-		return $this->data;
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function setData(array $data) {
-		$this->data = array_merge($this->data, $data);
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function get(string $key) {
-		return (isset($this->data[$key])) ? $this->data[$key] : NULL;
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getCustom(string $key) {
-		$key = self::CUSTOM_PREFIX . $key;
-
-		return $this->get($key);
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getConnectionType(): int {
-		return intval($this->get(self::CONNECTION_TYPE));
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getPath(): string {
-		if ($this->getConnectionType() !== self::CONNECTION_TYPE_PATH) {
-			throw new ConnectionFailedException("Please set connection type to path to use getPath");
-		}
-
-		$path = $this->get(self::PATH);
-
-		if (empty($path)) {
-			throw new ConnectionFailedException("Please set a path to use getPath");
-		}
-
-		if (!file_exists($path)) {
-			throw new ConnectionFailedException("The path $path does not exists!");
-		}
-
-		return $path;
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getServerHost(): string {
-		if ($this->getConnectionType() !== self::CONNECTION_TYPE_SERVER) {
-			throw new ConnectionFailedException("Please set connection type to server to use getServerHost");
-		}
-
-		return $this->get(self::SERVER_HOST);
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getServerPort(): int {
-		if ($this->getConnectionType() !== self::CONNECTION_TYPE_SERVER) {
-			throw new ConnectionFailedException("Please set connection type to server to use getServerPort");
-		}
-
-		return intval($this->get(self::SERVER_PORT));
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getServerUsername(): string {
-		if ($this->getConnectionType() !== self::CONNECTION_TYPE_SERVER) {
-			throw new ConnectionFailedException("Please set connection type to server to use getServerUsername");
-		}
-
-		return $this->get(self::SERVER_USERNAME);
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getServerPassword(): string {
-		if ($this->getConnectionType() !== self::CONNECTION_TYPE_SERVER) {
-			throw new ConnectionFailedException("Please set connection type to server to use getServerPassword");
-		}
-
-		return $this->get(self::SERVER_PASSWORD);
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getServerDatabase(): string {
-		if ($this->getConnectionType() !== self::CONNECTION_TYPE_SERVER) {
-			throw new ConnectionFailedException("Please set connection type to server to use getServerDatabase");
-		}
-
-		return $this->get(self::SERVER_DATABASE);
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getServerSearchBase(): string {
-		if ($this->getConnectionType() !== self::CONNECTION_TYPE_SERVER) {
-			throw new ConnectionFailedException("Please set connection type to server to use getServerSearchBase");
-		}
-
-		return $this->get(self::SERVER_SEARCH_BASE);
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getIliasFileRefId(): int {
-		if ($this->getConnectionType() !== self::CONNECTION_TYPE_ILIAS_FILE) {
-			throw new ConnectionFailedException("Please set connection type to ILIAS file to use getIliasFileRefId");
-		}
-
-		$ilias_file_ref_id = intval($this->get(self::ILIAS_FILE_REF_ID));
-
-		if (empty($ilias_file_ref_id)) {
-			throw new ConnectionFailedException("Please select an ILIAS file to use getIliasFileRefId");
-		}
-
-		return $ilias_file_ref_id;
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getIliasFilePath(): string {
-		$ilias_file_ref_id = $this->getIliasFileRefId();
-
-		$ilias_file = new ilObjFile($ilias_file_ref_id, true);
-
-		$path = $ilias_file->getFile();
-
-		if (!file_exists($path)) {
-			throw new ConnectionFailedException("The ILIAS file $path does not exists!");
-		}
-
-		return $path;
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getActivePeriod(): string {
-		return $this->get(self::ACTIVE_PERIOD);
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getCheckAmountData(): bool {
-		return boolval($this->get(self::CHECK_AMOUNT));
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getCheckAmountDataPercentage(): int {
-		return intval($this->get(self::CHECK_AMOUNT_PERCENTAGE));
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function useShortLink(): bool {
-		return boolval($this->get(self::SHORT_LINK));
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function useShortLinkForcedLogin(): bool {
-		return boolval($this->get(self::SHORT_LINK_FORCE_LOGIN));
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getLinkedOriginId(): int {
-		return intval($this->get(self::LINKED_ORIGIN_ID));
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getNotificationsSummary(): array {
-		return explode(',', $this->get(self::NOTIFICATION_SUMMARY));
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getNotificationsErrors(): array {
-		return explode(',', $this->get(self::NOTIFICATION_ERRORS));
-	}
+class OriginConfig implements IOriginConfig
+{
+    /**
+     * @var array
+     */
+    protected $data = [
+        self::CHECK_AMOUNT => false,
+        self::CHECK_AMOUNT_PERCENTAGE => 10,
+        self::SHORT_LINK => false,
+        self::SHORT_LINK_FORCE_LOGIN => false,
+        self::NOTIFICATION_ERRORS => '',
+        self::NOTIFICATION_SUMMARY => '',
+        self::CONNECTION_TYPE => IOriginConfig::CONNECTION_TYPE_PATH,
+        self::PATH => '',
+        self::SERVER_HOST => '',
+        self::SERVER_PORT => '',
+        self::SERVER_USERNAME => '',
+        self::SERVER_PASSWORD => '',
+        self::SERVER_DATABASE => '',
+        self::SERVER_SEARCH_BASE => '',
+        self::ACTIVE_PERIOD => '',
+        self::LINKED_ORIGIN_ID => 0,
+        self::ILIAS_FILE_REF_ID => 0
+    ];
+
+    /**
+     * @param array $data
+     */
+    public function __construct(array $data)
+    {
+        $this->data = array_merge($this->data, $data);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setData(array $data)
+    {
+        $this->data = array_merge($this->data, $data);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function get(string $key)
+    {
+        return (isset($this->data[$key])) ? $this->data[$key] : null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCustom(string $key)
+    {
+        $key = self::CUSTOM_PREFIX . $key;
+
+        return $this->get($key);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getConnectionType(): int
+    {
+        return intval($this->get(self::CONNECTION_TYPE));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPath(): string
+    {
+        if ($this->getConnectionType() !== self::CONNECTION_TYPE_PATH) {
+            throw new ConnectionFailedException("Please set connection type to path to use getPath");
+        }
+
+        $path = $this->get(self::PATH);
+
+        if (empty($path)) {
+            throw new ConnectionFailedException("Please set a path to use getPath");
+        }
+
+        if (!file_exists($path)) {
+            throw new ConnectionFailedException("The path $path does not exists!");
+        }
+
+        return $path;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getServerHost(): string
+    {
+        if ($this->getConnectionType() !== self::CONNECTION_TYPE_SERVER) {
+            throw new ConnectionFailedException("Please set connection type to server to use getServerHost");
+        }
+
+        return $this->get(self::SERVER_HOST);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getServerPort(): int
+    {
+        if ($this->getConnectionType() !== self::CONNECTION_TYPE_SERVER) {
+            throw new ConnectionFailedException("Please set connection type to server to use getServerPort");
+        }
+
+        return intval($this->get(self::SERVER_PORT));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getServerUsername(): string
+    {
+        if ($this->getConnectionType() !== self::CONNECTION_TYPE_SERVER) {
+            throw new ConnectionFailedException("Please set connection type to server to use getServerUsername");
+        }
+
+        return $this->get(self::SERVER_USERNAME);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getServerPassword(): string
+    {
+        if ($this->getConnectionType() !== self::CONNECTION_TYPE_SERVER) {
+            throw new ConnectionFailedException("Please set connection type to server to use getServerPassword");
+        }
+
+        return $this->get(self::SERVER_PASSWORD);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getServerDatabase(): string
+    {
+        if ($this->getConnectionType() !== self::CONNECTION_TYPE_SERVER) {
+            throw new ConnectionFailedException("Please set connection type to server to use getServerDatabase");
+        }
+
+        return $this->get(self::SERVER_DATABASE);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getServerSearchBase(): string
+    {
+        if ($this->getConnectionType() !== self::CONNECTION_TYPE_SERVER) {
+            throw new ConnectionFailedException("Please set connection type to server to use getServerSearchBase");
+        }
+
+        return $this->get(self::SERVER_SEARCH_BASE);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIliasFileRefId(): int
+    {
+        if ($this->getConnectionType() !== self::CONNECTION_TYPE_ILIAS_FILE) {
+            throw new ConnectionFailedException("Please set connection type to ILIAS file to use getIliasFileRefId");
+        }
+
+        $ilias_file_ref_id = intval($this->get(self::ILIAS_FILE_REF_ID));
+
+        if (empty($ilias_file_ref_id)) {
+            throw new ConnectionFailedException("Please select an ILIAS file to use getIliasFileRefId");
+        }
+
+        return $ilias_file_ref_id;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIliasFilePath(): string
+    {
+        $ilias_file_ref_id = $this->getIliasFileRefId();
+
+        $ilias_file = new ilObjFile($ilias_file_ref_id, true);
+
+        $path = $ilias_file->getFile();
+
+        if (!file_exists($path)) {
+            throw new ConnectionFailedException("The ILIAS file $path does not exists!");
+        }
+
+        return $path;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getActivePeriod(): string
+    {
+        return $this->get(self::ACTIVE_PERIOD);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCheckAmountData(): bool
+    {
+        return boolval($this->get(self::CHECK_AMOUNT));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCheckAmountDataPercentage(): int
+    {
+        return intval($this->get(self::CHECK_AMOUNT_PERCENTAGE));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function useShortLink(): bool
+    {
+        return boolval($this->get(self::SHORT_LINK));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function useShortLinkForcedLogin(): bool
+    {
+        return boolval($this->get(self::SHORT_LINK_FORCE_LOGIN));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getLinkedOriginId(): int
+    {
+        return intval($this->get(self::LINKED_ORIGIN_ID));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getNotificationsSummary(): array
+    {
+        return explode(',', $this->get(self::NOTIFICATION_SUMMARY));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getNotificationsErrors(): array
+    {
+        return explode(',', $this->get(self::NOTIFICATION_ERRORS));
+    }
 }

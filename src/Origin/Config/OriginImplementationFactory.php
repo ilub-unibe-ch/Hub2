@@ -1,8 +1,25 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Origin\Config;
 
-use srag\DIC\Hub2\DICTrait;
 use srag\Plugins\Hub2\Config\ArConfig;
 use srag\Plugins\Hub2\Exception\HubException;
 use srag\Plugins\Hub2\MappingStrategy\MappingStrategyFactory;
@@ -11,53 +28,55 @@ use srag\Plugins\Hub2\Object\DTO\DataTransferObjectFactory;
 use srag\Plugins\Hub2\Origin\IOrigin;
 use srag\Plugins\Hub2\Origin\IOriginImplementation;
 use srag\Plugins\Hub2\Taxonomy\TaxonomyFactory;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
+
 
 /**
  * Class OriginImplementationFactory
- *
  * @author  Stefan Wanzenried <sw@studer-raimann.ch>
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  * @package srag\Plugins\Hub2\Origin\Config
  */
-class OriginImplementationFactory {
+class OriginImplementationFactory
+{
+    /**
+     * @var IOrigin
+     */
+    protected IOrigin $origin;
 
-	use DICTrait;
-	use Hub2Trait;
-	/**
-	 * @var IOrigin
-	 */
-	protected $origin;
+    /**
+     * @param IOrigin $origin
+     */
+    public function __construct(IOrigin $origin)
+    {
+        $this->origin = $origin;
+    }
 
-
-	/**
-	 * @param IOrigin $origin
-	 */
-	public function __construct(IOrigin $origin) {
-		$this->origin = $origin;
-	}
-
-
-	/**
-	 * @return IOriginImplementation
-	 * @throws HubException
-	 */
-	public function instance() {
-		$basePath = rtrim(ArConfig::getField(ArConfig::KEY_ORIGIN_IMPLEMENTATION_PATH), '/') . '/';
-		$path = $basePath . $this->origin->getObjectType() . '/';
-		$className = $this->origin->getImplementationClassName();
-		$namespace = $this->origin->getImplementationNamespace();
-		$classFile = $path . $className . '.php';
-		if (!is_file($classFile)) {
-			throw new HubException("Origin implementation class file does not exist, should be at: $classFile");
-		}
-		require_once $classFile;
-		$class = rtrim($namespace, "\\") . "\\" . $className;
-		if (!class_exists($class)) {
-			throw new HubException("Origin implementation namespace\\class does not exist, should be: $class");
-		}
-		$instance = new $class($this->origin->config(), new DataTransferObjectFactory(), new MetadataFactory(), new TaxonomyFactory(), new MappingStrategyFactory(), $this->origin);
-
-		return $instance;
-	}
+    /**
+     * @return IOriginImplementation
+     * @throws HubException
+     */
+    public function instance(): IOriginImplementation
+    {
+        $basePath = rtrim(ArConfig::getField(ArConfig::KEY_ORIGIN_IMPLEMENTATION_PATH), '/') . '/';
+        $path = $basePath . $this->origin->getObjectType() . '/';
+        $className = $this->origin->getImplementationClassName();
+        $namespace = $this->origin->getImplementationNamespace();
+        $classFile = $path . $className . '.php';
+        if (!is_file($classFile)) {
+            throw new HubException("Origin implementation class file does not exist, should be at: $classFile");
+        }
+        require_once $classFile;
+        $class = rtrim($namespace, "\\") . "\\" . $className;
+        if (!class_exists($class)) {
+            throw new HubException("Origin implementation namespace\\class does not exist, should be: $class");
+        }
+        return new $class(
+            $this->origin->config(),
+            new DataTransferObjectFactory(),
+            new MetadataFactory(),
+            new TaxonomyFactory(),
+            new MappingStrategyFactory(),
+            $this->origin
+        );
+    }
 }

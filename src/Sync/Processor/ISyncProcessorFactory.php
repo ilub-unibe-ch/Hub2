@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Sync\Processor;
 
 use srag\Plugins\Hub2\Sync\Processor\Category\ICategorySyncProcessor;
@@ -15,68 +33,58 @@ use srag\Plugins\Hub2\Sync\Processor\User\IUserSyncProcessor;
 
 /**
  * Interface ISyncProcessorFactory
- *
  * @package srag\Plugins\Hub2\Sync\Processor
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-interface ISyncProcessorFactory {
+interface ISyncProcessorFactory
+{
+    /**
+     * @return IUserSyncProcessor
+     */
+    public function user(): IUserSyncProcessor;
 
-	/**
-	 * @return IUserSyncProcessor
-	 */
-	public function user();
+    /**
+     * @return ICourseSyncProcessor
+     */
+    public function course(): ICourseSyncProcessor;
 
+    /**
+     * @return ICategorySyncProcessor
+     */
+    public function category(): ICategorySyncProcessor;
 
-	/**
-	 * @return ICourseSyncProcessor
-	 */
-	public function course();
+    /**
+     * @return ISessionSyncProcessor
+     */
+    public function session(): ISessionSyncProcessor;
 
+    /**
+     * @return ICourseMembershipSyncProcessor
+     */
+    public function courseMembership(): ICourseMembershipSyncProcessor;
 
-	/**
-	 * @return ICategorySyncProcessor
-	 */
-	public function category();
+    /**
+     * @return IGroupSyncProcessor
+     */
+    public function group(): IGroupSyncProcessor;
 
+    /**
+     * @return IGroupMembershipSyncProcessor
+     */
+    public function groupMembership(): IGroupMembershipSyncProcessor;
 
-	/**
-	 * @return ISessionSyncProcessor
-	 */
-	public function session();
+    /**
+     * @return ISessionMembershipSyncProcessor
+     */
+    public function sessionMembership(): ISessionMembershipSyncProcessor;
 
+    /**
+     * @return IOrgUnitSyncProcessor
+     */
+    public function orgUnit(): IOrgUnitSyncProcessor;
 
-	/**
-	 * @return ICourseMembershipSyncProcessor
-	 */
-	public function courseMembership();
-
-
-	/**
-	 * @return IGroupSyncProcessor
-	 */
-	public function group();
-
-
-	/**
-	 * @return IGroupMembershipSyncProcessor
-	 */
-	public function groupMembership();
-
-
-	/**
-	 * @return ISessionMembershipSyncProcessor
-	 */
-	public function sessionMembership();
-
-
-	/**
-	 * @return IOrgUnitSyncProcessor
-	 */
-	public function orgUnit(): IOrgUnitSyncProcessor;
-
-
-	/**
-	 * @return IOrgUnitMembershipSyncProcessor
-	 */
-	public function orgUnitMembership(): IOrgUnitMembershipSyncProcessor;
+    /**
+     * @return IOrgUnitMembershipSyncProcessor
+     */
+    public function orgUnitMembership(): IOrgUnitMembershipSyncProcessor;
 }

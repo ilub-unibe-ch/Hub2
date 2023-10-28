@@ -1,7 +1,7 @@
 <?php
+declare(strict_types=1);
 /**
  * Handler
- *
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
 chdir(substr(__FILE__, 0, strpos(__FILE__, '/Customizing')));

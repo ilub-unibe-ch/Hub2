@@ -1,121 +1,133 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Origin;
 
 use ActiveRecord;
 use ilHub2Plugin;
-use srag\DIC\Hub2\DICTrait;
+
 use srag\Plugins\Hub2\UI\Data\DataTableGUI;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
+
 
 /**
  * Class OriginFactory
- *
  * @package srag\Plugins\Hub2\Origin
  * @author  Stefan Wanzenried <sw@studer-raimann.ch>
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-class OriginFactory implements IOriginFactory {
+class OriginFactory implements IOriginFactory
+{
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
 
-	use DICTrait;
-	use Hub2Trait;
-	const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    /**
+     *
+     */
+    public function __construct()
+    {
 
+    }
 
-	/**
-	 *
-	 */
-	public function __construct() {
+    /**
+     * @inheritdoc
+     */
+    public function getById(int $id): ?IOrigin
+    {
+        $sql = 'SELECT object_type FROM ' . AROrigin::TABLE_NAME . ' WHERE id = %s';
+        $set = self::dic()->database()->queryF($sql, ['integer'], [$id]);
+        $type = self::dic()->database()->fetchObject($set)->object_type;
+        if (!$type) {
+            //throw new HubException("Can not get type of origin id (probably deleted): ".$id);
+            return null;
+        }
+        $class = $this->getClass($type);
 
-	}
+        return $class::find($id);
+    }
 
+    /**
+     * @inheritdoc
+     */
+    public function createByType(string $type): IOrigin
+    {
+        $class = $this->getClass($type);
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getById($id) {
-		$sql = 'SELECT object_type FROM ' . AROrigin::TABLE_NAME . ' WHERE id = %s';
-		$set = self::dic()->database()->queryF($sql, [ 'integer' ], [ $id ]);
-		$type = self::dic()->database()->fetchObject($set)->object_type;
-		if (!$type) {
-			//throw new HubException("Can not get type of origin id (probably deleted): ".$id);
-			return NULL;
-		}
-		$class = $this->getClass($type);
+        return new $class();
+    }
 
-		return $class::find((int)$id);
-	}
+    /**
+     * @inheritdoc
+     */
+    public function getAllActive(): array
+    {
+        $sql = 'SELECT id FROM ' . AROrigin::TABLE_NAME . ' WHERE active = %s ORDER BY sort';
+        $set = self::dic()->database()->queryF($sql, ['integer'], [1]);
+        $origins = [];
+        while ($data = self::dic()->database()->fetchObject($set)) {
+            $origins[] = $this->getById($data->id);
+        }
 
+        return $origins;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function createByType(string $type): IOrigin {
-		$class = $this->getClass($type);
+    /**
+     * @inheritdoc
+     */
+    public function getAll(): array
+    {
+        $origins = [];
 
-		return new $class();
-	}
+        $sql = 'SELECT id FROM ' . AROrigin::TABLE_NAME . ' ORDER BY sort';
+        $set = self::dic()->database()->query($sql);
+        while ($data = self::dic()->database()->fetchObject($set)) {
+            $origins[] = $this->getById($data->id);
+        }
 
+        return $origins;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getAllActive(): array {
-		$sql = 'SELECT id FROM ' . AROrigin::TABLE_NAME . ' WHERE active = %s ORDER BY sort';
-		$set = self::dic()->database()->queryF($sql, [ 'integer' ], [ 1 ]);
-		$origins = [];
-		while ($data = self::dic()->database()->fetchObject($set)) {
-			$origins[] = $this->getById($data->id);
-		}
+    /**
+     * @param string $type
+     * @return string
+     */
+    protected function getClass(string $type): string
+    {
+        $ucfirst = ucfirst($type);
+        return "srag\\Plugins\\Hub2\\Origin\\{$ucfirst}\\AR{$ucfirst}Origin";
+    }
 
-		return $origins;
-	}
+    /**
+     * @param int $origin_id
+     */
+    public function delete(int $origin_id)/*: void*/
+    {
+        /**
+         * @var ActiveRecord $object
+         */
 
+        foreach (DataTableGUI::$classes as $class) {
+            foreach ($class::where(["origin_id" => $origin_id])->get() as $object) {
+                $object->delete();
+            }
+        }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getAll(): array {
-		$origins = [];
-
-		$sql = 'SELECT id FROM ' . AROrigin::TABLE_NAME . ' ORDER BY sort';
-		$set = self::dic()->database()->query($sql);
-		while ($data = self::dic()->database()->fetchObject($set)) {
-			$origins[] = $this->getById($data->id);
-		}
-
-		return $origins;
-	}
-
-
-	/**
-	 * @param string $type
-	 *
-	 * @return string
-	 */
-	protected function getClass($type) {
-		$ucfirst = ucfirst($type);
-		$class = "srag\\Plugins\\Hub2\\Origin\\{$ucfirst}\\AR{$ucfirst}Origin";
-
-		return $class;
-	}
-
-
-	/**
-	 * @param int $origin_id
-	 */
-	public function delete(int $origin_id)/*: void*/ {
-		/**
-		 * @var ActiveRecord $object
-		 */
-
-		foreach (DataTableGUI::$classes as $class) {
-			foreach ($class::where([ "origin_id" => $origin_id ])->get() as $object) {
-				$object->delete();
-			}
-		}
-
-		$object = $this->getById($origin_id);
-		$object->delete();
-	}
+        $object = $this->getById($origin_id);
+        $object->delete();
+    }
 }

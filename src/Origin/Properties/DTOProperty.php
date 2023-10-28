@@ -1,32 +1,50 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Origin\Properties;
 
 /**
  * Class DTOProperty
- *
  * @package srag\Plugins\Hub2\Origin\Properties
  * @author  Stefan Wanzenried <sw@studer-raimann.ch>
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-class DTOProperty {
+class DTOProperty
+{
 
-	/**
-	 * @var string
-	 */
-	public $name;
-	/**
-	 * @var string
-	 */
-	public $descriptionKey;
+    /**
+     * @var string
+     */
+    public string $name;
+    /**
+     * @var string
+     */
+    public string $descriptionKey;
 
-
-	/**
-	 * @param string $name
-	 * @param string $descriptionKey
-	 */
-	public function __construct($name, $descriptionKey = '') {
-		$this->name = $name;
-		$this->descriptionKey = $descriptionKey;
-	}
+    /**
+     * @param string $name
+     * @param string $descriptionKey
+     */
+    public function __construct(string $name, string $descriptionKey = '')
+    {
+        $this->name = $name;
+        $this->descriptionKey = $descriptionKey;
+    }
 }

@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\UI\Group;
 
 use ilCheckboxInputGUI;
@@ -8,82 +26,105 @@ use ilRadioOption;
 use ilTextInputGUI;
 use srag\Plugins\Hub2\Origin\Config\Course\ICourseOriginConfig;
 use srag\Plugins\Hub2\Origin\Group\ARGroupOrigin;
-use srag\Plugins\Hub2\Origin\Properties\Group\GroupProperties;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
+use srag\Plugins\Hub2\Origin\Properties\Group\IGroupProperties;
 
 /**
  * Class GroupOriginConfigFormGUI
- *
  * @package srag\Plugins\Hub2\UI\Group
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-class GroupOriginConfigFormGUI extends OriginConfigFormGUI {
+class GroupOriginConfigFormGUI extends OriginConfigFormGUI
+{
+    /**
+     * @var ARGroupOrigin
+     */
+    protected \srag\Plugins\Hub2\Origin\IOrigin $origin;
 
-	/**
-	 * @var ARGroupOrigin
-	 */
-	protected $origin;
+    /**
+     * @inheritdoc
+     */
+    protected function addSyncConfig()
+    {
+        parent::addSyncConfig();
 
+        $te = new ilTextInputGUI(
+            ilHub2Plugin::getInstance()->txt('grp_prop_node_noparent'),
+            $this->conf(ICourseOriginConfig::REF_ID_NO_PARENT_ID_FOUND)
+        );
+        $te->setInfo(ilHub2Plugin::getInstance()->txt('grp_prop_node_noparent_info'));
+        $te->setValue($this->origin->properties()->get(ICourseOriginConfig::REF_ID_NO_PARENT_ID_FOUND));
+        $this->addItem($te);
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function addSyncConfig() {
-		parent::addSyncConfig();
+    /**
+     * @inheritdoc
+     */
+    protected function addPropertiesNew()
+    {
+        parent::addPropertiesNew();
+    }
 
-		$te = new ilTextInputGUI(self::plugin()->translate('grp_prop_node_noparent'), $this->conf(ICourseOriginConfig::REF_ID_NO_PARENT_ID_FOUND));
-		$te->setInfo(self::plugin()->translate('grp_prop_node_noparent_info'));
-		$te->setValue($this->origin->properties()->get(ICourseOriginConfig::REF_ID_NO_PARENT_ID_FOUND));
-		$this->addItem($te);
-	}
+    /**
+     * @inheritdoc
+     */
+    protected function addPropertiesUpdate()
+    {
+        parent::addPropertiesUpdate();
 
+        $cb = new ilCheckboxInputGUI(
+            ilHub2Plugin::getInstance()->txt('grp_prop_move'),
+            $this->prop(IGroupProperties::MOVE_GROUP)
+        );
+        $cb->setChecked($this->origin->properties()->get(IGroupProperties::MOVE_GROUP));
+        $cb->setInfo(ilHub2Plugin::getInstance()->txt('grp_prop_move_info'));
+        $this->addItem($cb);
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function addPropertiesNew() {
-		parent::addPropertiesNew();
-	}
+    /**
+     * @inheritdoc
+     */
+    protected function addPropertiesDelete()
+    {
+        parent::addPropertiesDelete();
 
+        $delete = new ilRadioGroupInputGUI(
+            ilHub2Plugin::getInstance()->txt('grp_prop_delete_mode'),
+            $this->prop(IGroupProperties::DELETE_MODE)
+        );
+        $delete->setValue($this->origin->properties()->get(IGroupProperties::DELETE_MODE));
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function addPropertiesUpdate() {
-		parent::addPropertiesUpdate();
+        $opt = new ilRadioOption(
+            ilHub2Plugin::getInstance()->txt('grp_prop_delete_mode_none'),
+            IGroupProperties::DELETE_MODE_NONE
+        );
+        $delete->addOption($opt);
 
-		$cb = new ilCheckboxInputGUI(self::plugin()->translate('grp_prop_move'), $this->prop(GroupProperties::MOVE_GROUP));
-		$cb->setChecked($this->origin->properties()->get(GroupProperties::MOVE_GROUP));
-		$cb->setInfo(self::plugin()->translate('grp_prop_move_info'));
-		$this->addItem($cb);
-	}
+        $opt = new ilRadioOption(
+            ilHub2Plugin::getInstance()->txt('grp_prop_delete_mode_close'),
+            IGroupProperties::DELETE_MODE_CLOSED
+        );
+        $delete->addOption($opt);
 
+        $opt = new ilRadioOption(
+            ilHub2Plugin::getInstance()->txt('grp_prop_delete_mode_delete'),
+            IGroupProperties::DELETE_MODE_DELETE
+        );
+        $delete->addOption($opt);
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function addPropertiesDelete() {
-		parent::addPropertiesDelete();
+        $opt = new ilRadioOption(
+            ilHub2Plugin::getInstance()->txt('grp_prop_delete_mode_delete_or_close'),
+            IGroupProperties::DELETE_MODE_DELETE_OR_CLOSE
+        );
+        $opt->setInfo(ilHub2Plugin::getInstance()->txt('grp_prop_delete_mode_delete_or_close_info'));
+        $delete->addOption($opt);
 
-		$delete = new ilRadioGroupInputGUI(self::plugin()->translate('grp_prop_delete_mode'), $this->prop(GroupProperties::DELETE_MODE));
-		$delete->setValue($this->origin->properties()->get(GroupProperties::DELETE_MODE));
+        $opt = new ilRadioOption(
+            ilHub2Plugin::getInstance()->txt('grp_prop_delete_mode_trash'),
+            IGroupProperties::DELETE_MODE_MOVE_TO_TRASH
+        );
+        $delete->addOption($opt);
 
-		$opt = new ilRadioOption(self::plugin()->translate('grp_prop_delete_mode_none'), GroupProperties::DELETE_MODE_NONE);
-		$delete->addOption($opt);
-
-		$opt = new ilRadioOption(self::plugin()->translate('grp_prop_delete_mode_close'), GroupProperties::DELETE_MODE_CLOSED);
-		$delete->addOption($opt);
-
-		$opt = new ilRadioOption(self::plugin()->translate('grp_prop_delete_mode_delete'), GroupProperties::DELETE_MODE_DELETE);
-		$delete->addOption($opt);
-
-		$opt = new ilRadioOption(self::plugin()->translate('grp_prop_delete_mode_delete_or_close'), GroupProperties::DELETE_MODE_DELETE_OR_CLOSE);
-		$opt->setInfo(self::plugin()->translate('grp_prop_delete_mode_delete_or_close_info'));
-		$delete->addOption($opt);
-
-		$opt = new ilRadioOption(self::plugin()->translate('grp_prop_delete_mode_trash'), GroupProperties::DELETE_MODE_MOVE_TO_TRASH);
-		$delete->addOption($opt);
-
-		$this->addItem($delete);
-	}
+        $this->addItem($delete);
+    }
 }

@@ -1,35 +1,44 @@
 # Changelog
 
 ## [x]
+
 - Fix reset offset
 
 ## [2.2.5]
+
 - Optimized log table
 
 ## [2.2.4]
+
 - Fix log table ext id filter
 - Fix status table export contains Actions columns
 - Logs table can now exported too
 - Fix course membership readd on update
 
 ## [2.2.3]
+
 - Fix connection getPath validation
 - Fix getAppointmentColor is NULL
 - Logs invalid origin implementation namespace\\class
 - Fix log table origin type filter
-- Store new possible ilias id on exception (`handleCreate`|`handleUpdate`|`handleDelete` returns now nothing anymore, but it will store the ilias object on `$this->current_ilias_object`, so it can read the ilias id also on exception)
+- Store new possible ilias id on exception (`handleCreate`|`handleUpdate`|`handleDelete` returns now nothing anymore,
+  but it will store the ilias object on `$this->current_ilias_object`, so it can read the ilias id also on exception)
 
 ## [2.2.2]
+
 - Fix ILIAS file selector
 
 ## [2.2.0]
+
 - Add ILIAS file as a origin connection type
 - Improves config getters
 
 ## [2.1.0]
+
 - Some improvments and fixes
 
 ## [2.0.0]
+
 - Ask for removing data
 - AdHoc feature
 - CustomView feature

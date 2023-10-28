@@ -1,57 +1,75 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Origin\Config\User;
 
 use srag\Plugins\Hub2\Origin\Config\OriginConfig;
 
 /**
  * Class UserOriginConfig
- *
  * @author  Stefan Wanzenried <sw@studer-raimann.ch>
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  * @package srag\Plugins\Hub2\Origin\Config\User
  */
-class UserOriginConfig extends OriginConfig implements IUserOriginConfig {
+class UserOriginConfig extends OriginConfig implements IUserOriginConfig
+{
+    /**
+     * @var array
+     */
+    protected array $user_data = [
+        //		'sync_field' => IUserOriginConfig::SYNC_FIELD_NONE,
+        self::LOGIN_FIELD => IUserOriginConfig::LOGIN_FIELD_SHORTENED_FIRST_LASTNAME,
+    ];
 
-	/**
-	 * @var array
-	 */
-	protected $user_data = [
-		//		'sync_field' => IUserOriginConfig::SYNC_FIELD_NONE,
-		self::LOGIN_FIELD => IUserOriginConfig::LOGIN_FIELD_SHORTENED_FIRST_LASTNAME,
-	];
+    public function __construct(array $data)
+    {
+        parent::__construct(array_merge($this->user_data, $data));
+    }
 
+    //	/**
+    //	 * @inheritdoc
+    //	 */
+    //	public function getSyncField():int {
+    //		return intval($this->get(IUserOriginConfig::SYNC_FIELD_NONE));
+    //	}
 
-	public function __construct(array $data) {
-		parent::__construct(array_merge($this->user_data, $data));
-	}
+    /**
+     * @inheritdoc
+     */
+    public function getILIASLoginField(): int
+    {
+        return intval($this->get(self::LOGIN_FIELD));
+    }
 
-	//	/**
-	//	 * @inheritdoc
-	//	 */
-	//	public function getSyncField():int {
-	//		return intval($this->get(IUserOriginConfig::SYNC_FIELD_NONE));
-	//	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getILIASLoginField(): int {
-		return intval($this->get(self::LOGIN_FIELD));
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public static function getAvailableLoginFields(): array {
-		return [
-			self::LOGIN_FIELD_SHORTENED_FIRST_LASTNAME,
-			self::LOGIN_FIELD_EMAIL,
-			self::LOGIN_FIELD_EXT_ACCOUNT,
-			self::LOGIN_FIELD_EXT_ID,
-			self::LOGIN_FIELD_FIRSTNAME_LASTNAME,
-			self::LOGIN_FIELD_HUB_LOGIN,
-		];
-	}
+    /**
+     * @inheritdoc
+     */
+    public static function getAvailableLoginFields(): array
+    {
+        return [
+            self::LOGIN_FIELD_SHORTENED_FIRST_LASTNAME,
+            self::LOGIN_FIELD_EMAIL,
+            self::LOGIN_FIELD_EXT_ACCOUNT,
+            self::LOGIN_FIELD_EXT_ID,
+            self::LOGIN_FIELD_FIRSTNAME_LASTNAME,
+            self::LOGIN_FIELD_HUB_LOGIN,
+        ];
+    }
 }

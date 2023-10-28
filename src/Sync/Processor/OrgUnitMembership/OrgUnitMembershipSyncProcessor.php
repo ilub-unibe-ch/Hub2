@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Sync\Processor\OrgUnitMembership;
 
 use ilObjectFactory;
@@ -21,196 +39,198 @@ use srag\Plugins\Hub2\Sync\Processor\ObjectSyncProcessor;
 
 /**
  * Class OrgUnitMembershipSyncProcessor
- *
  * @package srag\Plugins\Hub2\Sync\Processor\OrgUnitMembership
- *
  * @author  studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
  */
-class OrgUnitMembershipSyncProcessor extends ObjectSyncProcessor implements IOrgUnitMembershipSyncProcessor {
+class OrgUnitMembershipSyncProcessor extends ObjectSyncProcessor implements IOrgUnitMembershipSyncProcessor
+{
+    /**
+     * @var IOrgUnitMembershipProperties
+     */
+    private $props;
+    /**
+     * @var IOrgUnitMembershipOriginConfig
+     */
+    private $config;
+    /**
+     * @var array
+     */
+    protected static array $properties = [];
+    /**
+     * @var FakeOrgUnitMembershipObject|null
+     */
+    protected $current_ilias_object = null;
 
-	/**
-	 * @var IOrgUnitMembershipProperties
-	 */
-	private $props;
-	/**
-	 * @var IOrgUnitMembershipOriginConfig
-	 */
-	private $config;
-	/**
-	 * @var array
-	 */
-	protected static $properties = [];
-	/**
-	 * @var FakeOrgUnitMembershipObject|null
-	 */
-	protected $current_ilias_object = NULL;
+    /**
+     * @param IOrigin                 $origin
+     * @param IOriginImplementation   $implementation
+     * @param IObjectStatusTransition $transition
+     */
+    public function __construct(
+        IOrigin $origin,
+        IOriginImplementation $implementation,
+        IObjectStatusTransition $transition
+    ) {
+        parent::__construct($origin, $implementation, $transition);
+        $this->props = $origin->properties();
+        $this->config = $origin->config();
+    }
 
+    /**
+     * @return array
+     */
+    public static function getProperties(): array
+    {
+        return self::$properties;
+    }
 
-	/**
-	 * @param IOrigin                 $origin
-	 * @param IOriginImplementation   $implementation
-	 * @param IObjectStatusTransition $transition
-	 */
-	public function __construct(IOrigin $origin, IOriginImplementation $implementation, IObjectStatusTransition $transition) {
-		parent::__construct($origin, $implementation, $transition);
-		$this->props = $origin->properties();
-		$this->config = $origin->config();
-	}
+    /**
+     * @inheritdoc
+     * @param IOrgUnitMembershipDTO $dto
+     */
+    protected function handleCreate(IDataTransferObject $dto)/*: void*/
+    {
+        $this->current_ilias_object = $this->getFakeIliasObject($this->assignToOrgUnit($dto));
+    }
 
+    /**
+     * @inheritdoc
+     * @param IOrgUnitMembershipDTO $dto
+     */
+    protected function handleUpdate(IDataTransferObject $dto, int $iliasId)/*: void*/
+    {
+        if ($this->props->updateDTOProperty(IOrgUnitMembershipProperties::PROP_ORG_UNIT_ID)
+            || $this->props->updateDTOProperty(IOrgUnitMembershipProperties::PROP_ORG_UNIT_ID_TYPE)
+            || $this->props->updateDTOProperty(IOrgUnitMembershipProperties::PROP_USER_ID)
+            || $this->props->updateDTOProperty(IOrgUnitMembershipProperties::PROP_POSITION)) {
+            $this->handleDelete($iliasId);
 
-	/**
-	 * @return array
-	 */
-	public static function getProperties(): array {
-		return self::$properties;
-	}
+            $this->handleCreate($dto);
+        } else {
+            throw new HubException("{$iliasId} should not be updated!");
+        }
+    }
 
+    /**
+     * @inheritdoc
+     */
+    protected function handleDelete(int $ilias_id)/*: void*/
+    {
+        $this->current_ilias_object = FakeOrgUnitMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
 
-	/**
-	 * @inheritdoc
-	 *
-	 * @param IOrgUnitMembershipDTO $dto
-	 */
-	protected function handleCreate(IDataTransferObject $dto)/*: void*/ {
-		$this->current_ilias_object = $this->getFakeIliasObject($this->assignToOrgUnit($dto));
-	}
+        $assignment = ilOrgUnitUserAssignment::where([
+            "orgu_id" => $this->current_ilias_object->getContainerIdIlias(),
+            "user_id" => $this->current_ilias_object->getUserIdIlias(),
+            "position_id" => $this->current_ilias_object->getPositionId()
+        ])->first();
 
+        if ($assignment !== null) {
+            $assignment->delete();
+        }
+    }
 
-	/**
-	 * @inheritdoc
-	 *
-	 * @param IOrgUnitMembershipDTO $dto
-	 */
-	protected function handleUpdate(IDataTransferObject $dto, $ilias_id)/*: void*/ {
-		if ($this->props->updateDTOProperty(IOrgUnitMembershipProperties::PROP_ORG_UNIT_ID)
-			|| $this->props->updateDTOProperty(IOrgUnitMembershipProperties::PROP_ORG_UNIT_ID_TYPE)
-			|| $this->props->updateDTOProperty(IOrgUnitMembershipProperties::PROP_USER_ID)
-			|| $this->props->updateDTOProperty(IOrgUnitMembershipProperties::PROP_POSITION)) {
-			$this->handleDelete($ilias_id);
+    /**
+     * @param IOrgUnitMembershipDTO $dto
+     * @return ilOrgUnitUserAssignment
+     * @throws HubException
+     */
+    protected function assignToOrgUnit(IOrgUnitMembershipDTO $dto): ilOrgUnitUserAssignment
+    {
+        switch ($dto->getPosition()) {
+            case IOrgUnitMembershipDTO::POSITION_EMPLOYEE:
+                $position_id = ilOrgUnitPosition::getCorePositionId(self::IL_POSITION_EMPLOYEE);
+                break;
 
-			$this->handleCreate($dto);
-		} else {
-			throw new HubException("{$ilias_id} should not be updated!");
-		}
-	}
+            case IOrgUnitMembershipDTO::POSITION_SUPERIOR:
+                $position_id = ilOrgUnitPosition::getCorePositionId(self::IL_POSITION_SUPERIOR);
+                break;
 
+            default:
+                throw new HubException("Invalid position {$dto->getPosition()}!");
+        }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function handleDelete($ilias_id)/*: void*/ {
-		$this->current_ilias_object = FakeOrgUnitMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
+        return ilOrgUnitUserAssignment::findOrCreateAssignment(
+            $dto->getUserId(),
+            $position_id,
+            $this->getOrgUnitId($dto)
+        );
+    }
 
-		$assignment = ilOrgUnitUserAssignment::where([
-			"orgu_id" => $this->current_ilias_object->getContainerIdIlias(),
-			"user_id" => $this->current_ilias_object->getUserIdIlias(),
-			"position_id" => $this->current_ilias_object->getPositionId()
-		])->first();
+    /**
+     * @param ilOrgUnitUserAssignment $assignment
+     * @return FakeIliasObject
+     * @throws HubException
+     */
+    protected function getFakeIliasObject(ilOrgUnitUserAssignment $assignment): FakeIliasObject
+    {
+        return new FakeOrgUnitMembershipObject(
+            $assignment->getOrguId(),
+            $assignment->getUserId(),
+            $assignment->getPositionId()
+        );
+    }
 
-		if ($assignment !== NULL) {
-			$assignment->delete();
-		}
-	}
+    /**
+     * @param IOrgUnitMembershipDTO $dto
+     * @return int
+     * @throws HubException
+     */
+    protected function getOrgUnitId(IOrgUnitMembershipDTO $dto): int
+    {
+        switch ($dto->getOrgUnitIdType()) {
+            case IOrgUnitMembershipDTO::ORG_UNIT_ID_TYPE_EXTERNAL_EXT_ID:
+                $ext_id = $dto->getOrgUnitId();
 
+                $linkedOriginId = $this->config->getLinkedOriginId();
+                if (!$linkedOriginId) {
+                    throw new HubException("Unable to lookup external ref-ID because there is no origin linked");
+                }
 
-	/**
-	 * @param IOrgUnitMembershipDTO $dto
-	 *
-	 * @return ilOrgUnitUserAssignment
-	 * @throws HubException
-	 */
-	protected function assignToOrgUnit(IOrgUnitMembershipDTO $dto): ilOrgUnitUserAssignment {
-		switch ($dto->getPosition()) {
-			case IOrgUnitMembershipDTO::POSITION_EMPLOYEE:
-				$position_id = ilOrgUnitPosition::getCorePositionId(self::IL_POSITION_EMPLOYEE);
-				break;
+                $origin_factory = new OriginFactory();
+                $origin = $origin_factory->getById($linkedOriginId);
 
-			case IOrgUnitMembershipDTO::POSITION_SUPERIOR:
-				$position_id = ilOrgUnitPosition::getCorePositionId(self::IL_POSITION_SUPERIOR);
-				break;
+                $object_factory = new ObjectFactory($origin);
 
-			default:
-				throw new HubException("Invalid position {$dto->getPosition()}!");
-				break;
-		}
+                $org_unit = $object_factory->orgUnit($ext_id);
 
-		return ilOrgUnitUserAssignment::findOrCreateAssignment($dto->getUserId(), $position_id, $this->getOrgUnitId($dto));
-	}
+                $org_unit_id = $org_unit->getILIASId();
 
+                if (empty($org_unit_id)) {
+                    throw new HubException("External ID {$ext_id} not found!");
+                }
+                break;
 
-	/**
-	 * @param ilOrgUnitUserAssignment $assignment
-	 *
-	 * @return FakeIliasObject
-	 * @throws HubException
-	 */
-	protected function getFakeIliasObject(ilOrgUnitUserAssignment $assignment): FakeIliasObject {
-		return new FakeOrgUnitMembershipObject($assignment->getOrguId(), $assignment->getUserId(), $assignment->getPositionId());
-	}
+            case IOrgUnitMembershipDTO::ORG_UNIT_ID_TYPE_OBJ_ID:
+            default:
+                $org_unit_id = $dto->getOrgUnitId();
+                break;
+        }
 
+        $org_unit = $this->getOrgUnitObject($org_unit_id);
+        if (empty($org_unit)) {
+            throw new HubException("Org Unit {$org_unit_id} not found!");
+        }
 
-	/**
-	 * @param IOrgUnitMembershipDTO $dto
-	 *
-	 * @return int
-	 * @throws HubException
-	 */
-	protected function getOrgUnitId(IOrgUnitMembershipDTO $dto): int {
-		switch ($dto->getOrgUnitIdType()) {
-			case IOrgUnitMembershipDTO::ORG_UNIT_ID_TYPE_EXTERNAL_EXT_ID:
-				$ext_id = $dto->getOrgUnitId();
+        return $org_unit->getRefId();
+    }
 
-				$linkedOriginId = $this->config->getLinkedOriginId();
-				if (!$linkedOriginId) {
-					throw new HubException("Unable to lookup external ref-ID because there is no origin linked");
-				}
+    /**
+     * @param int $obj_id
+     * @return ilObjOrgUnit|null
+     */
+    protected function getOrgUnitObject(int $obj_id): ?ilObjOrgUnit
+    {
+        $ref_id = current(ilObjOrgUnit::_getAllReferences($obj_id));
+        if (empty($ref_id)) {
+            return null;
+        }
 
-				$origin_factory = new OriginFactory();
-				$origin = $origin_factory->getById($linkedOriginId);
+        $orgUnit = ilObjectFactory::getInstanceByRefId($ref_id);
 
-				$object_factory = new ObjectFactory($origin);
-
-				$org_unit = $object_factory->orgUnit($ext_id);
-
-				$org_unit_id = $org_unit->getILIASId();
-
-				if (empty($org_unit_id)) {
-					throw new HubException("External ID {$ext_id} not found!");
-				}
-				break;
-
-			case IOrgUnitMembershipDTO::ORG_UNIT_ID_TYPE_OBJ_ID:
-			default:
-				$org_unit_id = $dto->getOrgUnitId();
-				break;
-		}
-
-		$org_unit = $this->getOrgUnitObject($org_unit_id);
-		if (empty($org_unit)) {
-			throw new HubException("Org Unit {$org_unit_id} not found!");
-		}
-
-		return $org_unit->getRefId();
-	}
-
-
-	/**
-	 * @param int $obj_id
-	 *
-	 * @return ilObjOrgUnit|null
-	 */
-	protected function getOrgUnitObject(int $obj_id) {
-		$ref_id = current(ilObjOrgUnit::_getAllReferences($obj_id));
-		if (empty($ref_id)) {
-			return NULL;
-		}
-
-		$orgUnit = ilObjectFactory::getInstanceByRefId($ref_id);
-
-		if (!empty($orgUnit) && $orgUnit instanceof ilObjOrgUnit) {
-			return $orgUnit;
-		} else {
-			return NULL;
-		}
-	}
+        if (!empty($orgUnit) && $orgUnit instanceof ilObjOrgUnit) {
+            return $orgUnit;
+        } else {
+            return null;
+        }
+    }
 }

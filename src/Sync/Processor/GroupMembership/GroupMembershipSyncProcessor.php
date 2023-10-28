@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Sync\Processor\GroupMembership;
 
 use ilObject2;
@@ -16,195 +34,192 @@ use srag\Plugins\Hub2\Origin\Properties\Group\GroupProperties;
 use srag\Plugins\Hub2\Sync\IObjectStatusTransition;
 use srag\Plugins\Hub2\Sync\Processor\FakeIliasMembershipObject;
 use srag\Plugins\Hub2\Sync\Processor\ObjectSyncProcessor;
+use srag\Plugins\Hub2\Object\GroupMembership\IGroupMembershipDTO;
 
 /**
  * Class GroupMembershipSyncProcessor
- *
  * @package srag\Plugins\Hub2\Sync\Processor\GroupMembership
  * @author  Stefan Wanzenried <sw@studer-raimann.ch>
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroupMembershipSyncProcessor {
+class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroupMembershipSyncProcessor
+{
+    /**
+     * @var GroupProperties
+     */
+    protected $props;
+    /**
+     * @var GroupOriginConfig
+     */
+    protected $config;
 
-	/**
-	 * @var GroupProperties
-	 */
-	protected $props;
-	/**
-	 * @var GroupOriginConfig
-	 */
-	protected $config;
+    /**
+     * @param IOrigin                 $origin
+     * @param IOriginImplementation   $implementation
+     * @param IObjectStatusTransition $transition
+     */
+    public function __construct(
+        IOrigin $origin,
+        IOriginImplementation $implementation,
+        IObjectStatusTransition $transition
+    ) {
+        parent::__construct($origin, $implementation, $transition);
+        $this->props = $origin->properties();
+        $this->config = $origin->config();
+    }
 
+    /**
+     * @inheritdoc
+     * @param GroupMembershipDTO $dto
+     */
+    protected function handleCreate(IDataTransferObject $dto)/*: void*/
+    {
+        $ilias_group_ref_id = $this->buildParentRefId($dto);
 
-	/**
-	 * @param IOrigin                 $origin
-	 * @param IOriginImplementation   $implementation
-	 * @param IObjectStatusTransition $transition
-	 */
-	public function __construct(IOrigin $origin, IOriginImplementation $implementation, IObjectStatusTransition $transition) {
-		parent::__construct($origin, $implementation, $transition);
-		$this->props = $origin->properties();
-		$this->config = $origin->config();
-	}
+        $group = $this->findILIASGroup($ilias_group_ref_id);
+        if (!$group) {
+            return;
+        }
 
+        $user_id = $dto->getUserId();
+        $membership_obj = $group->getMembersObject();
+        $membership_obj->add($user_id, $this->mapRole($dto));
+        $membership_obj->updateContact($user_id, $dto->isContact());
 
-	/**
-	 * @inheritdoc
-	 *
-	 * @param GroupMembershipDTO $dto
-	 */
-	protected function handleCreate(IDataTransferObject $dto)/*: void*/ {
-		$ilias_group_ref_id = $this->buildParentRefId($dto);
+        $this->current_ilias_object = new FakeIliasMembershipObject($ilias_group_ref_id, $user_id);
+    }
 
-		$group = $this->findILIASGroup($ilias_group_ref_id);
-		if (!$group) {
-			return;
-		}
+    /**
+     * @inheritdoc
+     * @param GroupMembershipDTO $dto
+     */
+    protected function handleUpdate(IDataTransferObject $dto, int $iliasId)/*: void*/
+    {
+        $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($iliasId);
 
-		$user_id = $dto->getUserId();
-		$membership_obj = $group->getMembersObject();
-		$membership_obj->add($user_id, $this->mapRole($dto));
-		$membership_obj->updateContact($user_id, $dto->isContact());
+        $ilias_group_ref_id = $this->buildParentRefId($dto);
+        $user_id = $dto->getUserId();
+        if (!$this->props->updateDTOProperty('role')) {
+            $this->current_ilias_object = new FakeIliasMembershipObject($ilias_group_ref_id, $user_id);
 
-		$this->current_ilias_object = new FakeIliasMembershipObject($ilias_group_ref_id, $user_id);
-	}
+            return;
+        }
 
+        $group = $this->findILIASGroup($ilias_group_ref_id);
+        if (!$group) {
+            return;
+        }
 
-	/**
-	 * @inheritdoc
-	 *
-	 * @param GroupMembershipDTO $dto
-	 */
-	protected function handleUpdate(IDataTransferObject $dto, $ilias_id)/*: void*/ {
-		$this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
+        $membership_obj = $group->getMembersObject();
+        $membership_obj->updateRoleAssignments($user_id, [$this->getILIASRole($dto, $group)]);
+        if ($this->props->updateDTOProperty("isContact")) {
+            $membership_obj->updateContact($user_id, $dto->isContact());
+        }
 
-		$ilias_group_ref_id = $this->buildParentRefId($dto);
-		$user_id = $dto->getUserId();
-		if (!$this->props->updateDTOProperty('role')) {
-			$this->current_ilias_object = new FakeIliasMembershipObject($ilias_group_ref_id, $user_id);
+        $obj->setUserIdIlias($dto->getUserId());
+        $obj->setContainerIdIlias($group->getRefId());
+        $obj->initId();
+    }
 
-			return;
-		}
+    /**
+     * @inheritdoc
+     */
+    protected function handleDelete(int $ilias_id)/*: void*/
+    {
+        $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
 
-		$group = $this->findILIASGroup($ilias_group_ref_id);
-		if (!$group) {
-			return;
-		}
+        $group = $this->findILIASGroup($obj->getContainerIdIlias());
+        $group->getMembersObject()->delete($obj->getUserIdIlias());
+    }
 
-		$membership_obj = $group->getMembersObject();
-		$membership_obj->updateRoleAssignments($user_id, [ $this->getILIASRole($dto, $group) ]);
-		if ($this->props->updateDTOProperty("isContact")) {
-			$membership_obj->updateContact($user_id, $dto->isContact());
-		}
+    /**
+     * @param int $iliasId
+     * @return ilObjGroup|null
+     */
+    protected function findILIASGroup(int $iliasId): ?ilObjGroup
+    {
+        if (!ilObject2::_exists($iliasId, true)) {
+            return null;
+        }
 
-		$obj->setUserIdIlias($dto->getUserId());
-		$obj->setContainerIdIlias($group->getRefId());
-		$obj->initId();
-	}
+        return new ilObjGroup($iliasId);
+    }
 
+    /**
+     * @param GroupMembershipDTO $dto
+     * @return int
+     * @throws HubException
+     */
+    protected function buildParentRefId(GroupMembershipDTO $dto): int
+    {
+        if ($dto->getGroupIdType() == IGroupMembershipDTO::PARENT_ID_TYPE_REF_ID) {
+            if (self::dic()->tree()->isInTree($dto->getGroupId())) {
+                return (int) $dto->getGroupId();
+            }
+            throw new HubException("Could not find the ref-ID of the parent group in the tree: '{$dto->getGroupId()}'");
+        }
+        if ($dto->getGroupIdType() == IGroupMembershipDTO::PARENT_ID_TYPE_EXTERNAL_EXT_ID) {
+            // The stored parent-ID is an external-ID from a group.
+            // We must search the parent ref-ID from a group object synced by a linked origin.
+            // --> Get an instance of the linked origin and lookup the group by the given external ID.
+            $linkedOriginId = $this->config->getLinkedOriginId();
+            if (!$linkedOriginId) {
+                throw new HubException("Unable to lookup external parent ref-ID because there is no origin linked");
+            }
+            $originRepository = new OriginRepository();
+            $origin = array_pop(array_filter($originRepository->groups(), function ($origin) use ($linkedOriginId) {
+                /** @var IOrigin $origin */
+                return $origin->getId() == $linkedOriginId;
+            }));
+            if ($origin === null) {
+                $msg = "The linked origin syncing group was not found, please check that the correct origin is linked";
+                throw new HubException($msg);
+            }
+            $objectFactory = new ObjectFactory($origin);
+            $group = $objectFactory->group($dto->getGroupId());
+            if (!$group->getILIASId()) {
+                throw new HubException("The linked group does not (yet) exist in ILIAS");
+            }
+            if (!self::dic()->tree()->isInTree($group->getILIASId())) {
+                throw new HubException("Could not find the ref-ID of the parent group in the tree: '{$group->getILIASId()}'");
+            }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function handleDelete($ilias_id)/*: void*/ {
-		$this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
+            return (int) $group->getILIASId();
+        }
 
-		$group = $this->findILIASGroup($obj->getContainerIdIlias());
-		$group->getMembersObject()->delete($obj->getUserIdIlias());
-	}
+        return 0;
+    }
 
+    /**
+     * @param GroupMembershipDTO $object
+     * @return int
+     */
+    protected function mapRole(GroupMembershipDTO $object): int
+    {
+        switch ($object->getRole()) {
+            case IGroupMembershipDTO::ROLE_ADMIN:
+                return IL_GRP_ADMIN;
+            case IGroupMembershipDTO::ROLE_MEMBER:
+                return IL_GRP_MEMBER;
+            default:
+                return IL_CRS_MEMBER;
+        }
+    }
 
-	/**
-	 * @param int $iliasId
-	 *
-	 * @return ilObjGroup|null
-	 */
-	protected function findILIASGroup($iliasId) {
-		if (!ilObject2::_exists($iliasId, true)) {
-			return NULL;
-		}
-
-		return new ilObjGroup($iliasId);
-	}
-
-
-	/**
-	 * @param GroupMembershipDTO $dto
-	 *
-	 * @return int
-	 * @throws HubException
-	 */
-	protected function buildParentRefId(GroupMembershipDTO $dto) {
-		if ($dto->getGroupIdType() == GroupMembershipDTO::PARENT_ID_TYPE_REF_ID) {
-			if (self::dic()->tree()->isInTree($dto->getGroupId())) {
-				return (int)$dto->getGroupId();
-			}
-			throw new HubException("Could not find the ref-ID of the parent group in the tree: '{$dto->getGroupId()}'");
-		}
-		if ($dto->getGroupIdType() == GroupMembershipDTO::PARENT_ID_TYPE_EXTERNAL_EXT_ID) {
-			// The stored parent-ID is an external-ID from a group.
-			// We must search the parent ref-ID from a group object synced by a linked origin.
-			// --> Get an instance of the linked origin and lookup the group by the given external ID.
-			$linkedOriginId = $this->config->getLinkedOriginId();
-			if (!$linkedOriginId) {
-				throw new HubException("Unable to lookup external parent ref-ID because there is no origin linked");
-			}
-			$originRepository = new OriginRepository();
-			$origin = array_pop(array_filter($originRepository->groups(), function ($origin) use ($linkedOriginId) {
-				/** @var IOrigin $origin */
-				return (int)$origin->getId() == $linkedOriginId;
-			}));
-			if ($origin === NULL) {
-				$msg = "The linked origin syncing group was not found, please check that the correct origin is linked";
-				throw new HubException($msg);
-			}
-			$objectFactory = new ObjectFactory($origin);
-			$group = $objectFactory->group($dto->getGroupId());
-			if (!$group->getILIASId()) {
-				throw new HubException("The linked group does not (yet) exist in ILIAS");
-			}
-			if (!self::dic()->tree()->isInTree($group->getILIASId())) {
-				throw new HubException("Could not find the ref-ID of the parent group in the tree: '{$group->getILIASId()}'");
-			}
-
-			return (int)$group->getILIASId();
-		}
-
-		return 0;
-	}
-
-
-	/**
-	 * @param GroupMembershipDTO $object
-	 *
-	 * @return int
-	 */
-	protected function mapRole(GroupMembershipDTO $object) {
-		switch ($object->getRole()) {
-			case GroupMembershipDTO::ROLE_ADMIN:
-				return IL_GRP_ADMIN;
-			case GroupMembershipDTO::ROLE_MEMBER:
-				return IL_GRP_MEMBER;
-			default:
-				return IL_CRS_MEMBER;
-		}
-	}
-
-
-	/**
-	 * @param GroupMembershipDTO $object
-	 * @param ilObjGroup         $group
-	 *
-	 * @return int
-	 */
-	protected function getILIASRole(GroupMembershipDTO $object, ilObjGroup $group) {
-		switch ($object->getRole()) {
-			case GroupMembershipDTO::ROLE_ADMIN:
-				return $group->getDefaultAdminRole();
-			case GroupMembershipDTO::ROLE_MEMBER:
-				return $group->getDefaultMemberRole();
-			default:
-				return $group->getDefaultMemberRole();
-		}
-	}
+    /**
+     * @param GroupMembershipDTO $object
+     * @param ilObjGroup         $group
+     * @return int
+     */
+    protected function getILIASRole(GroupMembershipDTO $object, ilObjGroup $group): int
+    {
+        switch ($object->getRole()) {
+            case IGroupMembershipDTO::ROLE_ADMIN:
+                return $group->getDefaultAdminRole();
+            case IGroupMembershipDTO::ROLE_MEMBER:
+                return $group->getDefaultMemberRole();
+            default:
+                return $group->getDefaultMemberRole();
+        }
+    }
 }

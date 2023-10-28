@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Sync\Processor\SessionMembership;
 
 use ilObject2;
@@ -18,230 +36,231 @@ use srag\Plugins\Hub2\Origin\Properties\SessionMembership\SessionMembershipPrope
 use srag\Plugins\Hub2\Sync\IObjectStatusTransition;
 use srag\Plugins\Hub2\Sync\Processor\FakeIliasMembershipObject;
 use srag\Plugins\Hub2\Sync\Processor\ObjectSyncProcessor;
+use srag\Plugins\Hub2\Object\SessionMembership\ISessionMembershipDTO;
 
 /**
  * Class SessionMembershipSyncProcessor
- *
  * @package srag\Plugins\Hub2\Sync\Processor\SessionMembership
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISessionMembershipSyncProcessor {
+class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISessionMembershipSyncProcessor
+{
+    /**
+     * @var SessionMembershipProperties
+     */
+    private $props;
+    /**
+     * @var SessionMembershipOriginConfig
+     */
+    private $config;
+    /**
+     * @var array
+     */
+    protected static array $properties = [];
 
-	/**
-	 * @var SessionMembershipProperties
-	 */
-	private $props;
-	/**
-	 * @var SessionMembershipOriginConfig
-	 */
-	private $config;
-	/**
-	 * @var array
-	 */
-	protected static $properties = array();
+    /**
+     * @param IOrigin                 $origin
+     * @param IOriginImplementation   $implementation
+     * @param IObjectStatusTransition $transition
+     */
+    public function __construct(
+        IOrigin $origin,
+        IOriginImplementation $implementation,
+        IObjectStatusTransition $transition
+    ) {
+        parent::__construct($origin, $implementation, $transition);
+        $this->props = $origin->properties();
+        $this->config = $origin->config();
+    }
 
+    /**
+     * @return array
+     */
+    public static function getProperties(): array
+    {
+        return self::$properties;
+    }
 
-	/**
-	 * @param IOrigin                 $origin
-	 * @param IOriginImplementation   $implementation
-	 * @param IObjectStatusTransition $transition
-	 */
-	public function __construct(IOrigin $origin, IOriginImplementation $implementation, IObjectStatusTransition $transition) {
-		parent::__construct($origin, $implementation, $transition);
-		$this->props = $origin->properties();
-		$this->config = $origin->config();
-	}
+    /**
+     * @inheritdoc
+     * @param SessionMembershipDTO $dto
+     */
+    protected function handleCreate(IDataTransferObject $dto)/*: void*/
+    {
+        $session_ref_id = $this->buildParentRefId($dto);
+        $ilObjSession = $this->findILIASObject($session_ref_id);
+        $this->handleMembership($ilObjSession, $dto);
+        $this->handleContact($ilObjSession, $dto);
 
+        $this->current_ilias_object = new FakeIliasMembershipObject($session_ref_id, $dto->getUserId());
+    }
 
-	/**
-	 * @return array
-	 */
-	public static function getProperties() {
-		return self::$properties;
-	}
+    /**
+     * @inheritdoc
+     * @param SessionMembershipDTO $dto
+     */
+    protected function handleUpdate(IDataTransferObject $dto, int $iliasId)/*: void*/
+    {
+        $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($iliasId);
 
+        $ilObjSession = $this->findILIASObject($obj->getContainerIdIlias());
+        $this->handleMembership($ilObjSession, $dto);
 
-	/**
-	 * @inheritdoc
-	 *
-	 * @param SessionMembershipDTO $dto
-	 */
-	protected function handleCreate(IDataTransferObject $dto)/*: void*/ {
-		$session_ref_id = $this->buildParentRefId($dto);
-		$ilObjSession = $this->findILIASObject($session_ref_id);
-		$this->handleMembership($ilObjSession, $dto);
-		$this->handleContact($ilObjSession, $dto);
+        $obj->setUserIdIlias($dto->getUserId());
+        $obj->setContainerIdIlias($ilObjSession->getRefId());
+        $obj->initId();
 
-		$this->current_ilias_object = new FakeIliasMembershipObject($session_ref_id, $dto->getUserId());
-	}
+        if ($this->props->updateDTOProperty("isContact")) {
+            $this->handleContact($ilObjSession, $dto);
+        }
+    }
 
+    /**
+     * @inheritdoc
+     */
+    protected function handleDelete(int $ilias_id)/*: void*/
+    {
+        $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
+        $ilObjSession = $this->findILIASObject($obj->getContainerIdIlias());
+        $this->removeMembership($ilObjSession, $obj->getUserIdIlias());
+    }
 
-	/**
-	 * @inheritdoc
-	 *
-	 * @param SessionMembershipDTO $dto
-	 */
-	protected function handleUpdate(IDataTransferObject $dto, $ilias_id)/*: void*/ {
-		$this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
+    /**
+     * @param int $ilias_id
+     * @return ilObjSession
+     * @throws HubException
+     */
+    protected function findILIASObject(int $ilias_id): ilObjSession
+    {
+        if (!ilObject2::_exists($ilias_id, true)) {
+            throw new HubException("Session not found with ref_id {$ilias_id}");
+        }
 
-		$ilObjSession = $this->findILIASObject($obj->getContainerIdIlias());
-		$this->handleMembership($ilObjSession, $dto);
+        return new ilObjSession($ilias_id, true);
+    }
 
-		$obj->setUserIdIlias($dto->getUserId());
-		$obj->setContainerIdIlias($ilObjSession->getRefId());
-		$obj->initId();
+    /**
+     * @param SessionMembershipDTO $dto
+     * @return int
+     * @throws HubException
+     */
+    protected function buildParentRefId(SessionMembershipDTO $dto): int
+    {
+        if ($dto->getSessionIdType() == ISessionMembershipDTO::PARENT_ID_TYPE_REF_ID) {
+            if (self::dic()->tree()->isInTree($dto->getSessionId())) {
+                return (int) $dto->getSessionId();
+            }
+            throw new HubException("Could not find the ref-ID of the parent session in the tree: '{$dto->getGroupId()}'");
+        }
+        if ($dto->getSessionIdType() == ISessionMembershipDTO::PARENT_ID_TYPE_EXTERNAL_EXT_ID) {
+            // The stored parent-ID is an external-ID from a category.
+            // We must search the parent ref-ID from a category object synced by a linked origin.
+            // --> Get an instance of the linked origin and lookup the category by the given external ID.
+            $linkedOriginId = $this->config->getLinkedOriginId();
+            if (!$linkedOriginId) {
+                throw new HubException("Unable to lookup external parent ref-ID because there is no origin linked");
+            }
+            $originRepository = new OriginRepository();
+            $origin = array_pop(array_filter($originRepository->sessions(), function ($origin) use ($linkedOriginId) {
+                /** @var IOrigin $origin */
+                return $origin->getId() == $linkedOriginId;
+            }));
+            if ($origin === null) {
+                $msg = "The linked origin syncing sessions was not found, please check that the correct origin is linked";
+                throw new HubException($msg);
+            }
+            $objectFactory = new ObjectFactory($origin);
+            $session = $objectFactory->session($dto->getSessionId());
+            if (!$session->getILIASId()) {
+                throw new HubException("The linked session does not (yet) exist in ILIAS");
+            }
+            if (!self::dic()->tree()->isInTree($session->getILIASId())) {
+                throw new HubException("Could not find the ref-ID of the parent session in the tree: '{$session->getILIASId()}'");
+            }
 
-		if ($this->props->updateDTOProperty("isContact")) {
-			$this->handleContact($ilObjSession, $dto);
-		}
-	}
+            return (int) $session->getILIASId();
+        }
 
+        return 0;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function handleDelete($ilias_id)/*: void*/ {
-		$this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
-		$ilObjSession = $this->findILIASObject($obj->getContainerIdIlias());
-		$this->removeMembership($ilObjSession, $obj->getUserIdIlias());
-	}
+    /**
+     * @param ilObjSession         $ilObjSession
+     * @param SessionMembershipDTO $dto
+     * @throws HubException
+     */
+    protected function handleMembership(ilObjSession $ilObjSession, SessionMembershipDTO $dto)
+    {
+        /**
+         * @var ilSessionParticipants $ilSessionParticipants
+         */
+        $ilSessionParticipants = $ilObjSession->getMembersObject();
 
+        $user_id = $dto->getUserId();
+        if (!ilObjUser::_exists($user_id)) {
+            throw new HubException("user with id {$user_id} does not exist");
+        }
 
-	/**
-	 * @param int $ilias_id
-	 *
-	 * @return ilObjSession
-	 * @throws HubException
-	 */
-	protected function findILIASObject($ilias_id) {
-		if (!ilObject2::_exists($ilias_id, true)) {
-			throw new HubException("Session not found with ref_id {$ilias_id}");
-		}
+        $ilSessionParticipants->register($user_id);
+    }
 
-		return new ilObjSession($ilias_id, true);
-	}
+    /**
+     * @param ilObjSession         $ilObjSession
+     * @param SessionMembershipDTO $dto
+     * @throws HubException
+     */
+    protected function handleContact(ilObjSession $ilObjSession, SessionMembershipDTO $dto)
+    {
+        /**
+         * @var ilSessionParticipants $ilSessionParticipants
+         */
+        $ilSessionParticipants = $ilObjSession->getMembersObject();
 
+        $user_id = $dto->getUserId();
+        if (!ilObjUser::_exists($user_id)) {
+            throw new HubException("user with id {$user_id} does not exist");
+        }
 
-	/**
-	 * @param SessionMembershipDTO $dto
-	 *
-	 * @return int
-	 * @throws HubException
-	 */
-	protected function buildParentRefId(SessionMembershipDTO $dto) {
-		if ($dto->getSessionIdType() == SessionMembershipDTO::PARENT_ID_TYPE_REF_ID) {
-			if (self::dic()->tree()->isInTree($dto->getSessionId())) {
-				return (int)$dto->getSessionId();
-			}
-			throw new HubException("Could not find the ref-ID of the parent session in the tree: '{$dto->getGroupId()}'");
-		}
-		if ($dto->getSessionIdType() == SessionMembershipDTO::PARENT_ID_TYPE_EXTERNAL_EXT_ID) {
-			// The stored parent-ID is an external-ID from a category.
-			// We must search the parent ref-ID from a category object synced by a linked origin.
-			// --> Get an instance of the linked origin and lookup the category by the given external ID.
-			$linkedOriginId = $this->config->getLinkedOriginId();
-			if (!$linkedOriginId) {
-				throw new HubException("Unable to lookup external parent ref-ID because there is no origin linked");
-			}
-			$originRepository = new OriginRepository();
-			$origin = array_pop(array_filter($originRepository->sessions(), function ($origin) use ($linkedOriginId) {
-				/** @var IOrigin $origin */
-				return (int)$origin->getId() == $linkedOriginId;
-			}));
-			if ($origin === NULL) {
-				$msg = "The linked origin syncing sessions was not found, please check that the correct origin is linked";
-				throw new HubException($msg);
-			}
-			$objectFactory = new ObjectFactory($origin);
-			$session = $objectFactory->session($dto->getSessionId());
-			if (!$session->getILIASId()) {
-				throw new HubException("The linked session does not (yet) exist in ILIAS");
-			}
-			if (!self::dic()->tree()->isInTree($session->getILIASId())) {
-				throw new HubException("Could not find the ref-ID of the parent session in the tree: '{$session->getILIASId()}'");
-			}
+        /**
+         * Note to who ever might be concerned, No I was not drunken while writting the next
+         * few lines. After some investigation, it seemed the simplest way to set a single
+         * user as participant of a session. See the gem ilSessionParticipants
+         * This Option would also be possible, but is nast as well an very slow:
+         * $ilSessionParticipants->getEventParticipants()->__read();
+         * $user = $ilSessionParticipants->getEventParticipants()->getUser((int)$user_id);
+         * $ilSessionParticipants->getEventParticipants()->setContact($dto->isContact());
+         * ... //manuall set all other properties from the user array
+         * $ilSessionParticipants->getEventParticipants()->updateUser();
+         */
+        $event_id = $ilSessionParticipants->getEventParticipants()->getEventId();
+        $query = "UPDATE event_participants " . "SET contact = " . self::dic()->database()->quote(
+            $dto->isContact(),
+            'integer'
+        ) . " "
+            . "WHERE event_id = " . self::dic()->database()->quote(
+                $event_id,
+                'integer'
+            ) . " " . "AND usr_id = " . self::dic()->database()
+                                                         ->quote($user_id, 'integer') . " ";
+        self::dic()->database()->manipulate($query);
+    }
 
-			return (int)$session->getILIASId();
-		}
+    /**
+     * @param ilObjSession $ilObjSession
+     * @param int          $user_id
+     * @throws HubException
+     */
+    protected function removeMembership(ilObjSession $ilObjSession, int $user_id)
+    {
+        /**
+         * @var ilSessionParticipants $ilSessionParticipants
+         */
+        $ilSessionParticipants = $ilObjSession->getMembersObject();
 
-		return 0;
-	}
+        if (!ilObjUser::_exists($user_id)) {
+            throw new HubException("user with id {$user_id} does not exist");
+        }
 
-
-	/**
-	 * @param ilObjSession         $ilObjSession
-	 * @param SessionMembershipDTO $dto
-	 *
-	 * @throws HubException
-	 */
-	protected function handleMembership(ilObjSession $ilObjSession, SessionMembershipDTO $dto) {
-		/**
-		 * @var ilSessionParticipants $ilSessionParticipants
-		 */
-		$ilSessionParticipants = $ilObjSession->getMembersObject();
-
-		$user_id = $dto->getUserId();
-		if (!ilObjUser::_exists($user_id)) {
-			throw new HubException("user with id {$user_id} does not exist");
-		}
-
-		$ilSessionParticipants->register((int)$user_id);
-	}
-
-
-	/**
-	 * @param ilObjSession         $ilObjSession
-	 * @param SessionMembershipDTO $dto
-	 *
-	 * @throws HubException
-	 */
-	protected function handleContact(ilObjSession $ilObjSession, SessionMembershipDTO $dto) {
-		/**
-		 * @var ilSessionParticipants $ilSessionParticipants
-		 */
-		$ilSessionParticipants = $ilObjSession->getMembersObject();
-
-		$user_id = $dto->getUserId();
-		if (!ilObjUser::_exists($user_id)) {
-			throw new HubException("user with id {$user_id} does not exist");
-		}
-
-		/**
-		 * Note to who ever might be concerned, No I was not drunken while writting the next
-		 * few lines. After some investigation, it seemed the simplest way to set a single
-		 * user as participant of a session. See the gem ilSessionParticipants
-		 *
-		 * This Option would also be possible, but is nast as well an very slow:
-		 * $ilSessionParticipants->getEventParticipants()->__read();
-		 * $user = $ilSessionParticipants->getEventParticipants()->getUser((int)$user_id);
-		 * $ilSessionParticipants->getEventParticipants()->setContact($dto->isContact());
-		 * ... //manuall set all other properties from the user array
-		 * $ilSessionParticipants->getEventParticipants()->updateUser();
-		 */
-		$event_id = $ilSessionParticipants->getEventParticipants()->getEventId();
-		$query = "UPDATE event_participants " . "SET contact = " . self::dic()->database()->quote($dto->isContact(), 'integer') . " "
-			. "WHERE event_id = " . self::dic()->database()->quote($event_id, 'integer') . " " . "AND usr_id = " . self::dic()->database()
-				->quote($user_id, 'integer') . " ";
-		self::dic()->database()->manipulate($query);
-	}
-
-
-	/**
-	 * @param ilObjSession $ilObjSession
-	 * @param int          $user_id
-	 *
-	 * @throws HubException
-	 */
-	protected function removeMembership(ilObjSession $ilObjSession, $user_id) {
-		/**
-		 * @var ilSessionParticipants $ilSessionParticipants
-		 */
-		$ilSessionParticipants = $ilObjSession->getMembersObject();
-
-		if (!ilObjUser::_exists($user_id)) {
-			throw new HubException("user with id {$user_id} does not exist");
-		}
-
-		$ilSessionParticipants->unregister((int)$user_id);
-	}
+        $ilSessionParticipants->unregister($user_id);
+    }
 }

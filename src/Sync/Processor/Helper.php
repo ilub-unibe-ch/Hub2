@@ -1,41 +1,62 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Sync\Processor;
 
 /**
  * Trait Helper
- *
  * @package srag\Plugins\Hub2\Sync\Processor
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-trait Helper {
+trait Helper
+{
+    /**
+     * @param string $string
+     * @return string
+     */
+    protected function clearString(string $string): string
+    {
+        $replaces = [
+            'ä' => 'ae',
+            'å' => 'ae',
+            'ü' => 'ue',
+            'ö' => 'oe',
+            'Ä' => 'Ae',
+            'Ü' => 'Ue',
+            'Ö' => 'Oe',
+            'é' => 'e',
+            'è' => 'e',
+            'ê' => 'e',
+            'Á' => 'A',
+            'ß' => 'ss',
+            '\'' => '',
+            ' ' => '',
+            '-' => '',
+            '.' => '',
+        ];
+        $string = strtr($string, $replaces);
 
-	/**
-	 * @param string $string
-	 *
-	 * @return string
-	 */
-	protected function clearString($string) {
-		$replaces = [
-			'ä' => 'ae',
-			'å' => 'ae',
-			'ü' => 'ue',
-			'ö' => 'oe',
-			'Ä' => 'Ae',
-			'Ü' => 'Ue',
-			'Ö' => 'Oe',
-			'é' => 'e',
-			'è' => 'e',
-			'ê' => 'e',
-			'Á' => 'A',
-			'ß' => 'ss',
-			'\'' => '',
-			' ' => '',
-			'-' => '',
-			'.' => '',
-		];
-		$string = strtr($string, $replaces);
-
-		return strtr(utf8_decode($string), utf8_decode('ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ'), 'SOZsozYYuAAAAAAACEEEEIIIIDNOOOOOOUUUUYsaaaaaaaceeeeiiiionoooooouuuuyy');
-	}
+        return strtr(
+            utf8_decode($string),
+            utf8_decode('ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ'),
+            'SOZsozYYuAAAAAAACEEEEIIIIDNOOOOOOUUUUYsaaaaaaaceeeeiiiionoooooouuuuyy'
+        );
+    }
 }

@@ -1,5 +1,20 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Object\Session;
 
 use srag\Plugins\Hub2\Exception\LanguageCodeException;
@@ -10,485 +25,468 @@ use srag\Plugins\Hub2\Object\DTO\TaxonomyAwareDataTransferObject;
 
 /**
  * Class SessionDTO
- *
  * @package srag\Plugins\Hub2\Object\Session
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-class SessionDTO extends DataTransferObject implements ISessionDTO {
+class SessionDTO extends DataTransferObject implements ISessionDTO
+{
+    use MetadataAwareDataTransferObject;
+    use TaxonomyAwareDataTransferObject;
 
-	use MetadataAwareDataTransferObject;
-	use TaxonomyAwareDataTransferObject;
-	/**
-	 * @var string
-	 */
-	protected $parentId;
-	/**
-	 * @var int
-	 */
-	protected $parentIdType = self::PARENT_ID_TYPE_REF_ID;
-	/**
-	 * @var string
-	 */
-	protected $title;
-	/**
-	 * @var string
-	 */
-	protected $description;
-	/**
-	 * @var string
-	 */
-	protected $location;
-	/**
-	 * @var string
-	 */
-	protected $details;
-	/**
-	 * @var string
-	 */
-	protected $name;
-	/**
-	 * @var string
-	 */
-	protected $phone;
-	/**
-	 * @var string
-	 */
-	protected $email;
-	/**
-	 * @var int
-	 */
-	protected $registrationType;
-	/**
-	 * @var bool
-	 */
-	protected $registrationLimited = false;
-	/**
-	 * @var int
-	 */
-	protected $registrationMinUsers;
-	/**
-	 * @var int
-	 */
-	protected $registrationMaxUsers;
-	/**
-	 * @var bool
-	 */
-	protected $registrationWaitingList;
-    /**
-     * @var int
-     */
-    protected $cannotParticipateOption;
-	/**
-	 * @var bool
-	 */
-	protected $waitingListAutoFill;
-	/**
-	 * @var bool
-	 */
-	protected $fullDay = false;
-	/**
-	 * @var int
-	 */
-	protected $start;
-	/**
-	 * @var int
-	 */
-	protected $end;
     /**
      * @var string
      */
-    protected $languageCode = 'en';
-
-	/**
-	 * @var bool
-	 */
-	protected $showMembers = false;
-
-
-	/**
-	 * @return string
-	 */
-	public function getTitle() {
-		return $this->title;
-	}
-
-
-	/**
-	 * @param string $title
-	 *
-	 * @return SessionDTO
-	 */
-	public function setTitle($title) {
-		$this->title = $title;
-
-		return $this;
-	}
-
-
-	/**
-	 * @return string
-	 */
-	public function getDescription() {
-		return $this->description;
-	}
-
-
-	/**
-	 * @param string $description
-	 *
-	 * @return SessionDTO
-	 */
-	public function setDescription($description) {
-		$this->description = $description;
-
-		return $this;
-	}
-
-
-	/**
-	 * @return string
-	 */
-	public function getLocation() {
-		return $this->location;
-	}
-
-
-	/**
-	 * @param string $location
-	 *
-	 * @return SessionDTO
-	 */
-	public function setLocation($location) {
-		$this->location = $location;
-
-		return $this;
-	}
-
-
-	/**
-	 * @return string
-	 */
-	public function getDetails() {
-		return $this->details;
-	}
-
-
-	/**
-	 * @param string $details
-	 *
-	 * @return SessionDTO
-	 */
-	public function setDetails($details) {
-		$this->details = $details;
-
-		return $this;
-	}
-
-
-	/**
-	 * @return string
-	 */
-	public function getName() {
-		return $this->name;
-	}
-
-
-	/**
-	 * @param string $name
-	 *
-	 * @return SessionDTO
-	 */
-	public function setName($name) {
-		$this->name = $name;
-
-		return $this;
-	}
-
-
-	/**
-	 * @return string
-	 */
-	public function getPhone() {
-		return $this->phone;
-	}
-
-
-	/**
-	 * @param string $phone
-	 *
-	 * @return SessionDTO
-	 */
-	public function setPhone($phone) {
-		$this->phone = $phone;
-
-		return $this;
-	}
-
-
-	/**
-	 * @return string
-	 */
-	public function getEmail() {
-		return $this->email;
-	}
-
-
-	/**
-	 * @param string $email
-	 *
-	 * @return SessionDTO
-	 */
-	public function setEmail($email) {
-		$this->email = $email;
-
-		return $this;
-	}
-
-
-	/**
-	 * @return int
-	 */
-	public function getRegistrationType() {
-		return $this->registrationType;
-	}
-
-
-	/**
-	 * @param int $registrationType
-	 *
-	 * @return SessionDTO
-	 */
-	public function setRegistrationType($registrationType) {
-		$this->registrationType = $registrationType;
-
-		return $this;
-	}
-
-
-	/**
-	 * @return bool
-	 */
-	public function getRegistrationLimited() {
-		return $this->registrationLimited;
-	}
-
-
-	/**
-	 * @param bool $registrationLimited
-	 *
-	 * @return SessionDTO
-	 */
-	public function setRegistrationLimited($registrationLimited) {
-		$this->registrationLimited = $registrationLimited;
-
-		return $this;
-	}
-
-
-	/**
-	 * @return int
-	 */
-	public function getRegistrationMinUsers() {
-		return $this->registrationMinUsers;
-	}
-
-
-	/**
-	 * @param int $registrationMinUsers
-	 *
-	 * @return SessionDTO
-	 */
-	public function setRegistrationMinUsers($registrationMinUsers) {
-		$this->registrationMinUsers = $registrationMinUsers;
-
-		return $this;
-	}
-
-
-	/**
-	 * @return int
-	 */
-	public function getRegistrationMaxUsers() {
-		return $this->registrationMaxUsers;
-	}
-
-
-	/**
-	 * @param int $registrationMaxUsers
-	 *
-	 * @return SessionDTO
-	 */
-	public function setRegistrationMaxUsers($registrationMaxUsers) {
-		$this->registrationMaxUsers = $registrationMaxUsers;
-
-		return $this;
-	}
-
-
-	/**
-	 * @return bool
-	 */
-	public function getRegistrationWaitingList() {
-		return $this->registrationWaitingList;
-	}
-
-
-	/**
-	 * @param bool $registrationWaitingList
-	 *
-	 * @return SessionDTO
-	 */
-	public function setRegistrationWaitingList($registrationWaitingList) {
-		$this->registrationWaitingList = $registrationWaitingList;
-
-		return $this;
-	}
-
-
-	/**
-	 * @return bool
-	 */
-	public function getWaitingListAutoFill() {
-		return $this->waitingListAutoFill;
-	}
-
-
-	/**
-	 * @param bool $waitingListAutoFill
-	 *
-	 * @return SessionDTO
-	 */
-	public function setWaitingListAutoFill($waitingListAutoFill) {
-		$this->waitingListAutoFill = $waitingListAutoFill;
-
-		return $this;
-	}
-
-
-	public function getCannotParticipateOption()
+    protected string $parentId;
+    /**
+     * @var int
+     */
+    protected int $parentIdType = self::PARENT_ID_TYPE_REF_ID;
+    /**
+     * @var string
+     */
+    protected string $title;
+    /**
+     * @var string
+     */
+    protected string $description;
+    /**
+     * @var string
+     */
+    protected string $location;
+    /**
+     * @var string
+     */
+    protected string $details;
+    /**
+     * @var string
+     */
+    protected string $name;
+    /**
+     * @var string
+     */
+    protected string $phone;
+    /**
+     * @var string
+     */
+    protected string $email;
+    /**
+     * @var int
+     */
+    protected int $registrationType;
+    /**
+     * @var bool
+     */
+    protected bool $registrationLimited = false;
+    /**
+     * @var int
+     */
+    protected int $registrationMinUsers;
+    /**
+     * @var int
+     */
+    protected int $registrationMaxUsers;
+    /**
+     * @var bool
+     */
+    protected bool $registrationWaitingList;
+    /**
+     * @var int
+     */
+    protected int $cannotParticipateOption;
+    /**
+     * @var bool
+     */
+    protected bool $waitingListAutoFill;
+    /**
+     * @var bool
+     */
+    protected bool $fullDay = false;
+    /**
+     * @var int
+     */
+    protected int $start;
+    /**
+     * @var int
+     */
+    protected int $end;
+    /**
+     * @var string
+     */
+    protected string $languageCode = 'en';
+
+    /**
+     * @var bool
+     */
+    protected bool $showMembers = false;
+
+    /**
+     * @return string
+     */
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    /**
+     * @param string $title
+     * @return SessionDTO
+     */
+    public function setTitle(string $title): SessionDTO
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param string $description
+     * @return SessionDTO
+     */
+    public function setDescription(string $description): SessionDTO
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLocation(): string
+    {
+        return $this->location;
+    }
+
+    /**
+     * @param string $location
+     * @return SessionDTO
+     */
+    public function setLocation(string $location): SessionDTO
+    {
+        $this->location = $location;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDetails(): string
+    {
+        return $this->details;
+    }
+
+    /**
+     * @param string $details
+     * @return SessionDTO
+     */
+    public function setDetails(string $details): SessionDTO
+    {
+        $this->details = $details;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     * @return SessionDTO
+     */
+    public function setName(string $name): SessionDTO
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhone(): string
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param string $phone
+     * @return SessionDTO
+     */
+    public function setPhone(string $phone): SessionDTO
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param string $email
+     * @return SessionDTO
+     */
+    public function setEmail(string $email): SessionDTO
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRegistrationType(): int
+    {
+        return $this->registrationType;
+    }
+
+    /**
+     * @param int $registrationType
+     * @return SessionDTO
+     */
+    public function setRegistrationType(int $registrationType): SessionDTO
+    {
+        $this->registrationType = $registrationType;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getRegistrationLimited(): bool
+    {
+        return $this->registrationLimited;
+    }
+
+    /**
+     * @param bool $registrationLimited
+     * @return SessionDTO
+     */
+    public function setRegistrationLimited(bool $registrationLimited): SessionDTO
+    {
+        $this->registrationLimited = $registrationLimited;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRegistrationMinUsers(): int
+    {
+        return $this->registrationMinUsers;
+    }
+
+    /**
+     * @param int $registrationMinUsers
+     * @return SessionDTO
+     */
+    public function setRegistrationMinUsers(int $registrationMinUsers): SessionDTO
+    {
+        $this->registrationMinUsers = $registrationMinUsers;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRegistrationMaxUsers(): int
+    {
+        return $this->registrationMaxUsers;
+    }
+
+    /**
+     * @param int $registrationMaxUsers
+     * @return SessionDTO
+     */
+    public function setRegistrationMaxUsers(int $registrationMaxUsers): SessionDTO
+    {
+        $this->registrationMaxUsers = $registrationMaxUsers;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getRegistrationWaitingList(): bool
+    {
+        return $this->registrationWaitingList;
+    }
+
+    /**
+     * @param bool $registrationWaitingList
+     * @return SessionDTO
+     */
+    public function setRegistrationWaitingList(bool $registrationWaitingList): SessionDTO
+    {
+        $this->registrationWaitingList = $registrationWaitingList;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getWaitingListAutoFill(): bool
+    {
+        return $this->waitingListAutoFill;
+    }
+
+    /**
+     * @param bool $waitingListAutoFill
+     * @return SessionDTO
+     */
+    public function setWaitingListAutoFill(bool $waitingListAutoFill): SessionDTO
+    {
+        $this->waitingListAutoFill = $waitingListAutoFill;
+
+        return $this;
+    }
+
+    public function getCannotParticipateOption(): int
     {
         return $this->cannotParticipateOption;
     }
 
-    public function setCannotParticipateOption($cannotParticipateOption)
+    public function setCannotParticipateOption($cannotParticipateOption): SessionDTO
     {
         $this->cannotParticipateOption = $cannotParticipateOption;
         return $this;
     }
 
-	/**
-	 * @return string
-	 */
-	public function getParentId() {
-		return $this->parentId;
-	}
+    /**
+     * @return string
+     */
+    public function getParentId(): string
+    {
+        return $this->parentId;
+    }
 
+    /**
+     * @param string $parentId
+     * @return SessionDTO
+     */
+    public function setParentId(string $parentId): SessionDTO
+    {
+        $this->parentId = $parentId;
 
-	/**
-	 * @param string $parentId
-	 *
-	 * @return SessionDTO
-	 */
-	public function setParentId($parentId) {
-		$this->parentId = $parentId;
+        return $this;
+    }
 
-		return $this;
-	}
+    /**
+     * @return int
+     */
+    public function getParentIdType(): int
+    {
+        return $this->parentIdType;
+    }
 
+    /**
+     * @param int $parentIdType
+     * @return SessionDTO
+     */
+    public function setParentIdType(int $parentIdType): SessionDTO
+    {
+        $this->parentIdType = $parentIdType;
 
-	/**
-	 * @return int
-	 */
-	public function getParentIdType() {
-		return $this->parentIdType;
-	}
+        return $this;
+    }
 
+    /**
+     * @return bool
+     */
+    public function isFullDay(): bool
+    {
+        return $this->fullDay;
+    }
 
-	/**
-	 * @param int $parentIdType
-	 *
-	 * @return SessionDTO
-	 */
-	public function setParentIdType($parentIdType) {
-		$this->parentIdType = $parentIdType;
+    /**
+     * @param bool $fullDay
+     * @return SessionDTO
+     */
+    public function setFullDay(bool $fullDay): SessionDTO
+    {
+        $this->fullDay = $fullDay;
 
-		return $this;
-	}
+        return $this;
+    }
 
+    /**
+     * @return int
+     */
+    public function getStart(): int
+    {
+        return $this->start;
+    }
 
-	/**
-	 * @return bool
-	 */
-	public function isFullDay() {
-		return $this->fullDay;
-	}
+    /**
+     * @param int $start
+     * @return SessionDTO
+     */
+    public function setStart(int $start): SessionDTO
+    {
+        $this->start = $start;
 
+        return $this;
+    }
 
-	/**
-	 * @param bool $fullDay
-	 *
-	 * @return SessionDTO
-	 */
-	public function setFullDay($fullDay) {
-		$this->fullDay = $fullDay;
+    /**
+     * @return int
+     */
+    public function getEnd(): int
+    {
+        return $this->end;
+    }
 
-		return $this;
-	}
+    /**
+     * @param int $end Unix Timestamp
+     * @return SessionDTO
+     */
+    public function setEnd(int $end): SessionDTO
+    {
+        $this->end = $end;
 
-
-	/**
-	 * @return int
-	 */
-	public function getStart() {
-		return $this->start;
-	}
-
-
-	/**
-	 * @param int $start
-	 *
-	 * @return SessionDTO
-	 */
-	public function setStart($start) {
-		$this->start = $start;
-
-		return $this;
-	}
-
-
-	/**
-	 * @return int
-	 */
-	public function getEnd() {
-		return $this->end;
-	}
-
-
-	/**
-	 * @param int $end Unix Timestamp
-	 *
-	 * @return SessionDTO
-	 */
-	public function setEnd($end) {
-		$this->end = $end;
-
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * @return string
      */
-    public function getLanguageCode() {
+    public function getLanguageCode(): string
+    {
         return $this->languageCode;
     }
-
 
     /**
      * @param $languageCode
      * @return SessionDTO
      * @throws LanguageCodeException
      */
-    public function setLanguageCode($languageCode): SessionDTO {
+    public function setLanguageCode($languageCode): SessionDTO
+    {
         if (!CourseDTO::isLanguageCode($languageCode)) {
             throw new LanguageCodeException($languageCode);
         }
@@ -498,21 +496,21 @@ class SessionDTO extends DataTransferObject implements ISessionDTO {
         return $this;
     }
 
-	/**
-	 * @return bool
-	 */
-	public function getShowMembers(): bool
-	{
-		return $this->showMembers;
-	}
+    /**
+     * @return bool
+     */
+    public function getShowMembers(): bool
+    {
+        return $this->showMembers;
+    }
 
-	/**
-	 * @param bool $showMembers
-	 * @return $this
-	 */
-	public function setShowMembers(bool $showMembers)
-	{
-		$this->showMembers = $showMembers;
-		return $this;
-	}
+    /**
+     * @param bool $showMembers
+     * @return $this
+     */
+    public function setShowMembers(bool $showMembers): SessionDTO
+    {
+        $this->showMembers = $showMembers;
+        return $this;
+    }
 }

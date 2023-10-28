@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Sync\GlobalHook;
 
 use srag\Plugins\Hub2\Config\ArConfig;
@@ -9,111 +27,109 @@ use Throwable;
 
 /**
  * Class GlobalHook
- *
  * @package srag\Plugins\Hub2\Sync\GlobalHook
  * @author  Timon Amstutz
  */
-final class GlobalHook implements IGlobalHook {
+final class GlobalHook implements IGlobalHook
+{
+    /**
+     * @var self
+     */
+    protected static ?GlobalHook $instance = null;
 
-	/**
-	 * @var self
-	 */
-	protected static $instance = NULL;
+    /**
+     * @return self
+     */
+    public static function getInstance(): self
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
 
+        return self::$instance;
+    }
 
-	/**
-	 * @return self
-	 */
-	public static function getInstance(): self {
-		if (self::$instance === NULL) {
-			self::$instance = new self();
-		}
+    /**
+     * @var IGlobalHook
+     */
+    protected IGlobalHook $global_hook;
 
-		return self::$instance;
-	}
+    /**
+     * GlobalHook constructor
+     * @throws HubException
+     */
+    private function __construct()
+    {
+        if (ArConfig::getField(ArConfig::KEY_GLOBAL_HOCK_ACTIVE)) {
+            $this->global_hook = $this->instantiateGlobalHook();
+        }
+    }
 
+    /**
+     * @throws HubException
+     */
+    protected function instantiateGlobalHook(): IGlobalHook
+    {
+        $class_path = ArConfig::getField(ArConfig::KEY_GLOBAL_HOCK_PATH);
+        if (!file_exists($class_path)) {
+            throw new HubException("File " . $class_path . " doest not Exist");
+        }
+        require_once $class_path;
 
-	/**
-	 * @var IGlobalHook
-	 */
-	protected $global_hook;
+        $class_name = ArConfig::getField(ArConfig::KEY_GLOBAL_HOCK_CLASS);
+        if (!class_exists($class_name)) {
+            throw new HubException("Class " . $class_name . " not found. Note that namespaces need to be entered completely");
+        }
 
+        $global_hook = new $class_name();
+        if (!($global_hook instanceof IGlobalHook)) {
+            throw new HubException("Class " . $class_name . " is not an instance of BaseCustomViewGUI");
+        }
 
-	/**
-	 * GlobalHook constructor
-	 *
-	 * @throws HubException
-	 */
-	private function __construct() {
-		if (ArConfig::getField(ArConfig::KEY_GLOBAL_HOCK_ACTIVE)) {
-			$this->global_hook = $this->instantiateGlobalHook();
-		}
-	}
+        return $global_hook;
+    }
 
+    /**
+     * @inheritdoc
+     */
+    public function beforeSync(array $active_orgins): bool
+    {
+        if ($this->global_hook) {
+            return $this->global_hook->beforeSync($active_orgins);
+        }
 
-	/**
-	 * @throws HubException
-	 */
-	protected function instantiateGlobalHook() {
-		$class_path = ArConfig::getField(ArConfig::KEY_GLOBAL_HOCK_PATH);
-		if (!file_exists($class_path)) {
-			throw new HubException("File " . $class_path . " doest not Exist");
-		}
-		require_once $class_path;
+        return true;
+    }
 
-		$class_name = ArConfig::getField(ArConfig::KEY_GLOBAL_HOCK_CLASS);
-		if (!class_exists($class_name)) {
-			throw new HubException("Class " . $class_name . " not found. Note that namespaces need to be entered completely");
-		}
+    /**
+     * @inheritdoc
+     */
+    public function afterSync(array $active_orgins): bool
+    {
+        if ($this->global_hook) {
+            return $this->global_hook->afterSync($active_orgins);
+        }
 
-		$global_hook = new $class_name();
-		if (!($global_hook instanceof IGlobalHook)) {
-			throw new HubException("Class " . $class_name . " is not an instance of BaseCustomViewGUI");
-		}
+        return true;
+    }
 
-		return $global_hook;
-	}
+    /**
+     * @inheritdoc
+     */
+    public function handleLog(ILog $log)
+    {
+        if ($this->global_hook) {
+            $this->global_hook->handleLog($log);
+        }
+    }
 
-
-	/**
-	 * @inheritdoc
-	 */
-	public function beforeSync(array $active_orgins): bool {
-		if ($this->global_hook) {
-			return $this->global_hook->beforeSync($active_orgins);
-		}
-
-		return true;
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function afterSync(array $active_orgins): bool {
-		if ($this->global_hook) {
-			return $this->global_hook->afterSync($active_orgins);
-		}
-
-		return true;
-	}
-
-
-	/**
-	 * @inheritdoc
-	 */
-	public function handleLog(ILog $log) {
-		if ($this->global_hook) {
-			$this->global_hook->handleLog($log);
-		}
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function handleThrowable(Throwable $throwable) {
-		if ($this->global_hook) {
-			$this->global_hook->handleThrowable($throwable);
-		}
-	}
+    /**
+     * @inheritdoc
+     */
+    public function handleThrowable(Throwable $throwable)
+    {
+        if ($this->global_hook) {
+            $this->global_hook->handleThrowable($throwable);
+        }
+    }
 }

@@ -1,47 +1,59 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Shortlink;
 
 /**
  * Interface IObjectLink
- *
  * @package srag\Plugins\Hub2\Shortlink
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-interface IObjectLink {
+interface IObjectLink
+{
+    /**
+     * @return bool
+     */
+    public function doesObjectExist(): bool;
 
-	/**
-	 * @return bool
-	 */
-	public function doesObjectExist(): bool;
+    /**
+     * @return bool
+     */
+    public function isAccessGranted(): bool;
 
+    /**
+     * @return string
+     */
+    public function getAccessGrantedExternalLink(): string;
 
-	/**
-	 * @return bool
-	 */
-	public function isAccessGranted(): bool;
+    /**
+     * @return string
+     */
+    public function getAccessDeniedLink(): string;
 
+    /**
+     * @return string
+     */
+    public function getNonExistingLink(): string;
 
-	/**
-	 * @return string
-	 */
-	public function getAccessGrantedExternalLink(): string;
-
-
-	/**
-	 * @return string
-	 */
-	public function getAccessDeniedLink(): string;
-
-
-	/**
-	 * @return string
-	 */
-	public function getNonExistingLink(): string;
-
-
-	/**
-	 * @return string
-	 */
-	public function getAccessGrantedInternalLink(): string;
+    /**
+     * @return string
+     */
+    public function getAccessGrantedInternalLink(): string;
 }

@@ -1,10 +1,9 @@
 <?php
-
-require_once __DIR__ . "/vendor/srag/dic/src/PHPVersionChecker.php";
+declare(strict_types=1);
 
 $id = 'hub2';
-$version = '2.2.5';
-$ilias_min_version = '5.3.0';
-$ilias_max_version = '7.999.999';
-$responsible = 'studer + raimann ag - Team Custom 1';
-$responsible_mail = 'support-custom1@studer-raimann.ch';
+$version = '3.0.0';
+$ilias_min_version = '8.0.0';
+$ilias_max_version = '9.999.999';
+$responsible = 'Timon Amstutz';
+$responsible_mail = 'timon.amstutz@unibe.ch';
