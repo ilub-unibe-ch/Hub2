@@ -31,6 +31,7 @@ use srag\Plugins\Hub2\Sync\GlobalHook\GlobalHook;
 use srag\Plugins\Hub2\Sync\OriginSyncFactory;
 use srag\Plugins\Hub2\Sync\Summary\IOriginSyncSummary;
 use srag\Plugins\Hub2\Sync\Summary\OriginSyncSummaryFactory;
+use srag\Plugins\Hub2\Log\Repository as LogRepository;
 
 use Throwable;
 
@@ -55,21 +56,27 @@ class RunSync extends ilCronJob
      * @var IOriginSyncSummary
      */
     protected $force_update;
+    /**
+     * @var Notifier
+     */
+    protected Notifier $notifier;
 
     /**
      * RunSync constructor
      * @param IOrigin[]               $origins
      * @param IOriginSyncSummary|null $summary
-     * @param bool                    $force_update
      */
     public function __construct(
+        Notifier $notifier,
         array $origins = [],/*?*/
         IOriginSyncSummary $summary = null,
         bool $force_update = false
     ) {
         $this->origins = $origins;
         $this->summary = $summary;
-        $this->force_update = $force_update;
+        $this->force_update = $force_update || (getenv('HUB2_FORCED_SYNC') === "true");
+        $this->notifier = $notifier;
+        $this->log_repo = LogRepository::getInstance();
     }
 
     /**
@@ -133,11 +140,10 @@ class RunSync extends ilCronJob
      */
     public function run(): AbstractResult
     {
+        $global_hook = GlobalHook::getInstance();
+
         try {
             $skip_object_type = '';
-
-            $global_hook = GlobalHook::getInstance();
-
             if (empty($this->origins)) {
                 $this->origins = (new OriginFactory())->getAllActive();
             }
@@ -151,6 +157,8 @@ class RunSync extends ilCronJob
             }
 
             foreach ($this->origins as $origin) {
+                $this->notifier->notify('Start Origin ' . $origin->getTitle());
+
                 if ($origin->getObjectType() == $skip_object_type) {
                     continue;
                 }
@@ -166,7 +174,8 @@ class RunSync extends ilCronJob
                 try {
                     $originSyncFactory->initImplementation($originSync);
 
-                    $originSync->execute();
+                    $originSync->execute($this->notifier);
+
                 } catch (AbortSyncException $e) {
                     throw $e;
                 } catch (AbortOriginSyncException $ex) {
@@ -176,7 +185,6 @@ class RunSync extends ilCronJob
                     continue;
                 } catch (Throwable $e) {
                     $global_hook->handleThrowable($e);
-                    self::logs()->exceptionLog($e, $origin)->store();
                 }
                 $this->summary->addOriginSync($originSync);
             }

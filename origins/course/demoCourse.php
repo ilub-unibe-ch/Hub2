@@ -68,11 +68,11 @@ class demoCourse extends AbstractOriginImplementation
 
             $this->data[] = $this->factory()->course($x)->setTitle("Title {$x} {$time}")->setDescription("Description {$x}")
                                  ->setActivationType(ICourseDTO::ACTIVATION_OFFLINE)->setOwner(6)//  root
-                                 ->setContactEmail("Email {$x}")->setContactName("Name {$x}")->setParentId(1)// from demoCategory, please configure in GUI accordingly
-                                 ->setAdditionalData(new ArrayObject(["Some_Plugin_Data" => "Data that might trigger an update on change"]))// Additional hook to trigger change on non-core attributes
+                                 ->setContactEmail("Email {$x}")->setContactName("Name {$x}")->setParentId("1")// from demoCategory, please configure in GUI accordingly
+                                 ->withAdditionalData(new ArrayObject(["Some_Plugin_Data" => "Data that might trigger an update on change"]))// Additional hook to trigger change on non-core attributes
                                  ->setParentIdType(ICourseDTO::PARENT_ID_TYPE_EXTERNAL_EXT_ID)->setViewMode(ICourseDTO::VIEW_MODE_BY_TYPE)->setSyllabus("Syllabus {$x}")
                                  ->setDidacticTemplate(123)->setIcon('/path/to/icon/custom.svg')->addMetadata($this->metadata()// This has to be configured in ILIAS
-                                                                                                                   ->getDTOWithIliasId(1)// you find the id of the field in ILIAS GUI when editing the fields in query-parameter field_id=X
+                                                                                                                   ->getDTOWithIliasId("1")// you find the id of the field in ILIAS GUI when editing the fields in query-parameter field_id=X
                                                                                                                    ->setValue("Meine Metadaten {$time}"))// This works for a Text-Field
                                  ->addTaxonomy($this->taxonomy()// This is created in demoCategory
                                                     ->select("Taxonomy 1")->attach($this->taxonomy()->node("Node Title 1.1")));

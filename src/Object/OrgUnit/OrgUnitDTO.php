@@ -129,7 +129,7 @@ class OrgUnitDTO extends DataTransferObject implements IOrgUnitDTO
     /**
      * @inheritdoc
      */
-    public function setParentId(int|string|null $parent_id): IOrgUnitDTO
+    public function setParentId($parent_id): IOrgUnitDTO
     {
         $this->parent_id = $parent_id;
 

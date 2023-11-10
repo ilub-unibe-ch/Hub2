@@ -51,7 +51,7 @@ interface ITaxonomy
      * @param string $description
      * @return INode
      */
-    public function setDescription(string $description): INode;
+    public function setDescription(string $description): ITaxonomy;
 
     /**
      * @return INode[]

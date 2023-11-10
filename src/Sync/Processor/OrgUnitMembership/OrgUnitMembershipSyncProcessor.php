@@ -97,24 +97,24 @@ class OrgUnitMembershipSyncProcessor extends ObjectSyncProcessor implements IOrg
      * @inheritdoc
      * @param IOrgUnitMembershipDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, int $iliasId)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id): void
     {
         if ($this->props->updateDTOProperty(IOrgUnitMembershipProperties::PROP_ORG_UNIT_ID)
             || $this->props->updateDTOProperty(IOrgUnitMembershipProperties::PROP_ORG_UNIT_ID_TYPE)
             || $this->props->updateDTOProperty(IOrgUnitMembershipProperties::PROP_USER_ID)
             || $this->props->updateDTOProperty(IOrgUnitMembershipProperties::PROP_POSITION)) {
-            $this->handleDelete($iliasId);
+            $this->handleDelete($ilias_id);
 
             $this->handleCreate($dto);
         } else {
-            throw new HubException("{$iliasId} should not be updated!");
+            throw new HubException("$ilias_id should not be updated!");
         }
     }
 
     /**
      * @inheritdoc
      */
-    protected function handleDelete(int $ilias_id)/*: void*/
+    protected function handleDelete(string $ilias_id): void
     {
         $this->current_ilias_object = FakeOrgUnitMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
 
@@ -196,7 +196,7 @@ class OrgUnitMembershipSyncProcessor extends ObjectSyncProcessor implements IOrg
                 $org_unit_id = $org_unit->getILIASId();
 
                 if (empty($org_unit_id)) {
-                    throw new HubException("External ID {$ext_id} not found!");
+                    throw new HubException("External ID $ext_id not found!");
                 }
                 break;
 
@@ -208,7 +208,7 @@ class OrgUnitMembershipSyncProcessor extends ObjectSyncProcessor implements IOrg
 
         $org_unit = $this->getOrgUnitObject($org_unit_id);
         if (empty($org_unit)) {
-            throw new HubException("Org Unit {$org_unit_id} not found!");
+            throw new HubException("Org Unit $org_unit_id not found!");
         }
 
         return $org_unit->getRefId();

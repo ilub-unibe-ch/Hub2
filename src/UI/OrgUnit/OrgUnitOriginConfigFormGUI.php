@@ -24,6 +24,7 @@ use ilTextInputGUI;
 use srag\Plugins\Hub2\Origin\Config\OrgUnit\IOrgUnitOriginConfig;
 use srag\Plugins\Hub2\Origin\OrgUnit\AROrgUnitOrigin;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
+use ilHub2Plugin;
 
 /**
  * Class OrgUnitOriginConfigFormGUI
@@ -45,8 +46,7 @@ class OrgUnitOriginConfigFormGUI extends OriginConfigFormGUI
         parent::addSyncConfig();
 
         $ref_id_if_no_parent_id = new ilTextInputGUI(
-            ilHub2Plugin::getInstance()
-                                                         ->translate("orgunit_ref_id_if_no_parent_id"),
+            ilHub2Plugin::getInstance()->txt("orgunit_ref_id_if_no_parent_id"),
             $this->conf(IOrgUnitOriginConfig::REF_ID_IF_NO_PARENT_ID)
         );
         $ref_id_if_no_parent_id->setInfo(ilHub2Plugin::getInstance()->txt("orgunit_ref_id_if_no_parent_id_info"));

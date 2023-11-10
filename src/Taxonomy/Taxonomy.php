@@ -120,7 +120,7 @@ class Taxonomy implements ITaxonomy
      * @param string $description
      * @return Taxonomy
      */
-    public function setDescription(string $description): Taxonomy
+    public function setDescription(string $description): ITaxonomy
     {
         $this->description = $description;
 

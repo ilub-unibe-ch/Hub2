@@ -33,6 +33,8 @@ use srag\Plugins\Hub2\Object\IObjectRepository;
 use srag\Plugins\Hub2\Origin\IOrigin;
 use srag\Plugins\Hub2\Origin\IOriginImplementation;
 use srag\Plugins\Hub2\Sync\Processor\IObjectSyncProcessor;
+use srag\Plugins\Hub2\Log\Repository as LogRepository;
+use srag\Plugins\Hub2\Config\Config;
 
 use Throwable;
 
@@ -45,42 +47,14 @@ use Throwable;
 class OriginSync implements IOriginSync
 {
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
-    /**
-     * @var IOrigin
-     */
     protected IOrigin $origin;
-    /**
-     * @var IObjectRepository
-     */
     protected IObjectRepository $repository;
-    /**
-     * @var IObjectFactory
-     */
     protected IObjectFactory $factory;
-    /**
-     * @var IDataTransferObject[]
-     */
     protected array $dtoObjects = [];
-    /**
-     * @var IObjectSyncProcessor
-     */
     protected IObjectSyncProcessor $processor;
-    /**
-     * @var IObjectStatusTransition
-     * @deprecated
-     */
     protected IObjectStatusTransition $statusTransition;
-    /**
-     * @var IOriginImplementation
-     */
     protected IOriginImplementation $implementation;
-    /**
-     * @var int
-     */
     protected int $countDelivered = 0;
-    /**
-     * @var array
-     */
     protected array $countProcessed = [
         IObject::STATUS_CREATED => 0,
         IObject::STATUS_UPDATED => 0,
@@ -118,6 +92,8 @@ class OriginSync implements IOriginSync
 
         $this->implementation->connect();
 
+
+
         $count = $this->implementation->parseData();
 
         $this->countDelivered = $count;
@@ -128,9 +104,9 @@ class OriginSync implements IOriginSync
             $total = $this->repository->count();
             $percentage = ($total > 0 && $count > 0) ? (100 / $total * $count) : 0;
             if ($total > 0 && ($percentage < $threshold)) {
-                $msg = "Amount of delivered data not sufficient: Got {$count} datasets, 
+                $msg = "Amount of delivered data not sufficient: Got $count datasets, 
 					which is " . number_format($percentage, 2) . "% of the existing data in hub, 
-					need at least {$threshold}% according to origin config";
+					need at least $threshold% according to origin config";
                 throw new AbortOriginSyncException($msg);
             }
         }
@@ -198,7 +174,7 @@ class OriginSync implements IOriginSync
 
         $this->implementation->afterSync();
 
-        $this->getOrigin()->setLastRun(date(DATE_ATOM));
+        $this->getOrigin()->setLastRun(date(Config::SQL_DATE_FORMAT));
 
         $this->getOrigin()->update();
     }
@@ -233,7 +209,7 @@ class OriginSync implements IOriginSync
     /**
      * @inheritdoc
      */
-    public function getCountProcessedByStatus(int $status)
+    public function getCountProcessedByStatus(int $status): int
     {
         return $this->countProcessed[$status];
     }
@@ -241,7 +217,7 @@ class OriginSync implements IOriginSync
     /**
      * @inheritdoc
      */
-    public function getCountProcessedTotal()
+    public function getCountProcessedTotal(): int
     {
         return array_sum($this->countProcessed);
     }
@@ -275,12 +251,14 @@ class OriginSync implements IOriginSync
 
             throw $ex;
         } catch (Throwable $ex) {
+            throw $ex;
             $object->setStatus(IObject::STATUS_FAILED);
             $this->incrementProcessed($object->getStatus());
             $object->store();
-            $log = self::logs()->exceptionLog($ex, $this->origin, $object, $dto);
-            $log->store();
 
+            $log_repo = LogRepository::getInstance();
+            $log = $log_repo->factory()->exceptionLog($ex, $this->origin, $object, $dto);
+            $log_repo->storeLog($log);
             $this->implementation->handleLog($log);
         }
     }

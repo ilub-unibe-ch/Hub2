@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace srag\Plugins\Hub2\Jobs\Log;
 
-use hub2LogsGUI;
 use ilCronJob;
 use ilCronJobResult;
 use ilDateTime;
@@ -26,7 +25,6 @@ use ilHub2Plugin;
 use srag\Plugins\Hub2\Config\ArConfig;
 use srag\Plugins\Hub2\Jobs\Result\ResultFactory;
 use srag\Plugins\Hub2\Log\Log;
-
 
 /**
  * Class RunSync
@@ -37,6 +35,14 @@ class DeleteOldLogsJob extends ilCronJob
 {
     public const CRON_JOB_ID = ilHub2Plugin::PLUGIN_ID . "_delete_old_logs";
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public \ilDBInterface $database;
+
+    public function __construct()
+    {
+        global $DIC;
+
+        $this->database = $DIC->database();
+    }
 
     /**
      * Get id
@@ -52,7 +58,7 @@ class DeleteOldLogsJob extends ilCronJob
      */
     public function getTitle(): string
     {
-        return ilHub2Plugin::PLUGIN_NAME . ": " . ilHub2Plugin::getInstance()->txt("cron", hub2LogsGUI::LANG_MODULE_LOGS);
+        return ilHub2Plugin::PLUGIN_NAME . ": " . ilHub2Plugin::getInstance()->txt("cron");
     }
 
     /**
@@ -60,12 +66,11 @@ class DeleteOldLogsJob extends ilCronJob
      */
     public function getDescription(): string
     {
-        return ilHub2Plugin::getInstance()->txt("cron_description", hub2LogsGUI::LANG_MODULE_LOGS);
+        return ilHub2Plugin::getInstance()->txt("cron_description");
     }
 
     /**
      * Is to be activated on "installation"
-     * @return boolean
      */
     public function hasAutoActivation(): bool
     {
@@ -74,7 +79,6 @@ class DeleteOldLogsJob extends ilCronJob
 
     /**
      * Can the schedule be configured?
-     * @return boolean
      */
     public function hasFlexibleSchedule(): bool
     {
@@ -83,7 +87,6 @@ class DeleteOldLogsJob extends ilCronJob
 
     /**
      * Get schedule type
-     * @return int
      */
     public function getDefaultScheduleType(): int
     {
@@ -94,7 +97,7 @@ class DeleteOldLogsJob extends ilCronJob
      * Get schedule value
      * @return array|int|null
      */
-    public function getDefaultScheduleValue()
+    public function getDefaultScheduleValue(): ?int
     {
         return null;
     }
@@ -111,13 +114,13 @@ class DeleteOldLogsJob extends ilCronJob
         $keep_old_logs_time_date = new ilDateTime($keep_old_logs_time_timestamp, IL_CAL_UNIX);
 
         $keep_log_ids = [];
-        $result = self::dic()->database()->query("SELECT MAX(log_id) AS log_id FROM " . Log::TABLE_NAME . " GROUP BY origin_id,object_ext_id");
+        $result = $this->database->query("SELECT MAX(log_id) AS log_id FROM " . Log::TABLE_NAME . " GROUP BY origin_id,object_ext_id");
         while (($row = $result->fetchAssoc()) !== false) {
             $keep_log_ids[] = intval($row["log_id"]);
         }
 
-        $count = self::dic()->database()->manipulateF(
-            "DELETE FROM " . Log::TABLE_NAME . " WHERE date<%s AND " . self::dic()->database()
+        $count = $this->database->manipulateF(
+            "DELETE FROM " . Log::TABLE_NAME . " WHERE date<%s AND " . $this->database
                                                                                                                      ->in(
                                                                                                                          "log_id",
                                                                                                                          $keep_log_ids,
@@ -128,6 +131,6 @@ class DeleteOldLogsJob extends ilCronJob
             [$keep_old_logs_time_date->get(IL_CAL_DATETIME)]
         );
 
-        return ResultFactory::ok(ilHub2Plugin::getInstance()->txt("deleted_status", hub2LogsGUI::LANG_MODULE_LOGS, [$count]));
+        return ResultFactory::ok(ilHub2Plugin::getInstance()->txt("deleted_status"));
     }
 }

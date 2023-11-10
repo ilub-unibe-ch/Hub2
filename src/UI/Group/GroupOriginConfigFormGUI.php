@@ -28,6 +28,7 @@ use srag\Plugins\Hub2\Origin\Config\Course\ICourseOriginConfig;
 use srag\Plugins\Hub2\Origin\Group\ARGroupOrigin;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
 use srag\Plugins\Hub2\Origin\Properties\Group\IGroupProperties;
+use ilHub2Plugin;
 
 /**
  * Class GroupOriginConfigFormGUI
@@ -60,14 +61,6 @@ class GroupOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesNew()
-    {
-        parent::addPropertiesNew();
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function addPropertiesUpdate()
     {
         parent::addPropertiesUpdate();
@@ -76,7 +69,7 @@ class GroupOriginConfigFormGUI extends OriginConfigFormGUI
             ilHub2Plugin::getInstance()->txt('grp_prop_move'),
             $this->prop(IGroupProperties::MOVE_GROUP)
         );
-        $cb->setChecked($this->origin->properties()->get(IGroupProperties::MOVE_GROUP));
+        $cb->setChecked((bool)$this->origin->properties()->get(IGroupProperties::MOVE_GROUP));
         $cb->setInfo(ilHub2Plugin::getInstance()->txt('grp_prop_move_info'));
         $this->addItem($cb);
     }
@@ -92,36 +85,36 @@ class GroupOriginConfigFormGUI extends OriginConfigFormGUI
             ilHub2Plugin::getInstance()->txt('grp_prop_delete_mode'),
             $this->prop(IGroupProperties::DELETE_MODE)
         );
-        $delete->setValue($this->origin->properties()->get(IGroupProperties::DELETE_MODE));
+        $delete->setValue((string)$this->origin->properties()->get(IGroupProperties::DELETE_MODE));
 
         $opt = new ilRadioOption(
             ilHub2Plugin::getInstance()->txt('grp_prop_delete_mode_none'),
-            IGroupProperties::DELETE_MODE_NONE
+            (string) IGroupProperties::DELETE_MODE_NONE
         );
         $delete->addOption($opt);
 
         $opt = new ilRadioOption(
             ilHub2Plugin::getInstance()->txt('grp_prop_delete_mode_close'),
-            IGroupProperties::DELETE_MODE_CLOSED
+            (string) IGroupProperties::DELETE_MODE_CLOSED
         );
         $delete->addOption($opt);
 
         $opt = new ilRadioOption(
             ilHub2Plugin::getInstance()->txt('grp_prop_delete_mode_delete'),
-            IGroupProperties::DELETE_MODE_DELETE
+            (string) IGroupProperties::DELETE_MODE_DELETE
         );
         $delete->addOption($opt);
 
         $opt = new ilRadioOption(
             ilHub2Plugin::getInstance()->txt('grp_prop_delete_mode_delete_or_close'),
-            IGroupProperties::DELETE_MODE_DELETE_OR_CLOSE
+            (string) IGroupProperties::DELETE_MODE_DELETE_OR_CLOSE
         );
         $opt->setInfo(ilHub2Plugin::getInstance()->txt('grp_prop_delete_mode_delete_or_close_info'));
         $delete->addOption($opt);
 
         $opt = new ilRadioOption(
             ilHub2Plugin::getInstance()->txt('grp_prop_delete_mode_trash'),
-            IGroupProperties::DELETE_MODE_MOVE_TO_TRASH
+            (string) IGroupProperties::DELETE_MODE_MOVE_TO_TRASH
         );
         $delete->addOption($opt);
 

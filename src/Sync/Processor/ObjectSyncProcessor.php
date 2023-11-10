@@ -39,6 +39,7 @@ use srag\Plugins\Hub2\Origin\IOrigin;
 use srag\Plugins\Hub2\Origin\IOriginImplementation;
 use srag\Plugins\Hub2\Sync\IObjectStatusTransition;
 use Throwable;
+use ilMailMimeSenderFactory;
 
 /**
  * Class ObjectProcessor
@@ -51,8 +52,15 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
     use Helper;
 
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
-    public \ilTree $tree;
-    public \ilRbacAdmin $rbac_admin;
+    protected \ilLanguage $lng;
+    protected ilMailMimeSenderFactory $sender_factory;
+    protected \ilObjectDataCache $object_data_cache;
+    protected \ilSetting $settings;
+    protected ilObjUser $user;
+    protected \ilObjectDefinition $object_definition;
+    protected \ilDBInterface $database;
+    protected \ilTree $tree;
+    protected \ilRbacAdmin $rbac_admin;
 
     /**
      * @var IOrigin
@@ -84,6 +92,13 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
         global $DIC;
         $this->tree = $DIC->repositoryTree();
         $this->rbac_admin = $DIC->rbac()->admin();
+        $this->database = $DIC->database();
+        $this->object_definition = $DIC['objDefinition'];
+        $this->user = $DIC->user();
+        $this->settings = $DIC->settings();
+        $this->object_data_cache = $DIC['ilObjDataCache'];
+        $this->sender_factory = $DIC['mail.mime.sender.factory'];
+        $this->lng = $DIC->language();
 
         $this->origin = $origin;
         $this->transition = $transition;
@@ -143,7 +158,7 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
                     $this->handleCreate($dto);
                 } catch (Throwable $ex) {
                     // Store new possible ilias id on exception
-                    $object->setILIASId($this->getILIASId($this->current_ilias_object));
+                    $object->setILIASId((string)$this->getILIASId($this->current_ilias_object));
 
                     throw $ex;
                 }
@@ -223,7 +238,7 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
                 break;
 
             default:
-                throw new HubException("Unrecognized intermediate status '{$object->getStatus()}' while processing {$object}");
+                throw new HubException("Unrecognized intermediate status '{$object->getStatus()}' while processing $object");
         }
 
         $object->store();
@@ -253,7 +268,8 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
      */
     protected function getImportId(IDataTransferObject $object): string
     {
-        return self::IMPORT_PREFIX . $this->origin->getId() . '_' . $object->getExtId();
+        $import_id = self::IMPORT_PREFIX . $this->origin->getId() . '_' . $object->getExtId();
+        return substr($import_id, 0, 50);
     }
 
     /**
@@ -278,11 +294,11 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
      * Return the processed ILIAS object or null if the object was not found, e.g. it is deleted in
      * ILIAS.
      * @param IDataTransferObject $dto
-     * @param string                 $iliasId
+     * @param string                 $ilias_id
      * @return void
      * @throws HubException
      */
-    abstract protected function handleUpdate(IDataTransferObject $dto, string $iliasId)/*: void*/
+    abstract protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
     ;
 
     /**

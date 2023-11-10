@@ -34,6 +34,7 @@ use srag\Plugins\Hub2\Sync\IObjectStatusTransition;
 use srag\Plugins\Hub2\Sync\Processor\MetadataSyncProcessor;
 use srag\Plugins\Hub2\Sync\Processor\ObjectSyncProcessor;
 use srag\Plugins\Hub2\Origin\Properties\User\IUserProperties;
+use ilSecuritySettingsChecker;
 
 /**
  * Class UserProcessor
@@ -116,7 +117,7 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
         $ilObjUser->setDescription($dto->getEmail());
         $ilObjUser->setImportId($this->getImportId($dto));
         $ilObjUser->setLogin($this->buildLogin($dto, $ilObjUser));
-        $ilObjUser->setUTitle($dto->getTitle());
+        $ilObjUser->setUTitle((string)$dto->getTitle());
         $ilObjUser->create();
         if ($this->props->get(IUserProperties::ACTIVATE_ACCOUNT)) {
             $ilObjUser->setActive(true);
@@ -142,10 +143,10 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
         if ($this->props->get(IUserProperties::CREATE_PASSWORD)) {
             $password = $this->generatePassword();
             $dto->setPasswd($password);
-            $ilObjUser->setPasswd($dto->getPasswd(), IL_PASSWD_PLAIN);
+            $ilObjUser->setPasswd($dto->getPasswd());
             $this->sendPasswordMail($dto);
         } else {
-            $ilObjUser->setPasswd($dto->getPasswd(), IL_PASSWD_PLAIN);
+            $ilObjUser->setPasswd($dto->getPasswd());
         }
 
         $ilObjUser->saveAsNew();
@@ -157,9 +158,9 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
      * @inheritdoc
      * @param UserDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, int $iliasId)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id): void
     {
-        $this->current_ilias_object = $ilObjUser = $this->findILIASUser($iliasId);
+        $this->current_ilias_object = $ilObjUser = $this->findILIASUser((int)$ilias_id);
         if ($ilObjUser === null) {
             // Recreate deleted users
             $this->handleCreate($dto);
@@ -200,7 +201,7 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
         if ($this->props->get(IUserProperties::RE_SEND_PASSWORD)) {
             $password = $this->generatePassword();
             $dto->setPasswd($password);
-            $ilObjUser->setPasswd($dto->getPasswd(), IL_PASSWD_PLAIN);
+            $ilObjUser->setPasswd($dto->getPasswd());
             $this->sendPasswordMail($dto);
         }
 
@@ -214,7 +215,7 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
         $mail_field = $dto->getEmail();
         if ($mail_field) {
             $mail = new ilMimeMail();
-            $mail->From(self::dic()->mailMimeSenderFactory()->system());
+            $mail->From($this->sender_factory->system());
             $mail->To($dto->getEmail());
             $body = $this->props->get(IUserProperties::PASSWORD_MAIL_BODY);
 
@@ -231,9 +232,9 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
     /**
      * @inheritdoc
      */
-    protected function handleDelete(int $ilias_id)/*: void*/
+    protected function handleDelete(string $ilias_id): void
     {
-        $this->current_ilias_object = $ilObjUser = $this->findILIASUser($ilias_id);
+        $this->current_ilias_object = $ilObjUser = $this->findILIASUser((int)$ilias_id);
         if ($ilObjUser === null) {
             return;
         }
@@ -258,7 +259,7 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
     protected function assignILIASRoles(UserDTO $user, ilObjUser $ilObjUser)
     {
         foreach ($user->getIliasRoles() as $role_id) {
-            self::dic()->rbacadmin()->assignUser($role_id, $ilObjUser->getId());
+            $this->rbac_admin->assignUser($role_id, $ilObjUser->getId());
         }
     }
 
@@ -333,6 +334,7 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
      */
     protected function generatePassword(): string
     {
-        return array_pop(ilUtil::generatePasswords(1));
+        $array = ilSecuritySettingsChecker::generatePasswords(1);
+        return array_pop($array);
     }
 }

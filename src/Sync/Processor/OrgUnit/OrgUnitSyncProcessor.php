@@ -184,9 +184,9 @@ class OrgUnitSyncProcessor extends ObjectSyncProcessor implements IOrgUnitSyncPr
      * @inheritdoc
      * @param IOrgUnitDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, int $iliasId)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
     {
-        $this->current_ilias_object = $this->getOrgUnitObject($iliasId);
+        $this->current_ilias_object = $this->getOrgUnitObject((int)$ilias_id);
 
         if (empty($this->current_ilias_object)) {
             return;
@@ -219,15 +219,15 @@ class OrgUnitSyncProcessor extends ObjectSyncProcessor implements IOrgUnitSyncPr
     /**
      * @inheritdoc
      */
-    protected function handleDelete(int $ilias_id)/*: void*/
+    protected function handleDelete(string $ilias_id)/*: void*/
     {
-        $this->current_ilias_object = $this->getOrgUnitObject($ilias_id);
+        $this->current_ilias_object = $this->getOrgUnitObject((int)$ilias_id);
 
         if (empty($this->current_ilias_object)) {
             return;
         }
 
-        self::dic()->tree()->moveToTrash($this->current_ilias_object->getRefId(), true);
+        $this->tree->moveToTrash($this->current_ilias_object->getRefId(), true);
     }
 
     /**
@@ -294,11 +294,11 @@ class OrgUnitSyncProcessor extends ObjectSyncProcessor implements IOrgUnitSyncPr
 
                     $parent_id = $parent_org_unit->getILIASId();
 
-                    if (empty($parent_id) || empty($this->getOrgUnitObject($parent_id))) {
-                        throw new HubException("External ID {$ext_id} not found!");
+                    if (empty($parent_id) || empty($this->getOrgUnitObject((int)$parent_id))) {
+                        throw new HubException("External ID $ext_id not found!");
                     }
 
-                    $parent_id = intval(current(ilObjOrgUnit::_getAllReferences($parent_id)));
+                    $parent_id = intval(current(ilObjOrgUnit::_getAllReferences((int)$parent_id)));
                 }
                 break;
 
@@ -325,29 +325,29 @@ class OrgUnitSyncProcessor extends ObjectSyncProcessor implements IOrgUnitSyncPr
     protected function moveOrgUnit(IOrgUnitDTO $dto)
     {
         $parent_ref_id = $this->getParentId($dto);
-        if (self::dic()->tree()->isDeleted($this->current_ilias_object->getRefId())) {
+        if ($this->tree->isDeleted($this->current_ilias_object->getRefId())) {
             $ilRepUtil = new ilRepUtil();
-            $node_data = self::dic()->tree()->getNodeTreeData($this->current_ilias_object->getRefId());
+            $node_data = $this->tree->getNodeTreeData($this->current_ilias_object->getRefId());
             $deleted_ref_id = (int) -$node_data['tree'];
 
             // if a parent node of the org unit was deleted, we first have to recover this parent
             if ($deleted_ref_id != $this->current_ilias_object->getRefId()) {
-                $node_data_deleted_parent = self::dic()->tree()->getNodeTreeData($deleted_ref_id);
+                $node_data_deleted_parent = $this->tree->getNodeTreeData($deleted_ref_id);
                 $ilRepUtil->restoreObjects($node_data_deleted_parent['parent'], [$deleted_ref_id]);
                 // then move the actual orgunit
-                self::dic()->tree()->moveTree($this->current_ilias_object->getRefId(), $parent_ref_id);
+                $this->tree->moveTree($this->current_ilias_object->getRefId(), $parent_ref_id);
                 // then delete the parent again
-                self::dic()->tree()->moveToTrash($deleted_ref_id);
+                $this->tree->moveToTrash($deleted_ref_id);
             } else {
                 // recover and move the actual org unit
                 $ilRepUtil->restoreObjects($parent_ref_id, [$this->current_ilias_object->getRefId()]);
             }
         }
-        $old_parent_id = intval(self::dic()->tree()->getParentId($this->current_ilias_object->getRefId()));
+        $old_parent_id = intval($this->tree->getParentId($this->current_ilias_object->getRefId()));
         if ($old_parent_id == $parent_ref_id) {
             return;
         }
-        self::dic()->tree()->moveTree($this->current_ilias_object->getRefId(), $parent_ref_id);
-        self::dic()->rbacadmin()->adjustMovedObjectPermissions($this->current_ilias_object->getRefId(), $old_parent_id);
+        $this->tree->moveTree($this->current_ilias_object->getRefId(), $parent_ref_id);
+        $this->rbac_admin->adjustMovedObjectPermissions($this->current_ilias_object->getRefId(), $old_parent_id);
     }
 }

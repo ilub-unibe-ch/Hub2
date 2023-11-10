@@ -30,22 +30,10 @@ use Serializable;
 abstract class DataTransferObject implements IDataTransferObject
 {
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
-    /**
-     * @var string
-     */
     private string $ext_id;
-    /**
-     * @var string
-     */
     private string $period = '';
-    /**
-     * @var bool
-     */
     private bool $should_deleted = false;
-    /**
-     * @var Serializable
-     */
-    protected Serializable $additionalData;
+    protected ?string $additionalData = "";
 
     /**
      * @param string $ext_id
@@ -74,7 +62,7 @@ abstract class DataTransferObject implements IDataTransferObject
     /**
      * @inheritdoc
      */
-    public function setPeriod(string $period)
+    public function setPeriod(string $period): self
     {
         $this->period = $period;
 

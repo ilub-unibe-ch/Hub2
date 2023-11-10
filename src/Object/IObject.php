@@ -80,7 +80,7 @@ interface IObject
      * inside an origin.
      * @return string
      */
-    public function getExtId(): string;
+    public function getExtId(): ?string;
 
     /**
      * Set the external ID of this object. This ID serves as primary key to identify an object.
@@ -94,7 +94,7 @@ interface IObject
      * CSV.
      * @return DateTime
      */
-    public function getDeliveryDate(): DateTime;
+    public function getDeliveryDate(): ?DateTime;
 
     /**
      * @param int $unix_timestamp
@@ -105,9 +105,8 @@ interface IObject
     /**
      * Get the date where the sync processed this object, e.g. to create/update the corresponding
      * ILIAS object depending on the status.
-     * @return DateTime
      */
-    public function getProcessedDate(): DateTime;
+    public function getProcessedDate(): ?DateTime;
 
     /**
      * @param int $unix_timestamp
@@ -120,7 +119,7 @@ interface IObject
      * object-ID or ref-ID.
      * @return string
      */
-    public function getILIASId(): string;
+    public function getILIASId(): ?string;
 
     /**
      * @param int|string $id
@@ -169,7 +168,7 @@ interface IObject
      * Use computeHashCode() to get the actual hashcode.
      * @return string
      */
-    public function getHashCode(): string;
+    public function getHashCode(): ?string;
 
     /**
      * @return array

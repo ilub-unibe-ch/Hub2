@@ -217,7 +217,7 @@ class demoOrgUnit extends AbstractOriginImplementation
     {
         /*AROrgUnit::truncateDB();
 
-        $result = self::dic()->database()->queryF("SELECT obj_id FROM object_data WHERE type=%s AND title!=%s", [ "string", "string" ], [
+        $result = $this->database->queryF("SELECT obj_id FROM object_data WHERE type=%s AND title!=%s", [ "string", "string" ], [
             "orgu",
             "__OrgUnitAdministration"
         ]);

@@ -139,7 +139,7 @@ interface IOrigin
     /**
      * @return string
      */
-    public function getLastRun(): string;
+    public function getLastRun(): ?string;
 
     /**
      * @param string $last_run

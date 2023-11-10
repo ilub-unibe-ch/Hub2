@@ -38,7 +38,7 @@ trait ARMetadataAwareObject
      */
     public function getMetaData(): array
     {
-        return is_array($this->meta_data) ? $this->meta_data : [];
+        return $this->meta_data;
     }
 
     /**

@@ -21,7 +21,6 @@ declare(strict_types=1);
 namespace srag\Plugins\Hub2\UI\Config;
 
 use hub2ConfigGUI;
-use hub2LogsGUI;
 use ilCheckboxInputGUI;
 use ilFormPropertyGUI;
 use ilFormSectionHeaderGUI;
@@ -65,7 +64,7 @@ class ConfigFormGUI extends ilPropertyFormGUI
     /**
      *
      */
-    protected function initForm()/*: void*/
+    protected function initForm(): void
     {
         $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
 
@@ -108,21 +107,17 @@ class ConfigFormGUI extends ilPropertyFormGUI
         $this->addItem($cb);
 
         $item = new ilFormSectionHeaderGUI();
-        $item->setTitle(ilHub2Plugin::getInstance()->txt("logs", hub2LogsGUI::LANG_MODULE_LOGS));
+        $item->setTitle(ilHub2Plugin::getInstance()->txt("logs"));
         $this->addItem($item);
 
         $item = new ilNumberInputGUI(
-            ilHub2Plugin::getInstance()
-                                         ->translate(ArConfig::KEY_KEEP_OLD_LOGS_TIME, hub2LogsGUI::LANG_MODULE_LOGS),
+            ilHub2Plugin::getInstance()->txt(ArConfig::KEY_KEEP_OLD_LOGS_TIME),
             ArConfig::KEY_KEEP_OLD_LOGS_TIME
         );
-        $item->setSuffix(ilHub2Plugin::getInstance()->txt("days", hub2LogsGUI::LANG_MODULE_LOGS));
-        $item->setInfo(ilHub2Plugin::getInstance()->txt(
-            ArConfig::KEY_KEEP_OLD_LOGS_TIME . "_info",
-            hub2LogsGUI::LANG_MODULE_LOGS
-        ));
+        $item->setSuffix(ilHub2Plugin::getInstance()->txt("days"));
+        $item->setInfo(ilHub2Plugin::getInstance()->txt(ArConfig::KEY_KEEP_OLD_LOGS_TIME . "_info"));
         $item->setMinValue(0);
-        $item->setValue(ArConfig::getField(ArConfig::KEY_KEEP_OLD_LOGS_TIME));
+        $item->setValue((string)ArConfig::getField(ArConfig::KEY_KEEP_OLD_LOGS_TIME));
         $this->addItem($item);
 
         $item = new ilFormSectionHeaderGUI();

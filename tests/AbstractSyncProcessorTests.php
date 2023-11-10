@@ -7,7 +7,6 @@ use ILIAS\DI\Container;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Mockery\MockInterface;
 use Pimple\Container as PimpleContainer;
-use srag\DIC\Hub2\DICStatic;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 use srag\Plugins\Hub2\Origin\Config\IOriginConfig;
 use srag\Plugins\Hub2\Origin\IOrigin;
@@ -102,8 +101,6 @@ abstract class AbstractSyncProcessorTests extends AbstractHub2Tests
         $language_mock = Mockery::mock('overload:' . ilLanguage::class, ilObject::class);
         $language_mock->shouldReceive('getDefaultLanguage')->andReturn('en');
         $DIC->shouldReceive('language')->once()->andReturn($language_mock);
-
-        DICStatic::clearCache();
     }
 
     abstract protected function initDTO();

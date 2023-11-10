@@ -43,12 +43,13 @@ class HookObject
      */
     private IObject $object;
     /**
-     * @var ilObject
+     * @var ilObject|FakeIliasObject
      */
-    private ilObject $ilias_object;
+    private $ilias_object;
 
     /**
-     * @param IObject $object
+     * @param IObject             $object
+     * @param IDataTransferObject $dto
      */
     public function __construct(IObject $object, IDataTransferObject $dto)
     {
@@ -87,7 +88,7 @@ class HookObject
      * @param ilObject|FakeIliasObject $object
      * @return HookObject
      */
-    public function withILIASObject(FakeIliasObject|ilObject $object): HookObject
+    public function withILIASObject($object): HookObject
     {
         $clone = clone $this;
         $clone->ilias_object = $object;
@@ -100,7 +101,7 @@ class HookObject
      * Note that this object is only available in the
      * IOriginImplementation::after(Create|Update|Delete)Object callbacks, it is NOT set for any
      * before callbacks
-     * @return ilObject
+     * @return ilObject|FakeIliasObject
      */
     public function getILIASObject()
     {

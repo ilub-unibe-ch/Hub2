@@ -25,6 +25,7 @@ use ilRadioOption;
 use srag\Plugins\Hub2\Origin\CourseMembership\ARCourseMembershipOrigin;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
 use srag\Plugins\Hub2\Origin\Properties\CourseMembership\ICourseMembershipProperties;
+use ilHub2Plugin;
 
 /**
  * Class CourseMembershipOriginConfigFormGUI
@@ -73,7 +74,7 @@ class CourseMembershipOriginConfigFormGUI extends OriginConfigFormGUI
             ilHub2Plugin::getInstance()->txt('crs_prop_delete_mode'),
             $this->prop(ICourseMembershipProperties::DELETE_MODE)
         );
-        $delete->setValue($this->origin->properties()->get(ICourseMembershipProperties::DELETE_MODE));
+        $delete->setValue((string)$this->origin->properties()->get(ICourseMembershipProperties::DELETE_MODE));
 
         $opt = new ilRadioOption(
             ilHub2Plugin::getInstance()->txt('crs_prop_delete_mode_none'),

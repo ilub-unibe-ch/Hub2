@@ -26,7 +26,7 @@ use InvalidArgumentException;
 
 use srag\Plugins\Hub2\Origin\Config\IOriginConfig;
 use srag\Plugins\Hub2\Origin\Properties\IOriginProperties;
-
+use srag\Plugins\Hub2\Config\Config;
 /**
  * ILIAS ActiveRecord implementation of an Origin
  * @package srag\Plugins\Hub2\Origin
@@ -72,7 +72,7 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
      * @db_length             8
      * @db_sequence           true
      */
-    protected int $id = 0;
+    protected ?int $id = null;
     /**
      * @var string
      * @db_has_field           true
@@ -80,7 +80,7 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
      * @db_length              32
      * @db_is_notnull
      */
-    protected string $object_type;
+    protected string $object_type = '';
     /**
      * @var bool
      * @db_has_field           true
@@ -95,14 +95,14 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
      * @db_fieldtype           text
      * @db_length              2048
      */
-    protected string $title;
+    protected string $title = '';
     /**
      * @var string
      * @db_has_field        true
      * @db_fieldtype        text
      * @db_length           2048
      */
-    protected string $description;
+    protected string $description = '';
     /**
      * @var string
      * @db_has_field           true
@@ -123,13 +123,13 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
      * @db_has_field           true
      * @db_fieldtype           timestamp
      */
-    protected string $updated_at;
+    protected ?string $updated_at = '';
     /**
      * @var string
      * @db_has_field           true
      * @db_fieldtype           timestamp
      */
-    protected string $created_at;
+    protected string $created_at = '';
     /**
      * @var array
      * @db_has_field        true
@@ -144,20 +144,16 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
      * @db_length           4000
      */
     protected array $properties = [];
-    /**
-     * @var IOriginConfig
-     */
-    protected IOriginConfig $_config;
-    /**
-     * @var IOriginProperties
-     */
-    protected IOriginProperties $_properties;
+
+    protected ?IOriginConfig $_config = null;
+    protected ?IOriginProperties $_properties = null;
+
     /**
      * @var string
      * @db_has_field           true
      * @db_fieldtype           timestamp
      */
-    protected string $last_run;
+    protected ?string $last_run = "";
     /**
      * @var bool
      */
@@ -369,7 +365,7 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
      */
     public function getImplementationNamespace(): string
     {
-        return $this->implementation_namespace ? $this->implementation_namespace : IOrigin::ORIGIN_MAIN_NAMESPACE;
+        return $this->implementation_namespace ?: IOrigin::ORIGIN_MAIN_NAMESPACE;
     }
 
     /**
@@ -407,7 +403,7 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
     /**
      * @return string
      */
-    public function getLastRun(): string
+    public function getLastRun(): ?string
     {
         return $this->last_run;
     }
@@ -433,20 +429,14 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
         return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function config(): IOriginConfig
     {
-        return $this->_config;
+        return $this->_config ?? ($this->_config = $this->getOriginConfig($this->config));
     }
 
-    /**
-     * @inheritdoc
-     */
     public function properties(): IOriginProperties
     {
-        return $this->_properties;
+        return $this->_properties ?? ($this->_properties = $this->getOriginProperties($this->properties));
     }
 
     //	/**

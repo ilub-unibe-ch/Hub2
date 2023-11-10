@@ -35,7 +35,7 @@ class ARSessionMembershipOrigin extends AROrigin implements ISessionMembershipOr
     /**
      * @inheritdoc
      */
-    protected function getOriginConfig(array $data)
+    protected function getOriginConfig(array $data): SessionMembershipOriginConfig
     {
         return new SessionMembershipOriginConfig($data);
     }
@@ -43,7 +43,7 @@ class ARSessionMembershipOrigin extends AROrigin implements ISessionMembershipOr
     /**
      * @inheritdoc
      */
-    protected function getOriginProperties(array $data)
+    protected function getOriginProperties(array $data): SessionMembershipProperties
     {
         return new SessionMembershipProperties($data);
     }

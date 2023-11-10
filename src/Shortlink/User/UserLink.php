@@ -56,7 +56,7 @@ class UserLink extends AbstractBaseLink implements IObjectLink
             return true;
         }
 
-        return self::dic()->access()->checkAccess('read', '', 7); // Read access to user administration
+        return $this->access->checkAccess('read', '', 7); // Read access to user administration
     }
 
     /**

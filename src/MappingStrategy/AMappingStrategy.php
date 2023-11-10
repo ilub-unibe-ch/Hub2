@@ -25,6 +25,5 @@ use ilHub2Plugin;
  */
 abstract class AMappingStrategy implements IMappingStrategy
 {
-
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
 }

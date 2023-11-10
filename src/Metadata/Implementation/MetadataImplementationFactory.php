@@ -40,7 +40,7 @@ class MetadataImplementationFactory implements IMetadataImplementationFactory
     /**
      * @inheritdoc
      */
-    public function userDefinedField(IMetadata $metadata, int $ilias_id): IMetadataImplementation
+    public function userDefinedField(IMetadata $metadata, string $ilias_id): IMetadataImplementation
     {
         return new UDF($metadata, $ilias_id);
     }
@@ -48,7 +48,7 @@ class MetadataImplementationFactory implements IMetadataImplementationFactory
     /**
      * @inheritdoc
      */
-    public function customMetadata(IMetadata $metadata, int $ilias_id): IMetadataImplementation
+    public function customMetadata(IMetadata $metadata, string $ilias_id): IMetadataImplementation
     {
         return new CustomMetadata($metadata, $ilias_id);
     }
@@ -59,7 +59,7 @@ class MetadataImplementationFactory implements IMetadataImplementationFactory
     public function getImplementationForDTO(
         IMetadataAwareDataTransferObject $dto,
         IMetadata $metadata,
-        int $ilias_id
+        string $ilias_id
     ): IMetadataImplementation {
         switch (true) {
             case is_a($dto, GroupDTO::class):

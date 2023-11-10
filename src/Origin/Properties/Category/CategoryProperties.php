@@ -30,10 +30,7 @@ use srag\Plugins\Hub2\Origin\Properties\OriginProperties;
  */
 class CategoryProperties extends OriginProperties implements ICategoryProperties
 {
-    /**
-     * @var array
-     */
-    protected $data = [
+    protected array $data = [
         self::SHOW_INFO_TAB => false,
         self::SHOW_NEWS => false,
         self::MOVE_CATEGORY => false,

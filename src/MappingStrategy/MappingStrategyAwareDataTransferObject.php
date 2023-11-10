@@ -26,10 +26,7 @@ use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
  */
 trait MappingStrategyAwareDataTransferObject
 {
-    /**
-     * @var IMappingStrategy
-     */
-    private IMappingStrategy $_mapping_strategy;
+    private ?IMappingStrategy $_mapping_strategy = null;
 
     /**
      * @inheritdoc

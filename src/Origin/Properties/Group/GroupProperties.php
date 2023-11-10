@@ -32,7 +32,7 @@ class GroupProperties extends OriginProperties implements IGroupProperties
     /**
      * @var array
      */
-    protected $data = [
+    protected array $data = [
         self::SET_ONLINE => false,
         self::SET_ONLINE_AGAIN => false,
         self::CREATE_ICON => false,

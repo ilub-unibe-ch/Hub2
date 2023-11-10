@@ -64,6 +64,7 @@ abstract class AbstractTaxonomy implements ITaxonomyImplementation
     /**
      * Taxonomy constructor
      * @param ITaxonomy $taxonomy
+     * @param int       $ilias_parent_id
      */
     public function __construct(ITaxonomy $taxonomy, int $ilias_parent_id)
     {
@@ -76,7 +77,7 @@ abstract class AbstractTaxonomy implements ITaxonomyImplementation
      */
     protected function taxonomyExists(): bool
     {
-        $childsByType = self::dic()->tree()->getChildsByType($this->getILIASParentId(), 'tax');
+        $childsByType = $this->tree->getChildsByType($this->getILIASParentId(), 'tax');
         if (!count($childsByType)) {
             return false;
         }

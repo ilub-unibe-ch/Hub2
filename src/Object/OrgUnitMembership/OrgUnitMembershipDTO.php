@@ -68,7 +68,7 @@ class OrgUnitMembershipDTO extends DataTransferObject implements IOrgUnitMembers
     /**
      * @inheritdoc
      */
-    public function setOrgUnitId(int|string $org_unit_id): IOrgUnitMembershipDTO
+    public function setOrgUnitId($org_unit_id): IOrgUnitMembershipDTO
     {
         $this->org_unit_id = $org_unit_id;
 

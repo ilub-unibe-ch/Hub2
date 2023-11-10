@@ -32,7 +32,6 @@ use srag\Plugins\Hub2\Object\Session\SessionDTO;
 use srag\Plugins\Hub2\Object\SessionMembership\SessionMembershipDTO;
 use srag\Plugins\Hub2\Object\User\UserDTO;
 
-
 /**
  * Class DataTransferObjectFactory
  * @package srag\Plugins\Hub2\Object\DTO
@@ -83,42 +82,27 @@ class DataTransferObjectFactory implements IDataTransferObjectFactory
         return new SessionDTO($ext_id);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function courseMembership(int $course_id, int $user_id): CourseMembershipDTO
+    public function courseMembership(string $course_id, int $user_id): CourseMembershipDTO
     {
         return new CourseMembershipDTO($course_id, $user_id);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function groupMembership(int $group_id, int $user_id): GroupMembershipDTO
+    public function groupMembership(string $group_id, int $user_id): GroupMembershipDTO
     {
         return new GroupMembershipDTO($group_id, $user_id);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function sessionMembership(int $session_id, int $user_id): SessionMembershipDTO
+    public function sessionMembership(string $session_id, int $user_id): SessionMembershipDTO
     {
         return new SessionMembershipDTO($session_id, $user_id);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function orgUnit(string $ext_id): IOrgUnitDTO
     {
         return new OrgUnitDTO($ext_id);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function orgUnitMembership(int|string $org_unit_id, int $user_id, int $position): IOrgUnitMembershipDTO
+    public function orgUnitMembership(string $org_unit_id, int $user_id, int $position): IOrgUnitMembershipDTO
     {
         return new OrgUnitMembershipDTO($org_unit_id, $user_id, $position);
     }

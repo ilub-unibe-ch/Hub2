@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 namespace srag\Plugins\Hub2\Sync\Processor\Course;
 
-use ilDB;
 use ilDBInterface;
 use ilObjCourse;
 use ilObject2;
@@ -34,9 +33,9 @@ use ilObject2;
 class CourseActivities implements ICourseActivities
 {
     /**
-     * @var ilDB
+     * @var ilDBInterface
      */
-    protected $db;
+    protected ilDBInterface $db;
 
     /**
      * @param ilDBInterface $db

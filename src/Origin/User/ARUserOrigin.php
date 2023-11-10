@@ -36,7 +36,7 @@ class ARUserOrigin extends AROrigin implements IUserOrigin
     /**
      * @inheritdoc
      */
-    protected function getOriginConfig(array $data)
+    protected function getOriginConfig(array $data): UserOriginConfig
     {
         return new UserOriginConfig($data);
     }
@@ -44,7 +44,7 @@ class ARUserOrigin extends AROrigin implements IUserOrigin
     /**
      * @inheritdoc
      */
-    protected function getOriginProperties(array $data)
+    protected function getOriginProperties(array $data): UserProperties
     {
         return new UserProperties($data);
     }

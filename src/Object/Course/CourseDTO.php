@@ -206,145 +206,42 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
         self::PARENT_ID_TYPE_REF_ID,
         self::PARENT_ID_TYPE_EXTERNAL_EXT_ID,
     ];
-    /**
-     * @var string
-     */
-    protected string $title;
-    /**
-     * @var string
-     */
-    protected string $description;
-    /**
-     * @var string
-     */
-    protected string $importantInformation;
-    /**
-     * @var string
-     */
-    protected string $contactResponsibility;
-    /**
-     * @var string
-     */
-    protected string $contactEmail;
-    /**
-     * @var int
-     */
-    protected int $parentId;
-    /**
-     * @var int
-     */
+
+    protected ?string $title = null;
+    protected ?string $description = null;
+    protected ?string $importantInformation = null;
+    protected ?string $contactResponsibility = null;
+    protected ?string $contactEmail = null;
+    protected ?string $parentId = null;
     protected int $parentIdType = self::PARENT_ID_TYPE_REF_ID;
-    /**
-     * @var string
-     */
-    protected string $firstDependenceCategory;
-    /**
-     * @var string
-     */
-    protected string $secondDependenceCategory;
-    /**
-     * @var string
-     */
-    protected string $thirdDependenceCategory;
-    /**
-     * @var string
-     */
-    protected string $fourthDependenceCategory;
-    /**
-     * @var int
-     */
+    protected ?string $firstDependenceCategory = null;
+    protected ?string $secondDependenceCategory = null;
+    protected ?string $thirdDependenceCategory = null;
+    protected ?string $fourthDependenceCategory = null;
+
     protected int $template_id = 0;
-    /**
-     * @var array
-     */
     protected array $notificationEmails = [];
-    /**
-     * @var int
-     */
     protected int $owner = 6;
-    /**
-     * @var int
-     */
     protected int $subscriptionLimitationType = 0;
-    /**
-     * @var int
-     */
     protected int $viewMode = self::VIEW_MODE_SESSIONS;
-    /**
-     * @var string
-     */
     protected string $syllabus = '';
-    /**
-     * @var string
-     */
-    protected string $contactName;
-    /**
-     * @var string
-     */
-    protected string $contactConsultation;
-    /**
-     * @var string
-     */
-    protected string $contactPhone;
-    /**
-     * @var int
-     */
+    protected ?string $contactName = null;
+    protected ?string $contactConsultation = null;
+    protected ?string $contactPhone = null;
     protected int $activationType = self::ACTIVATION_OFFLINE;
-    /**
-     * @var string
-     */
     protected string $languageCode = 'en';
-    /**
-     * @var int
-     */
-    protected int $didacticTemplate;
-    /**
-     * @var string
-     */
-    protected string $icon;
-    /**
-     * @var bool
-     */
+    protected ?int $didacticTemplate = null;
+    protected ?string $icon = null;
     protected bool $sessionLimitEnabled = false;
-    /**
-     * @var int
-     */
     protected int $numberOfPreviousSessions = -1;
-    /**
-     * @var int
-     */
     protected int $numberOfNextSessions = -1;
-    /**
-     * @var int
-     */
     protected int $orderType = self::SORT_TITLE;
-    /**
-     * @var int
-     */
     protected int $orderDirection = self::SORT_DIRECTION_ASC;
-    /**
-     * @var string
-     */
     protected string $appointementsColor = '';
-
-    /**
-     * @var bool
-     */
     protected bool $showMembers = true;
-
-    /**
-     * @var bool
-     */
     protected bool $showMembersExport = false;
-
-    /**
-     * @var bool
-     */
     protected bool $newsSetting = true;
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->title;
@@ -364,7 +261,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -383,7 +280,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return string
      */
-    public function getImportantInformation(): string
+    public function getImportantInformation(): ?string
     {
         return $this->importantInformation;
     }
@@ -402,7 +299,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return string
      */
-    public function getContactResponsibility(): string
+    public function getContactResponsibility(): ?string
     {
         return $this->contactResponsibility;
     }
@@ -421,7 +318,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return string
      */
-    public function getContactEmail(): string
+    public function getContactEmail(): ?string
     {
         return $this->contactEmail;
     }
@@ -440,7 +337,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return string
      */
-    public function getFirstDependenceCategory(): string
+    public function getFirstDependenceCategory(): ?string
     {
         return $this->firstDependenceCategory;
     }
@@ -459,7 +356,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return string
      */
-    public function getSecondDependenceCategory(): string
+    public function getSecondDependenceCategory(): ?string
     {
         return $this->secondDependenceCategory;
     }
@@ -478,7 +375,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return string
      */
-    public function getThirdDependenceCategory(): string
+    public function getThirdDependenceCategory(): ?string
     {
         return $this->thirdDependenceCategory;
     }
@@ -497,7 +394,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return string
      */
-    public function getFourthDependenceCategory(): string
+    public function getFourthDependenceCategory(): ?string
     {
         return $this->fourthDependenceCategory;
     }
@@ -622,11 +519,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
         return $this->parentId;
     }
 
-    /**
-     * @param int $parentId
-     * @return $this
-     */
-    public function setParentId(int $parentId): CourseDTO
+    public function setParentId(string $parentId): CourseDTO
     {
         $this->parentId = $parentId;
 
@@ -658,7 +551,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return string
      */
-    public function getSyllabus(): string
+    public function getSyllabus(): ?string
     {
         return $this->syllabus;
     }
@@ -677,7 +570,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return string
      */
-    public function getContactName(): string
+    public function getContactName(): ?string
     {
         return $this->contactName;
     }
@@ -696,7 +589,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return string
      */
-    public function getContactConsultation(): string
+    public function getContactConsultation(): ?string
     {
         return $this->contactConsultation;
     }
@@ -715,7 +608,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return string
      */
-    public function getContactPhone(): string
+    public function getContactPhone(): ?string
     {
         return $this->contactPhone;
     }
@@ -753,7 +646,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return string
      */
-    public function getLanguageCode(): string
+    public function getLanguageCode(): ?string
     {
         return $this->languageCode;
     }
@@ -777,7 +670,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return int
      */
-    public function getDidacticTemplate(): int
+    public function getDidacticTemplate(): ?int
     {
         return $this->didacticTemplate;
     }
@@ -840,7 +733,7 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return int
      */
-    public function getNumberOfPreviousSessions(): int
+    public function getNumberOfPreviousSessions(): ?int
     {
         return $this->numberOfPreviousSessions;
     }
@@ -908,13 +801,14 @@ class CourseDTO extends DataTransferObject implements ICourseDTO
     /**
      * @return string
      */
-    public function getAppointementsColor(): string
+    public function getAppointementsColor(): ?string
     {
         return $this->appointementsColor;
     }
 
     /**
      * @param string $appointementsColor
+     * @return CourseDTO
      */
     public function setAppointementsColor(string $appointementsColor): CourseDTO
     {

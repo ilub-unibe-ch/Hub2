@@ -37,6 +37,8 @@ use srag\Plugins\Hub2\Object\Course\ICourseDTO;
  */
 class ByTitle extends AMappingStrategy implements IMappingStrategy
 {
+    protected \ilDBInterface $database;
+
     /**
      * @inheritdoc
      */
@@ -59,7 +61,7 @@ class ByTitle extends AMappingStrategy implements IMappingStrategy
                 if (!ilObject2::_exists($parent_id)) {
                     return 0;
                 }
-                $children = self::dic()->tree()->getChildsByType($parent_id, $this->getTypeByDTO($dto));
+                $children = $this->tree->getChildsByType($parent_id, $this->getTypeByDTO($dto));
 
                 foreach ($children as $child) {
                     if ($child['title'] == $dto->getTitle()) {

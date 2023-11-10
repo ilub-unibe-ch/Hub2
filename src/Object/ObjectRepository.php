@@ -84,6 +84,7 @@ abstract class ObjectRepository implements IObjectRepository
     {
         $glue = self::GLUE;
         $class = $this->getClass();
+        $existing_ext_id_query = "";
 
         if (count($parent_ext_ids) > 0) {
             if (count($ext_ids) > 0) {

@@ -25,7 +25,6 @@ use ilHub2Plugin;
 
 use srag\Plugins\Hub2\UI\Data\DataTableGUI;
 
-
 /**
  * Class OriginFactory
  * @package srag\Plugins\Hub2\Origin
@@ -35,13 +34,16 @@ use srag\Plugins\Hub2\UI\Data\DataTableGUI;
 class OriginFactory implements IOriginFactory
 {
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    protected \ilDBInterface $database;
 
     /**
      *
      */
     public function __construct()
     {
+        global $DIC;
 
+        $this->database = $DIC->database();
     }
 
     /**
@@ -50,8 +52,8 @@ class OriginFactory implements IOriginFactory
     public function getById(int $id): ?IOrigin
     {
         $sql = 'SELECT object_type FROM ' . AROrigin::TABLE_NAME . ' WHERE id = %s';
-        $set = self::dic()->database()->queryF($sql, ['integer'], [$id]);
-        $type = self::dic()->database()->fetchObject($set)->object_type;
+        $set = $this->database->queryF($sql, ['integer'], [$id]);
+        $type = $this->database->fetchObject($set)->object_type;
         if (!$type) {
             //throw new HubException("Can not get type of origin id (probably deleted): ".$id);
             return null;
@@ -77,10 +79,10 @@ class OriginFactory implements IOriginFactory
     public function getAllActive(): array
     {
         $sql = 'SELECT id FROM ' . AROrigin::TABLE_NAME . ' WHERE active = %s ORDER BY sort';
-        $set = self::dic()->database()->queryF($sql, ['integer'], [1]);
+        $set = $this->database->queryF($sql, ['integer'], [1]);
         $origins = [];
-        while ($data = self::dic()->database()->fetchObject($set)) {
-            $origins[] = $this->getById($data->id);
+        while ($data = $this->database->fetchObject($set)) {
+            $origins[] = $this->getById((int)$data->id);
         }
 
         return $origins;
@@ -94,9 +96,9 @@ class OriginFactory implements IOriginFactory
         $origins = [];
 
         $sql = 'SELECT id FROM ' . AROrigin::TABLE_NAME . ' ORDER BY sort';
-        $set = self::dic()->database()->query($sql);
-        while ($data = self::dic()->database()->fetchObject($set)) {
-            $origins[] = $this->getById($data->id);
+        $set = $this->database->query($sql);
+        while ($data = $this->database->fetchObject($set)) {
+            $origins[] = $this->getById((int)$data->id);
         }
 
         return $origins;

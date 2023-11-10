@@ -47,11 +47,11 @@ class GroupSyncProcessorTest extends AbstractSyncProcessorTests
     protected function initDTO()
     {
         $this->dto = new GroupDTO('extIdOfGroup');
-        $this->dto->setParentIdType(GroupDTO::PARENT_ID_TYPE_REF_ID)->setParentId(1)->setDescription("Description")->setTitle("Title")
-                  ->setInformation("Information")->setRegisterMode(GroupDTO::GRP_REGISTRATION_LIMITED)->setGroupType(GroupDTO::GRP_TYPE_CLOSED)
+        $this->dto->setParentIdType(GroupDTO::PARENT_ID_TYPE_REF_ID)->setParentId("1")->setDescription("Description")->setTitle("Title")
+                  ->setInformation("Information")->setGroupType(GroupDTO::GRP_TYPE_CLOSED)
                   ->setRegUnlimited(false)->setRegistrationStart(1507202887)->setRegistrationEnd(1507202887 + 30)->setPassword("Password")
                   ->setRegMembershipLimitation(true)->setMinMembers(1)->setMaxMembers(10)->setWaitingList(true)->setWaitingListAutoFill(true)
-                  ->setStart(1507202887)->setEnd(1507202887 + 30)->setLatitude(7.1234)->setLongitude(45.1234)->setLocationzoom(5)->setEnableGroupMap(true)
+                  ->setStart(1507202887)->setEnd(1507202887 + 30)->setLatitude(7.1234)->setLongitude(45.1234)->setLocationzoom(5)->setEnableGroupMap(1)
                   ->setRegAccessCodeEnabled(true)->setRegistrationAccessCode("AccessCode")->setOwner(6)->setViewMode(GroupDTO::VIEW_BY_TYPE)
                   ->setCancellationEnd(1507202887);
     }
@@ -74,7 +74,7 @@ class GroupSyncProcessorTest extends AbstractSyncProcessorTests
     /**
      * Setup default mocks
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->activities = Mockery::mock(IGroupActivities::class);
 
@@ -85,7 +85,7 @@ class GroupSyncProcessorTest extends AbstractSyncProcessorTests
         $this->initDTO();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         Mockery::close();
     }
@@ -162,7 +162,6 @@ class GroupSyncProcessorTest extends AbstractSyncProcessorTests
         $this->ilObject->shouldReceive('setDescription')->once()->with($this->dto->getDescription());
         $this->ilObject->shouldReceive('setInformation')->once()->with($this->dto->getInformation());
         $this->ilObject->shouldReceive('setGroupType')->once()->with($this->dto->getGroupType());
-        $this->ilObject->shouldReceive('setRegisterMode')->once()->with($this->dto->getRegisterMode());
         $this->ilObject->shouldReceive('setOwner')->once()->with($this->dto->getOwner());
         $this->ilObject->shouldReceive('enableUnlimitedRegistration')->once()->with($this->dto->getRegUnlimited());
         $this->ilObject->shouldReceive('setViewMode')->once()->with($this->dto->getViewMode());

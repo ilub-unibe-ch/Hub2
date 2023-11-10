@@ -34,7 +34,7 @@ class UserProperties extends OriginProperties implements IUserProperties
      * Default values
      * @var array
      */
-    protected $data = [
+    protected array $data = [
         self::ACTIVATE_ACCOUNT => true,
         self::CREATE_PASSWORD => false,
         self::SEND_PASSWORD => false,

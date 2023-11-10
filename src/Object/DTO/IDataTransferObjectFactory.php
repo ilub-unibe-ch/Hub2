@@ -70,21 +70,21 @@ interface IDataTransferObjectFactory
      * @param int $user_id
      * @return CourseMembershipDTO
      */
-    public function courseMembership(int $course_id, int $user_id): CourseMembershipDTO;
+    public function courseMembership(string $course_id, int $user_id): CourseMembershipDTO;
 
     /**
      * @param int $group_id
      * @param int $user_id
      * @return GroupMembershipDTO
      */
-    public function groupMembership(int $group_id, int $user_id): GroupMembershipDTO;
+    public function groupMembership(string $group_id, int $user_id): GroupMembershipDTO;
 
     /**
      * @param int $session_id
      * @param int $user_id
      * @return SessionMembershipDTO
      */
-    public function sessionMembership(int $session_id, int $user_id): SessionMembershipDTO;
+    public function sessionMembership(string $session_id, int $user_id): SessionMembershipDTO;
 
     /**
      * @param string $ext_id
@@ -98,5 +98,5 @@ interface IDataTransferObjectFactory
      * @param int        $position
      * @return IOrgUnitMembershipDTO
      */
-    public function orgUnitMembership(int|string $org_unit_id, int $user_id, int $position): IOrgUnitMembershipDTO;
+    public function orgUnitMembership(string $org_unit_id, int $user_id, int $position): IOrgUnitMembershipDTO;
 }

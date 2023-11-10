@@ -35,7 +35,7 @@ class ARSessionOrigin extends AROrigin implements ISessionOrigin
     /**
      * @inheritdoc
      */
-    protected function getOriginConfig(array $data)
+    protected function getOriginConfig(array $data): SessionOriginConfig
     {
         return new SessionOriginConfig($data);
     }
@@ -43,7 +43,7 @@ class ARSessionOrigin extends AROrigin implements ISessionOrigin
     /**
      * @inheritdoc
      */
-    protected function getOriginProperties(array $data)
+    protected function getOriginProperties(array $data): SessionProperties
     {
         return new SessionProperties($data);
     }

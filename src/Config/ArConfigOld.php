@@ -112,7 +112,7 @@ class ArConfigOld extends ActiveRecord
     {
         switch ($field_name) {
             case 'value':
-                return (is_array($this->value)) ? json_encode($this->value) : $this->value;
+                return $this->value;
         }
 
         return parent::sleep($field_name);

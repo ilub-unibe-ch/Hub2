@@ -122,7 +122,7 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
             }
         }
         if ($dto->getCannotParticipateOption() !== null) {
-            $ilObjSession->enableCannotParticipateOption($dto->getCannotParticipateOption());
+            $ilObjSession->enableCannotParticipateOption((bool) $dto->getCannotParticipateOption());
         }
 
         /**
@@ -150,9 +150,9 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
      * @inheritdoc
      * @param SessionDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, int $iliasId)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
     {
-        $this->current_ilias_object = $ilObjSession = $this->findILIASObject($iliasId);
+        $this->current_ilias_object = $ilObjSession = $this->findILIASObject((int)$ilias_id);
         if ($ilObjSession === null) {
             return;
         }
@@ -180,9 +180,9 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
     /**
      * @inheritdoc
      */
-    protected function handleDelete(int $ilias_id)/*: void*/
+    protected function handleDelete(string $ilias_id)/*: void*/
     {
-        $this->current_ilias_object = $ilObjSession = $this->findILIASObject($ilias_id);
+        $this->current_ilias_object = $ilObjSession = $this->findILIASObject((int)$ilias_id);
         if ($ilObjSession === null) {
             return;
         }
@@ -195,7 +195,7 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
                 $ilObjSession->delete();
                 break;
             case ISessionProperties::DELETE_MODE_MOVE_TO_TRASH:
-                self::dic()->tree()->moveToTrash($ilObjSession->getRefId(), true);
+                $this->tree->moveToTrash($ilObjSession->getRefId(), true);
                 break;
         }
     }
@@ -221,7 +221,7 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
     protected function buildParentRefId(SessionDTO $session): int
     {
         if ($session->getParentIdType() == ISessionDTO::PARENT_ID_TYPE_REF_ID) {
-            if (self::dic()->tree()->isInTree($session->getParentId())) {
+            if ($this->tree->isInTree((int)$session->getParentId())) {
                 return (int) $session->getParentId();
             }
         }
@@ -235,10 +235,11 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
             }
             $originRepository = new OriginRepository();
             $possible_parents = array_merge($originRepository->groups(), $originRepository->courses());
-            $origin = array_pop(array_filter($possible_parents, function ($origin) use ($linkedOriginId) {
+            $array = array_filter($possible_parents, function ($origin) use ($linkedOriginId) {
                 /** @var IOrigin $origin */
                 return $origin->getId() == $linkedOriginId;
-            }));
+            });
+            $origin = array_pop($array);
             if ($origin === null) {
                 $msg = "The linked origin syncing courses or groups was not found, please check that the correct origin is linked";
                 throw new HubException($msg);
@@ -254,7 +255,7 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
             if (!$parent->getILIASId()) {
                 throw new HubException("The linked course or group does not (yet) exist in ILIAS");
             }
-            if (!self::dic()->tree()->isInTree($parent->getILIASId())) {
+            if (!$this->tree->isInTree((int)$parent->getILIASId())) {
                 throw new HubException("Could not find the ref-ID of the parent course or group in the tree: '{$parent->getILIASId()}'");
             }
 
@@ -279,12 +280,12 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
         $first = $ilObjSession->getFirstAppointment();
         if ($this->props->updateDTOProperty('start') || $force) {
             $start = new ilDateTime($object->getStart(), IL_CAL_UNIX);
-            $first->setStart($start->get(IL_CAL_DATETIME));
+            $first->setStart($start);
             $first->setStartingTime($start->get(IL_CAL_UNIX));
         }
         if ($this->props->updateDTOProperty('end') || $force) {
             $end = new ilDateTime($object->getEnd(), IL_CAL_UNIX);
-            $first->setEnd($end->get(IL_CAL_DATETIME));
+            $first->setEnd($end);
             $first->setEndingTime($end->get(IL_CAL_UNIX));
         }
         if ($this->props->updateDTOProperty('fullDay') || $force) {
@@ -307,30 +308,31 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
     {
         $parentRefId = $this->buildParentRefId($session);
 
-        if (self::dic()->tree()->isDeleted($ilObjSession->getRefId())) {
+        if ($this->tree->isDeleted($ilObjSession->getRefId())) {
             $ilRepUtil = new ilRepUtil();
             $ilRepUtil->restoreObjects($parentRefId, [$ilObjSession->getRefId()]);
         }
-        $oldParentRefId = self::dic()->tree()->getParentId($ilObjSession->getRefId());
+        $oldParentRefId = $this->tree->getParentId($ilObjSession->getRefId());
         if ($oldParentRefId == $parentRefId) {
             return;
         }
-        self::dic()->tree()->moveTree($ilObjSession->getRefId(), $parentRefId);
-        self::dic()->rbacadmin()->adjustMovedObjectPermissions($ilObjSession->getRefId(), $oldParentRefId);
+        $this->tree->moveTree($ilObjSession->getRefId(), $parentRefId);
+        $this->rbac_admin->adjustMovedObjectPermissions($ilObjSession->getRefId(), $oldParentRefId);
     }
 
     /**
      * @param SessionDTO   $dto
      * @param ilObjSession $ilObjSession
      */
-    protected function setLanguage(\srag\Plugins\Hub2\Object\Session\SessionDTO $dto, ilObjSession $ilObjSession)
+    protected function setLanguage(SessionDTO $dto, ilObjSession $ilObjSession)
     {
         $md_general = (new ilMD($ilObjSession->getId()))->getGeneral();
         //Note: this is terribly stupid, but the best (only) way if found to get to the
         //lang id of the primary language of some object. There seems to be multy lng
         //support however, not through the GUI. Maybe there is some bug in the generation
         //of the respective metadata form. See: initQuickEditForm() in ilMDEditorGUI
-        $language = $md_general->getLanguage(array_pop($md_general->getLanguageIds()));
+        $array = $md_general->getLanguageIds();
+        $language = $md_general->getLanguage(array_pop($array));
         $new_language = $dto->getLanguageCode();
         if ($language->getLanguageCode() != $new_language) {
             $language->setLanguage(new ilMDLanguageItem($new_language));

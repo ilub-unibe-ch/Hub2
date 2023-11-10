@@ -61,7 +61,7 @@ class demoUser extends AbstractOriginImplementation
             }
 
             $this->data[] = $this->factory()->user($x)->setTitle("Title {$x} {$t}")->setFirstname("Firstname {$x}")->setLastname("Lastname {$x}")
-                                 ->setEmail("email{$x}@domain.com")->setGender(IUserDTO::GENDER_MALE)->addMetadata($this->metadata()->getDTOWithIliasId(1)
+                                 ->setEmail("email{$x}@domain.com")->setGender(IUserDTO::GENDER_MALE)->addMetadata($this->metadata()->getDTOWithIliasId("1")
                                                                                                                         ->setValue('Von der Hubberei 2'));
         }
 

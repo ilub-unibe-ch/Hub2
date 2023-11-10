@@ -11,7 +11,6 @@ use srag\Plugins\Hub2\Object\User\UserDTO;
 use srag\Plugins\Hub2\Origin\Config\User\IUserOriginConfig;
 use srag\Plugins\Hub2\Origin\Config\User\UserOriginConfig;
 use srag\Plugins\Hub2\Origin\Properties\User\UserProperties;
-use srag\Plugins\Hub2\Sync\Processor\User\IUserActivities;
 use srag\Plugins\Hub2\Sync\Processor\User\IUserSyncProcessor;
 use srag\Plugins\Hub2\Sync\Processor\User\UserSyncProcessor;
 use srag\Plugins\Hub2\Origin\Properties\User\IUserProperties;
@@ -50,9 +49,8 @@ class UserSyncProcessorTest extends AbstractSyncProcessorTests
     /**
      * Setup default mocks
      */
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->activities = Mockery::mock(IUserActivities::class);
         $this->initOrigin(new UserProperties(), new UserOriginConfig([]));
         $this->setupGeneralDependencies();
         $this->initHubObject();
@@ -60,7 +58,7 @@ class UserSyncProcessorTest extends AbstractSyncProcessorTests
         $this->initDTO();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         Mockery::close();
     }
@@ -80,10 +78,10 @@ class UserSyncProcessorTest extends AbstractSyncProcessorTests
         $this->dto->setGender(IUserDTO::GENDER_MALE);
         $this->dto->setCity('NYC');
         $this->dto->setInstitution('FBI');
-        $this->dto->setDepartment(null);
-        $this->dto->setPhoneHome(123);
-        $this->dto->setPhoneMobile(null);
-        $this->dto->setPhoneOffice(789);
+        $this->dto->setDepartment("");
+        $this->dto->setPhoneHome("123");
+        $this->dto->setPhoneMobile("");
+        $this->dto->setPhoneOffice("789");
     }
 
     protected function initHubObject()

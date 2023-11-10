@@ -133,7 +133,7 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
         $ilObjCategory->addTranslation(
             $dto->getTitle(),
             $dto->getDescription(),
-            self::dic()->language()->getDefaultLanguage(),
+            $this->lng->getDefaultLanguage(),
             "1"
         );
     }
@@ -142,9 +142,9 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
      * @inheritdoc
      * @param CategoryDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, string $iliasId)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
     {
-        $this->current_ilias_object = $ilObjCategory = $this->findILIASCategory($iliasId);
+        $this->current_ilias_object = $ilObjCategory = $this->findILIASCategory($ilias_id);
         if ($ilObjCategory === null) {
             return;
         }
@@ -164,7 +164,7 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
             $ilObjCategory->addTranslation(
                 $dto->getTitle(),
                 $dto->getDescription(),
-                self::dic()->language()->getDefaultLanguage(),
+                $this->lng->getDefaultLanguage(),
                 "1"
             );
         }
@@ -218,8 +218,8 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
     protected function determineParentRefId(CategoryDTO $category): int
     {
         if ($category->getParentIdType() == ICategoryDTO::PARENT_ID_TYPE_REF_ID) {
-            if ($this->tree->isInTree($category->getParentId())) {
-                return $category->getParentId();
+            if ($this->tree->isInTree((int)$category->getParentId())) {
+                return (int)$category->getParentId();
             }
             // The ref-ID does not exist in the tree, use the fallback parent ref-ID according to the config
             $parentRefId = $this->config->getParentRefIdIfNoParentIdFound();
@@ -270,11 +270,11 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
     protected function moveCategory(ilObjCategory $ilObjCategory, CategoryDTO $category)
     {
         $parentRefId = $this->determineParentRefId($category);
-        if ($this->tree->tree()->isDeleted($ilObjCategory->getRefId())) {
+        if ($this->tree->isDeleted($ilObjCategory->getRefId())) {
             $ilRepUtil = new ilRepUtil();
             $ilRepUtil->restoreObjects($parentRefId, [$ilObjCategory->getRefId()]);
         }
-        $oldParentRefId = $this->tree->tree()->getParentId($ilObjCategory->getRefId());
+        $oldParentRefId = $this->tree->getParentId($ilObjCategory->getRefId());
         if ($oldParentRefId == $parentRefId) {
             return;
         }

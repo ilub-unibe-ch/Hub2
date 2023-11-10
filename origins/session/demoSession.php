@@ -59,13 +59,13 @@ class demoSession extends AbstractOriginImplementation
                 continue; // Simulate some random deletions
             }
             $rand = rand();
-            $sessionDTO = $this->factory()->session($x)->setParentId(1)->setParentIdType(ISessionDTO::PARENT_ID_TYPE_EXTERNAL_EXT_ID)
+            $sessionDTO = $this->factory()->session($x)->setParentId("1")->setParentIdType(ISessionDTO::PARENT_ID_TYPE_EXTERNAL_EXT_ID)
                                ->setTitle("Title $x")->setDescription("Description {$rand}")->setLocation("Location {$rand}")->setDetails("Details {$rand}")
                                ->setName("Name {$rand}")->setEmail("Email {$rand}")->setPhone("Phone {$rand}")->setFullDay(false)->setStart(time() + ($x * 600))
                                ->setEnd(time() + ($x * 600) + 3600)->addTaxonomy($this->taxonomy()->select("Taxonomy 1")->attach($this->taxonomy()
                                                                                                                                       ->node("Node Title 1.1"))->attach($this->taxonomy()->node("Node Title 1.2")))->addTaxonomy($this->taxonomy()->select("Taxonomy 2")
-                                                                                                                                                                                                                                      ->attach($this->taxonomy()->node("Node Title 2.1")))->addMetadata($this->metadata()->getDTOWithIliasId(1)
-                                                                                                                                                                                                                                                                                                             ->setValue("Meine Metadaten"))->addMetadata($this->metadata()->getDTOWithIliasId(2)->setValue(time()));
+                                                                                                                                                                                                                                      ->attach($this->taxonomy()->node("Node Title 2.1")))->addMetadata($this->metadata()->getDTOWithIliasId("1")
+                                                                                                                                                                                                                                                                                                             ->setValue("Meine Metadaten"))->addMetadata($this->metadata()->getDTOWithIliasId("2")->setValue((string)time()));
             $this->data[] = $sessionDTO;
         }
 

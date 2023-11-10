@@ -33,9 +33,6 @@ class CategoryDTO extends DataTransferObject implements ICategoryDTO
     use TaxonomyAndMetadataAwareDataTransferObject;
     use MappingStrategyAwareDataTransferObject;
 
-    /**
-     * @var array
-     */
     private static array $orderTypes = [
         self::ORDER_TYPE_TITLE,
         self::ORDER_TYPE_MANUAL,
@@ -43,77 +40,33 @@ class CategoryDTO extends DataTransferObject implements ICategoryDTO
         self::ORDER_TYPE_INHERIT,
         self::ORDER_TYPE_CREATION,
     ];
-    /**
-     * @var array
-     */
     private static array $parentIdTypes = [
         self::PARENT_ID_TYPE_REF_ID,
         self::PARENT_ID_TYPE_EXTERNAL_EXT_ID,
     ];
-    /**
-     * @var string
-     */
     protected string $title;
-    /**
-     * @var string
-     */
-    protected string $description;
-    /**
-     * @var int
-     */
+    protected ?string $description = "";
     protected int $orderType = self::ORDER_TYPE_TITLE;
-    /**
-     * @var int
-     */
     protected int $owner = 6;
-    /**
-     * @var int
-     */
-    protected int $parentId;
-    /**
-     * @var int
-     */
+    protected string $parentId;
     protected int $parentIdType = self::PARENT_ID_TYPE_REF_ID;
-    /**
-     * @var bool
-     */
     protected bool $showNews = true;
-    /**
-     * @var bool
-     */
     protected bool $showInfoPage = true;
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->title;
     }
-
-    /**
-     * @param string $title
-     * @return CategoryDTO
-     */
     public function setTitle(string $title): CategoryDTO
     {
         $this->title = $title;
 
         return $this;
     }
-
-    /**
-     * @return string
-     */
     public function getDescription(): string
     {
         return $this->description;
     }
-
-    /**
-     * @param string $description
-     * @return CategoryDTO
-     */
     public function setDescription(string $description): CategoryDTO
     {
         $this->description = $description;
@@ -121,18 +74,11 @@ class CategoryDTO extends DataTransferObject implements ICategoryDTO
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getOrderType(): int
     {
         return $this->orderType;
     }
 
-    /**
-     * @param int $orderType
-     * @return CategoryDTO
-     */
     public function setOrderType(int $orderType): CategoryDTO
     {
         if (!in_array($orderType, self::$orderTypes)) {
@@ -142,19 +88,10 @@ class CategoryDTO extends DataTransferObject implements ICategoryDTO
 
         return $this;
     }
-
-    /**
-     * @return int
-     */
     public function getOwner(): int
     {
         return $this->owner;
     }
-
-    /**
-     * @param int $owner
-     * @return CategoryDTO
-     */
     public function setOwner(int $owner): CategoryDTO
     {
         $this->owner = $owner;
@@ -162,37 +99,24 @@ class CategoryDTO extends DataTransferObject implements ICategoryDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getParentId(): int
+    public function getParentId(): string
     {
         return $this->parentId;
     }
 
-    /**
-     * @param int $parentId
-     * @return $this
-     */
-    public function setParentId(int $parentId): CategoryDTO
+    public function setParentId(string $parentId): CategoryDTO
     {
         $this->parentId = $parentId;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getParentIdType(): int
     {
         return $this->parentIdType;
     }
 
-    /**
-     * @param int $parentIdType
-     * @return CategoryDTO
-     */
+
     public function setParentIdType(int $parentIdType): CategoryDTO
     {
         if (!in_array($parentIdType, self::$parentIdTypes)) {

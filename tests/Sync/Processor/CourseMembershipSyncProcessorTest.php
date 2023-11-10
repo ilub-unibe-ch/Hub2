@@ -80,13 +80,13 @@ class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
         $this->ilCourseParticipants = Mockery::mock("overload:" . ilCourseParticipants::class, ilParticipants::class);
         $this->ilObjCourse->shouldReceive("getMembersObject")->once()->andReturn($this->ilCourseParticipants);
 
-        define(IL_CRS_TUTOR, 3);
+        //define(IL_CRS_TUTOR, 3);
     }
 
     /**
      * Setup default mocks
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->initOrigin(
             new CourseMembershipProperties(['update_dto_role' => true]),
@@ -98,7 +98,7 @@ class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
         $this->initDTO();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         Mockery::close();
     }

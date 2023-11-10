@@ -27,10 +27,10 @@ interface IMetadata
     public const DEFAULT_RECORD_ID = 1;
 
     /**
-     * @param string $value
+     * @param mixed $value
      * @return IMetadata
      */
-    public function setValue(string $value): IMetadata;
+    public function setValue($value): IMetadata;
 
     /**
      * @param int $identifier
@@ -46,7 +46,7 @@ interface IMetadata
     /**
      * @return mixed
      */
-    public function getIdentifier();
+    public function getIdentifier(): string;
 
     /**
      * @return int

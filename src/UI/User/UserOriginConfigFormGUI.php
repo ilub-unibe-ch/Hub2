@@ -31,6 +31,7 @@ use srag\Plugins\Hub2\Origin\Config\User\UserOriginConfig;
 use srag\Plugins\Hub2\Origin\User\ARUserOrigin;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
 use srag\Plugins\Hub2\Origin\Properties\User\IUserProperties;
+use ilHub2Plugin;
 
 /**
  * Class UserOriginConfigFormGUI
@@ -78,20 +79,20 @@ class UserOriginConfigFormGUI extends OriginConfigFormGUI
             ilHub2Plugin::getInstance()->txt('usr_prop_activate_account'),
             $this->prop(IUserProperties::ACTIVATE_ACCOUNT)
         );
-        $activate->setChecked($this->origin->properties()->get(IUserProperties::ACTIVATE_ACCOUNT));
+        $activate->setChecked((bool)$this->origin->properties()->get(IUserProperties::ACTIVATE_ACCOUNT));
         $this->addItem($activate);
         //
         $cb = new ilCheckboxInputGUI(
             ilHub2Plugin::getInstance()->txt('usr_prop_create_password'),
             $this->prop(IUserProperties::CREATE_PASSWORD)
         );
-        $cb->setChecked($this->origin->properties()->get(IUserProperties::CREATE_PASSWORD));
+        $cb->setChecked((bool)$this->origin->properties()->get(IUserProperties::CREATE_PASSWORD));
         $this->addItem($cb);
         $send_password = new ilCheckboxInputGUI(
             ilHub2Plugin::getInstance()->txt('usr_prop_send_password'),
             $this->prop(IUserProperties::SEND_PASSWORD)
         );
-        $send_password->setChecked($this->origin->properties()->get(IUserProperties::SEND_PASSWORD));
+        $send_password->setChecked((bool)$this->origin->properties()->get(IUserProperties::SEND_PASSWORD));
         //		$syncfield = new ilSelectInputGUI(ilHub2Plugin::getInstance()->txt('usr_prop_send_password_field'), $this->prop(UserOriginProperties::SEND_PASSWORD_FIELD));
         //		$opt = array('email'            => 'email',
         //		             'external_account' => 'external_account',
@@ -104,15 +105,13 @@ class UserOriginConfigFormGUI extends OriginConfigFormGUI
         //		$activate->addSubItem($syncfield);
 
         $subject = new ilTextInputGUI(
-            ilHub2Plugin::getInstance()
-                                          ->translate('usr_prop_password_mail_subject'),
+            ilHub2Plugin::getInstance()->txt('usr_prop_password_mail_subject'),
             $this->prop(IUserProperties::PASSWORD_MAIL_SUBJECT)
         );
         $subject->setValue($this->origin->properties()->get(IUserProperties::PASSWORD_MAIL_SUBJECT));
         $send_password->addSubItem($subject);
         $mail_body = new ilTextareaInputGUI(
-            ilHub2Plugin::getInstance()
-                                                ->translate('usr_prop_password_mail_body'),
+            ilHub2Plugin::getInstance()->txt('usr_prop_password_mail_body'),
             $this->prop(IUserProperties::PASSWORD_MAIL_BODY)
         );
         $mail_body->setInfo(ilHub2Plugin::getInstance()->txt('usr_prop_password_mail_placeholders') . ': [LOGIN], [PASSWORD]');
@@ -121,12 +120,10 @@ class UserOriginConfigFormGUI extends OriginConfigFormGUI
         $mail_body->setValue($this->origin->properties()->get(IUserProperties::PASSWORD_MAIL_BODY));
         $send_password->addSubItem($mail_body);
         $mail_date_format = new ilTextInputGUI(
-            ilHub2Plugin::getInstance()
-                                                   ->translate('usr_prop_password_mail_date_format'),
+            ilHub2Plugin::getInstance()->txt('usr_prop_password_mail_date_format'),
             $this->prop(IUserProperties::PASSWORD_MAIL_DATE_FORMAT)
         );
-        $mail_date_format->setInfo('<a target=\'_blank\' href=\'http://php.net/manual/de/function.date.php\'>' . htmlspecialchars(ilHub2Plugin::getInstance()
-                                                                                                                                      ->translate('usr_prop_password_mail_date_format_info')) . '</a>');
+        $mail_date_format->setInfo('<a target=\'_blank\' href=\'http://php.net/manual/de/function.date.php\'>' . htmlspecialchars(ilHub2Plugin::getInstance()->txt('usr_prop_password_mail_date_format_info')) . '</a>');
         $mail_date_format->setValue($this->origin->properties()->get(IUserProperties::PASSWORD_MAIL_DATE_FORMAT));
         $send_password->addSubItem($mail_date_format);
         $this->addItem($send_password);
@@ -144,7 +141,7 @@ class UserOriginConfigFormGUI extends OriginConfigFormGUI
             $this->prop(IUserProperties::REACTIVATE_ACCOUNT)
         );
         $activate->setInfo(ilHub2Plugin::getInstance()->txt('usr_prop_reactivate_account_info'));
-        $activate->setChecked($this->origin->properties()->get(IUserProperties::REACTIVATE_ACCOUNT));
+        $activate->setChecked((bool)$this->origin->properties()->get(IUserProperties::REACTIVATE_ACCOUNT));
         $this->addItem($activate);
 
         $activate = new ilCheckboxInputGUI(
@@ -152,7 +149,7 @@ class UserOriginConfigFormGUI extends OriginConfigFormGUI
             $this->prop(IUserProperties::RE_SEND_PASSWORD)
         );
         $activate->setInfo(ilHub2Plugin::getInstance()->txt('usr_prop_resend_password_info'));
-        $activate->setChecked($this->origin->properties()->get(IUserProperties::RE_SEND_PASSWORD));
+        $activate->setChecked((bool)$this->origin->properties()->get(IUserProperties::RE_SEND_PASSWORD));
         $this->addItem($activate);
     }
 
@@ -169,20 +166,20 @@ class UserOriginConfigFormGUI extends OriginConfigFormGUI
         );
         $opt = new ilRadioOption(
             ilHub2Plugin::getInstance()->txt('usr_prop_delete_mode_none'),
-            IUserProperties::DELETE_MODE_NONE
+            (string) IUserProperties::DELETE_MODE_NONE
         );
         $delete->addOption($opt);
         $opt = new ilRadioOption(
             ilHub2Plugin::getInstance()->txt('usr_prop_delete_mode_inactive'),
-            IUserProperties::DELETE_MODE_INACTIVE
+            (string) IUserProperties::DELETE_MODE_INACTIVE
         );
         $delete->addOption($opt);
         $opt = new ilRadioOption(
             ilHub2Plugin::getInstance()->txt('usr_prop_delete_mode_delete'),
-            IUserProperties::DELETE_MODE_DELETE
+            (string) IUserProperties::DELETE_MODE_DELETE
         );
         $delete->addOption($opt);
-        $delete->setValue($this->origin->properties()->get(IUserProperties::DELETE));
+        $delete->setValue((string)$this->origin->properties()->get(IUserProperties::DELETE));
         $this->addItem($delete);
     }
 }

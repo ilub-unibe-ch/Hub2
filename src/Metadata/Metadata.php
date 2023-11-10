@@ -42,6 +42,7 @@ class Metadata implements IMetadata
     /**
      * Metadata constructor
      * @param int $identifier
+     * @param int $record_id
      */
     public function __construct(int $identifier, int $record_id = self::DEFAULT_RECORD_ID)
     {
@@ -52,7 +53,7 @@ class Metadata implements IMetadata
     /**
      * @inheritdoc
      */
-    public function setValue(string $value): IMetadata
+    public function setValue($value): IMetadata
     {
         $this->value = $value;
 
@@ -80,9 +81,9 @@ class Metadata implements IMetadata
     /**
      * @inheritdoc
      */
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
-        return $this->identifier;
+        return (string)$this->identifier;
     }
 
     /**

@@ -18,8 +18,6 @@ declare(strict_types=1);
 namespace srag\Plugins\Hub2\Config;
 
 use ilHub2Plugin;
-use srag\ActiveRecordConfig\Hub2\ActiveRecordConfig;
-
 
 /**
  * Class ArConfig
@@ -28,8 +26,6 @@ use srag\ActiveRecordConfig\Hub2\ActiveRecordConfig;
  */
 class ArConfig extends ActiveRecordConfig
 {
-    use Hub2Trait;
-
     public const TABLE_NAME = 'sr_hub2_config_n';
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
     public const KEY_ORIGIN_IMPLEMENTATION_PATH = 'origin_implementation_path';
@@ -48,7 +44,7 @@ class ArConfig extends ActiveRecordConfig
     /**
      * @var array
      */
-    protected static $fields = [
+    protected static array $fields = [
         self::KEY_ORIGIN_IMPLEMENTATION_PATH => self::TYPE_STRING,
         self::KEY_SHORTLINK_OBJECT_NOT_FOUND => self::TYPE_STRING,
         self::KEY_SHORTLINK_OBJECT_NOT_ACCESSIBLE => self::TYPE_STRING,
@@ -63,22 +59,4 @@ class ArConfig extends ActiveRecordConfig
         self::KEY_GLOBAL_HOCK_CLASS => self::TYPE_STRING,
         self::KEY_KEEP_OLD_LOGS_TIME => [self::TYPE_INTEGER, 7]
     ];
-
-    /**
-     * @inheritdoc
-     * @deprecated TODO: Only because no functional PHP code in static array supported!
-     */
-    protected static function getDefaultValue(/*string*/
-        $name, /*int*/
-        $type,
-        $default_value
-    ) {
-        switch ($name) {
-            case self::KEY_ORIGIN_IMPLEMENTATION_PATH:
-                return dirname(__DIR__, 2) . '/origins/';
-
-            default:
-                return $default_value;
-        }
-    }
 }

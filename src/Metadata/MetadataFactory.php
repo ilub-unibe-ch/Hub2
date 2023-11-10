@@ -28,7 +28,8 @@ class MetadataFactory implements IMetadataFactory
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
 
     /**
-     * @param int $id
+     * @param string $ilas_id
+     * @param int    $record_id
      * @return IMetadata
      */
     public function getDTOWithIliasId(string $ilas_id, int $record_id = IMetadata::DEFAULT_RECORD_ID): IMetadata

@@ -41,7 +41,7 @@ trait TaxonomySyncProcessor
     public function handleTaxonomies(ITaxonomyAwareDataTransferObject $dto, ilObject $object)
     {
         if (count($dto->getTaxonomies()) > 0) {
-            ilContainer::_writeContainerSetting($object->getId(), ilObjectServiceSettingsGUI::TAXONOMIES, 1);
+            ilContainer::_writeContainerSetting($object->getId(), ilObjectServiceSettingsGUI::TAXONOMIES, "1");
 
             $f = new TaxonomyImplementationFactory();
             foreach ($dto->getTaxonomies() as $taxonomy) {

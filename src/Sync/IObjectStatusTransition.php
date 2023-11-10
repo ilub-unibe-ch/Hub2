@@ -22,12 +22,6 @@ namespace srag\Plugins\Hub2\Sync;
 
 use srag\Plugins\Hub2\Object\IObject;
 
-/**
- * Interface IObjectStatus
- * @package srag\Plugins\Hub2\Sync
- * @author  Fabian Schmid <fs@studer-raimann.ch>
- * @deprecated
- */
 interface IObjectStatusTransition
 {
     /**

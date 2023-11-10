@@ -27,29 +27,11 @@ use srag\Plugins\Hub2\Sync\Processor\FakeIliasMembershipObject;
  */
 class GroupMembershipDTO extends DataTransferObject implements IGroupMembershipDTO
 {
-    /**
-     * @var int
-     */
-    protected int $ilias_group_ref_id;
-    /**
-     * @var int
-     */
+    protected ?int $ilias_group_ref_id = null;
     protected int $user_id;
-    /**
-     * @var
-     */
     protected int $role = self::ROLE_MEMBER;
-    /**
-     * @var string
-     */
     protected string $groupId;
-    /**
-     * @var int
-     */
     protected int $groupIdType;
-    /**
-     * @var bool
-     */
     protected bool $isContact = false;
 
     /**
@@ -131,7 +113,7 @@ class GroupMembershipDTO extends DataTransferObject implements IGroupMembershipD
      * @param mixed $role
      * @return GroupMembershipDTO
      */
-    public function setRole(mixed $role): GroupMembershipDTO
+    public function setRole($role): GroupMembershipDTO
     {
         $this->role = $role;
 

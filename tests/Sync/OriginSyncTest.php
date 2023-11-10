@@ -63,7 +63,7 @@ class OriginSyncTest extends AbstractHub2Tests
      */
     protected $originConfig;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->originImplementation = Mockery::mock(IOriginImplementation::class);
         $this->originImplementation->shouldReceive('beforeSync')->once();
@@ -75,7 +75,7 @@ class OriginSyncTest extends AbstractHub2Tests
         $this->statusTransition = Mockery::mock(IObjectStatusTransition::class);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         Mockery::close();
     }
@@ -90,9 +90,7 @@ class OriginSyncTest extends AbstractHub2Tests
             $this->origin,
             $this->repository,
             $this->factory,
-            $this->processor,
-            $this->statusTransition,
-            $this->originImplementation
+            $this->processor
         );
         $this->expectException(ConnectionFailedException::class);
         $originSync->execute();
@@ -131,9 +129,7 @@ class OriginSyncTest extends AbstractHub2Tests
             $this->origin,
             $this->repository,
             $this->factory,
-            $this->processor,
-            $this->statusTransition,
-            $this->originImplementation
+            $this->processor
         );
         $this->expectException(AbortOriginSyncException::class);
         $originSync->execute();
@@ -161,9 +157,7 @@ class OriginSyncTest extends AbstractHub2Tests
             $this->origin,
             $this->repository,
             $this->factory,
-            $this->processor,
-            $this->statusTransition,
-            $this->originImplementation
+            $this->processor
         );
         $originSync->execute();
         $this->assertEquals(100, $originSync->getCountDelivered());
@@ -210,9 +204,7 @@ class OriginSyncTest extends AbstractHub2Tests
             $this->origin,
             $this->repository,
             $this->factory,
-            $this->processor,
-            $this->statusTransition,
-            $this->originImplementation
+            $this->processor
         );
         $originSync->execute();
         $this->assertEquals(4, $originSync->getCountDelivered());
@@ -221,7 +213,6 @@ class OriginSyncTest extends AbstractHub2Tests
         $this->assertEquals(1, $originSync->getCountProcessedByStatus(IObject::STATUS_UPDATED));
         $this->assertEquals(1, $originSync->getCountProcessedByStatus(IObject::STATUS_OUTDATED));
         $this->assertEquals(1, $originSync->getCountProcessedByStatus(IObject::STATUS_IGNORED));
-        //$this->assertEquals([], $originSync->getLogs());
     }
 
     public function test_that_any_exception_during_processing_is_forwarded_to_the_origin_implementation()
@@ -233,7 +224,7 @@ class OriginSyncTest extends AbstractHub2Tests
         $this->originConfig->shouldReceive('getCheckAmountData')->andReturn(false);
         $this->repository->shouldReceive('count');
         $this->origin->shouldReceive('getObjectType')->andReturn('user');
-        $this->originImplementation->shouldReceive('buildObjects')->andReturn([new UserDTO(1)]);
+        $this->originImplementation->shouldReceive('buildObjects')->andReturn([new UserDTO("1")]);
         $this->statusTransition->shouldReceive('finalToIntermediate');
         $userMock = Mockery::mock(IUser::class);
         $userMock->shouldReceive('setDeliveryDate', 'setStatus');

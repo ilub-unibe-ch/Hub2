@@ -34,6 +34,16 @@ use srag\Plugins\Hub2\Sync\Processor\IObjectSyncProcessor;
  */
 class ByImportId extends AMappingStrategy implements IMappingStrategy
 {
+    protected \ilDBInterface $database;
+    protected \ilTree $tree;
+
+    public function __construct()
+    {
+        global $DIC;
+
+        $this->database = $DIC->database();
+        $this->tree = $DIC->repositoryTree();
+    }
     /**
      * @inheritdoc
      */
@@ -68,8 +78,8 @@ class ByImportId extends AMappingStrategy implements IMappingStrategy
                 throw new HubException("Cannot find import id for type=" . get_class($dto) . ",ext_id=" . $dto->getExtId() . "!");
         }
 
-        $result = self::dic()->database()->queryF(
-            'SELECT obj_id FROM object_data WHERE type=%s AND ' . self::dic()->database()
+        $result = $this->database->queryF(
+            'SELECT obj_id FROM object_data WHERE type=%s AND ' . $this->database
                                                                                                             ->like(
                                                                                                                 "import_id",
                                                                                                                 "text",

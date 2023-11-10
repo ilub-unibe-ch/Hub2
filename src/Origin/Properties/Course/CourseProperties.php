@@ -30,9 +30,6 @@ use srag\Plugins\Hub2\Origin\Properties\OriginProperties;
  */
 class CourseProperties extends OriginProperties implements ICourseProperties
 {
-    /**
-     * @var array
-     */
     public static array $mail_notification_placeholder = [
         'title',
         'description',
@@ -56,7 +53,7 @@ class CourseProperties extends OriginProperties implements ICourseProperties
     /**
      * @var array
      */
-    protected $data = [
+    protected array $data = [
         self::SET_ONLINE => false,
         self::SET_ONLINE_AGAIN => false,
         self::CREATE_ICON => false,

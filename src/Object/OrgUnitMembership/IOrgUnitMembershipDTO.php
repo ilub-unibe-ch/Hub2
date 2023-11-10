@@ -52,7 +52,7 @@ interface IOrgUnitMembershipDTO extends IDataTransferObject
      * @param int|string $org_unit_id
      * @return IOrgUnitMembershipDTO
      */
-    public function setOrgUnitId(int|string $org_unit_id): IOrgUnitMembershipDTO;
+    public function setOrgUnitId($org_unit_id): IOrgUnitMembershipDTO;
 
     /**
      * @return int

@@ -26,6 +26,7 @@ use ilRadioOption;
 use srag\Plugins\Hub2\Origin\Session\ARSessionOrigin;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
 use srag\Plugins\Hub2\Origin\Properties\Session\ISessionProperties;
+use ilHub2Plugin;
 
 /**
  * Class SessionOriginConfigFormGUI
@@ -38,22 +39,6 @@ class SessionOriginConfigFormGUI extends OriginConfigFormGUI
      * @var ARSessionOrigin
      */
     protected \srag\Plugins\Hub2\Origin\IOrigin $origin;
-
-    /**
-     * @inheritdoc
-     */
-    protected function addSyncConfig()
-    {
-        parent::addSyncConfig();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function addPropertiesNew()
-    {
-        parent::addPropertiesNew();
-    }
 
     /**
      * @inheritdoc
@@ -86,19 +71,19 @@ class SessionOriginConfigFormGUI extends OriginConfigFormGUI
 
         $opt = new ilRadioOption(
             ilHub2Plugin::getInstance()->txt('sess_prop_delete_mode_none'),
-            ISessionProperties::DELETE_MODE_NONE
+            (string) ISessionProperties::DELETE_MODE_NONE
         );
         $delete->addOption($opt);
 
         $opt = new ilRadioOption(
             ilHub2Plugin::getInstance()->txt('sess_prop_delete_mode_delete'),
-            ISessionProperties::DELETE_MODE_DELETE
+            (string) ISessionProperties::DELETE_MODE_DELETE
         );
         $delete->addOption($opt);
 
         $opt = new ilRadioOption(
             ilHub2Plugin::getInstance()->txt('sess_prop_delete_mode_trash'),
-            ISessionProperties::DELETE_MODE_MOVE_TO_TRASH
+            (string) ISessionProperties::DELETE_MODE_MOVE_TO_TRASH
         );
         $delete->addOption($opt);
 

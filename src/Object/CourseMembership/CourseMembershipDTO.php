@@ -42,31 +42,17 @@ class CourseMembershipDTO extends DataTransferObject implements ICourseMembershi
     public const ROLE_ADMIN = 1;
     public const COURSE_ID_TYPE_REF_ID = 1;
     public const COURSE_ID_TYPE_EXTERNAL_EXT_ID = 2;
-    /**
-     * @var int
-     */
+
     protected int $courseIdType = self::COURSE_ID_TYPE_REF_ID;
-    /**
-     * @var int
-     */
-    protected $courseId;
-    /**
-     * @var int
-     */
+    protected string $courseId;
     protected int $userId;
-    /**
-     * @var int
-     */
     protected int $role = self::ROLE_MEMBER;
-    /**
-     * @var bool
-     */
     protected bool $isContact = false;
 
     /**
      * @return int
      */
-    public function getCourseId(): int
+    public function getCourseId(): string
     {
         return $this->courseId;
     }
@@ -75,7 +61,7 @@ class CourseMembershipDTO extends DataTransferObject implements ICourseMembershi
      * @param int $courseId
      * @return CourseMembershipDTO
      */
-    public function setCourseId(int $courseId): CourseMembershipDTO
+    public function setCourseId(string $courseId): CourseMembershipDTO
     {
         $this->courseId = $courseId;
 
@@ -101,10 +87,7 @@ class CourseMembershipDTO extends DataTransferObject implements ICourseMembershi
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getRole()
+    public function getRole(): int
     {
         return $this->role;
     }
@@ -113,7 +96,7 @@ class CourseMembershipDTO extends DataTransferObject implements ICourseMembershi
      * @param mixed $role
      * @return CourseMembershipDTO
      */
-    public function setRole(mixed $role): CourseMembershipDTO
+    public function setRole($role): CourseMembershipDTO
     {
         $this->role = $role;
 

@@ -70,6 +70,7 @@ class TaxonomyCreate extends AbstractTaxonomy implements ITaxonomyImplementation
 
     /**
      * @param INode $nodeDTO
+     * @param int   $parent_id
      */
     private function createNode(INode $nodeDTO, $parent_id = 0)
     {

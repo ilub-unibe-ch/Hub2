@@ -38,7 +38,7 @@ class TaxonomyImplementationFactory implements ITaxonomyImplementationFactory
     /**
      * @inheritdoc
      */
-    public function taxonomy(ITaxonomy $Taxonomy, ilObject $ilias_object): ITaxonomyImplementation
+    public function taxonomy(ITaxonomy $Taxonomy, ilObject $ilias_object): ?ITaxonomyImplementation
     {
         switch ($Taxonomy->getMode()) {
             case ITaxonomy::MODE_CREATE:

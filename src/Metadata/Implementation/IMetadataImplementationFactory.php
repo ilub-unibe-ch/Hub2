@@ -32,14 +32,14 @@ interface IMetadataImplementationFactory
      * @param int       $ilias_id
      * @return IMetadataImplementation
      */
-    public function userDefinedField(IMetadata $metadata, int $ilias_id): IMetadataImplementation;
+    public function userDefinedField(IMetadata $metadata, string $ilias_id): IMetadataImplementation;
 
     /**
      * @param IMetadata $metadata
      * @param int       $ilias_id
      * @return IMetadataImplementation
      */
-    public function customMetadata(IMetadata $metadata, int $ilias_id): IMetadataImplementation;
+    public function customMetadata(IMetadata $metadata, string $ilias_id): IMetadataImplementation;
 
     /**
      * @param IMetadataAwareDataTransferObject $dto
@@ -50,6 +50,6 @@ interface IMetadataImplementationFactory
     public function getImplementationForDTO(
         IMetadataAwareDataTransferObject $dto,
         IMetadata $metadata,
-        int $ilias_id
+        string $ilias_id
     ): IMetadataImplementation;
 }

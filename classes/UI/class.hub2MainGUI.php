@@ -20,7 +20,7 @@ use srag\Plugins\Hub2\Config\ArConfig;
 use srag\Plugins\Hub2\Origin\OriginFactory;
 use srag\Plugins\Hub2\Origin\OriginRepository;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
-
+use Psr\Http\Message\RequestInterface;
 
 /**
  * Class MainGUI
@@ -39,13 +39,28 @@ class hub2MainGUI
     public const TAB_ORIGINS = 'tab_origins';
     public const TAB_CUSTOM_VIEWS = 'admin_tab_custom_views';
     public const CMD_INDEX = 'index';
+    protected ilObjUser $user;
+    protected RequestInterface $request;
+    protected ilRbacReview $rbac_review;
+    protected \ILIAS\DI\UIServices $ui;
+    protected ilToolbarGUI $toolbar;
+    protected ilTabsGUI $tabs;
+    protected ilCtrlInterface $ctrl;
 
     /**
      * MainGUI constructor
      */
     public function __construct()
     {
+        global $DIC;
 
+        $this->ctrl = $DIC->ctrl();
+        $this->tabs = $DIC->tabs();
+        $this->toolbar = $DIC->toolbar();
+        $this->ui = $DIC->ui();
+        $this->rbac_review = $DIC->rbac()->review();
+        $this->request = $DIC->http()->request();
+        $this->user = $DIC->user();
     }
 
     /**
@@ -64,12 +79,10 @@ class hub2MainGUI
                 $this->ctrl->forwardCommand(new hub2ConfigOriginsGUI());
                 break;
             case strtolower(hub2CustomViewGUI::class):
-                self::dic()->tabs()->activateTab(self::TAB_CUSTOM_VIEWS);
+                $this->tabs->activateTab(self::TAB_CUSTOM_VIEWS);
                 $this->ctrl->forwardCommand(new hub2CustomViewGUI());
                 break;
             case strtolower(hub2DataGUI::class):
-            case strtolower(hub2LogsGUI::class):
-                break;
             default:
                 $cmd = $this->ctrl->getCmd(self::CMD_INDEX);
                 $this->{$cmd}();
@@ -89,18 +102,18 @@ class hub2MainGUI
      */
     protected function initTabs()/*: void*/
     {
-        self::dic()->tabs()->addTab(
+        $this->tabs->addTab(
             self::TAB_PLUGIN_CONFIG,
             ilHub2Plugin::getInstance()->txt(self::TAB_PLUGIN_CONFIG),
             $this->ctrl
                 ->getLinkTargetByClass(hub2ConfigGUI::class)
         );
 
-        self::dic()->tabs()->addTab(self::TAB_ORIGINS, ilHub2Plugin::getInstance()->txt(self::TAB_ORIGINS), $this->ctrl
+        $this->tabs->addTab(self::TAB_ORIGINS, ilHub2Plugin::getInstance()->txt(self::TAB_ORIGINS), $this->ctrl
                                                                                                          ->getLinkTargetByClass(hub2ConfigOriginsGUI::class));
 
         if (ArConfig::getField(ArConfig::KEY_CUSTOM_VIEWS_ACTIVE)) {
-            self::dic()->tabs()->addTab(
+            $this->tabs->addTab(
                 self::TAB_CUSTOM_VIEWS,
                 ilHub2Plugin::getInstance()->txt(self::TAB_CUSTOM_VIEWS),
                 $this->ctrl
@@ -129,7 +142,6 @@ class hub2MainGUI
                 INPUT_GET,
                 hub2ConfigOriginsGUI::ORIGIN_ID
             )))
-        ))->getILIASFileRepositorySelector()
-                                                    ->handleExplorerCommand();
+        ))->getILIASFileRepositorySelector()->handleExplorerCommand();
     }
 }

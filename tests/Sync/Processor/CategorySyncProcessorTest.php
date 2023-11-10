@@ -10,7 +10,6 @@ use srag\Plugins\Hub2\Object\IObject;
 use srag\Plugins\Hub2\Origin\Config\Category\CategoryOriginConfig;
 use srag\Plugins\Hub2\Origin\Properties\Category\CategoryProperties;
 use srag\Plugins\Hub2\Sync\Processor\Category\CategorySyncProcessor;
-use srag\Plugins\Hub2\Sync\Processor\Category\ICategoryActivities;
 use srag\Plugins\Hub2\Sync\Processor\Category\ICategorySyncProcessor;
 use srag\Plugins\Hub2\Object\Category\ICategoryDTO;
 
@@ -50,7 +49,6 @@ class CategorySyncProcessorTest extends AbstractSyncProcessorTests
      */
     protected function setUp(): void
     {
-        $this->activities = Mockery::mock(ICategoryActivities::class);
         $this->initOrigin(new CategoryProperties(), new CategoryOriginConfig([]));
         $this->setupGeneralDependencies();
         $this->initHubObject();

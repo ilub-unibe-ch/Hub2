@@ -3,28 +3,38 @@
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
+ *
  * ILIAS is licensed with the GPL-3.0,
  * see https://www.gnu.org/licenses/gpl-3.0.en.html
  * You should have received a copy of said license along with the
  * source code, too.
+ *
  * If this is not the case or you just want to try ILIAS, you'll find
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
+ *
  *********************************************************************/
 
 declare(strict_types=1);
 
+namespace srag\Plugins\Hub2\FileDrop\ResourceStorage;
 
-use srag\RemovePluginDataConfirm\Hub2\AbstractRemovePluginDataConfirm;
 
 /**
- * Class hub2RemoveDataConfirm
- * @ilCtrl_isCalledBy hub2RemoveDataConfirm: ilUIPluginRouterGUI
+ * Class Factory
+ *
+ * @author Fabian Schmid <fabian@sr.solutions>
  */
-class hub2RemoveDataConfirm extends AbstractRemovePluginDataConfirm
+class Factory
 {
-    use Hub2Trait;
+    public function storage(): ResourceStorage
+    {
+        return new ResourceStorage7();
+    }
 
-    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public function stakeholder(): \srag\Plugins\Hub2\FileDrop\ResourceStorage\Stakeholder7
+    {
+        return new Stakeholder7();
+    }
 }

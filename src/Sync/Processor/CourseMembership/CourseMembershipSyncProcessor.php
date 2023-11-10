@@ -35,6 +35,7 @@ use srag\Plugins\Hub2\Sync\IObjectStatusTransition;
 use srag\Plugins\Hub2\Sync\Processor\FakeIliasMembershipObject;
 use srag\Plugins\Hub2\Sync\Processor\ObjectSyncProcessor;
 use srag\Plugins\Hub2\Origin\Properties\CourseMembership\ICourseMembershipProperties;
+use ilParticipants;
 
 /**
  * Class CourseMembershipSyncProcessor
@@ -92,9 +93,9 @@ class CourseMembershipSyncProcessor extends ObjectSyncProcessor implements ICour
      * @inheritdoc
      * @param CourseMembershipDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, string $iliasId)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
     {
-        $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($iliasId);
+        $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
         $ilias_course_ref_id = $obj->getContainerIdIlias();
         $user_id = $dto->getUserId();
         if (!$this->props->updateDTOProperty('role')) {
@@ -157,13 +158,11 @@ class CourseMembershipSyncProcessor extends ObjectSyncProcessor implements ICour
     {
         switch ($object->getRole()) {
             case CourseMembershipDTO::ROLE_ADMIN:
-                return IL_CRS_ADMIN;
+                return ilParticipants::IL_CRS_ADMIN;
             case CourseMembershipDTO::ROLE_TUTOR:
-                return IL_CRS_TUTOR;
-            case CourseMembershipDTO::ROLE_MEMBER:
-                return IL_CRS_MEMBER;
+                return ilParticipants::IL_CRS_TUTOR;
             default:
-                return IL_CRS_MEMBER;
+                return ilParticipants::IL_CRS_MEMBER;
         }
     }
 
@@ -180,7 +179,6 @@ class CourseMembershipSyncProcessor extends ObjectSyncProcessor implements ICour
             case CourseMembershipDTO::ROLE_TUTOR:
                 return $course->getDefaultTutorRole();
             case CourseMembershipDTO::ROLE_MEMBER:
-                return $course->getDefaultMemberRole();
             default:
                 return $course->getDefaultMemberRole();
         }

@@ -91,7 +91,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function user(string $ext_id)
+    public function user(string $ext_id): \srag\Plugins\Hub2\Object\User\IUser
     {
         $user = ARUser::find($this->getId($ext_id));
         if ($user === null) {
@@ -106,7 +106,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function course(string $ext_id)
+    public function course(string $ext_id): \srag\Plugins\Hub2\Object\Course\ICourse
     {
         $course = ARCourse::find($this->getId($ext_id));
         if ($course === null) {
@@ -121,7 +121,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function category(string $ext_id)
+    public function category(string $ext_id): \srag\Plugins\Hub2\Object\Category\ICategory
     {
         $category = ARCategory::find($this->getId($ext_id));
         if ($category === null) {
@@ -136,7 +136,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function group(string $ext_id)
+    public function group(string $ext_id): \srag\Plugins\Hub2\Object\Group\IGroup
     {
         $group = ARGroup::find($this->getId($ext_id));
         if ($group === null) {
@@ -151,7 +151,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function session(string $ext_id)
+    public function session(string $ext_id): \srag\Plugins\Hub2\Object\Session\ISession
     {
         $session = ARSession::find($this->getId($ext_id));
         if ($session === null) {
@@ -166,7 +166,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function courseMembership(string $ext_id)
+    public function courseMembership(string $ext_id): \srag\Plugins\Hub2\Object\CourseMembership\ICourseMembership
     {
         $course_membership = ARCourseMembership::find($this->getId($ext_id));
         if ($course_membership === null) {
@@ -181,7 +181,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function groupMembership(string $ext_id)
+    public function groupMembership(string $ext_id): \srag\Plugins\Hub2\Object\GroupMembership\IGroupMembership
     {
         $group_membership = ARGroupMembership::find($this->getId($ext_id));
         if ($group_membership === null) {
@@ -196,7 +196,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function sessionMembership(string $ext_id)
+    public function sessionMembership(string $ext_id): \srag\Plugins\Hub2\Object\SessionMembership\ISessionMembership
     {
         $session_membership = ARSessionMembership::find($this->getId($ext_id));
         if ($session_membership === null) {

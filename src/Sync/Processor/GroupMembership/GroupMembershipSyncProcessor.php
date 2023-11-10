@@ -35,6 +35,7 @@ use srag\Plugins\Hub2\Sync\IObjectStatusTransition;
 use srag\Plugins\Hub2\Sync\Processor\FakeIliasMembershipObject;
 use srag\Plugins\Hub2\Sync\Processor\ObjectSyncProcessor;
 use srag\Plugins\Hub2\Object\GroupMembership\IGroupMembershipDTO;
+use ilParticipants;
 
 /**
  * Class GroupMembershipSyncProcessor
@@ -93,9 +94,9 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
      * @inheritdoc
      * @param GroupMembershipDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, int $iliasId)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
     {
-        $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($iliasId);
+        $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
 
         $ilias_group_ref_id = $this->buildParentRefId($dto);
         $user_id = $dto->getUserId();
@@ -124,7 +125,7 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
     /**
      * @inheritdoc
      */
-    protected function handleDelete(int $ilias_id)/*: void*/
+    protected function handleDelete(string $ilias_id)/*: void*/
     {
         $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
 
@@ -153,7 +154,7 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
     protected function buildParentRefId(GroupMembershipDTO $dto): int
     {
         if ($dto->getGroupIdType() == IGroupMembershipDTO::PARENT_ID_TYPE_REF_ID) {
-            if (self::dic()->tree()->isInTree($dto->getGroupId())) {
+            if ($this->tree->isInTree((int)$dto->getGroupId())) {
                 return (int) $dto->getGroupId();
             }
             throw new HubException("Could not find the ref-ID of the parent group in the tree: '{$dto->getGroupId()}'");
@@ -167,10 +168,11 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
                 throw new HubException("Unable to lookup external parent ref-ID because there is no origin linked");
             }
             $originRepository = new OriginRepository();
-            $origin = array_pop(array_filter($originRepository->groups(), function ($origin) use ($linkedOriginId) {
+            $array = array_filter($originRepository->groups(), function ($origin) use ($linkedOriginId) {
                 /** @var IOrigin $origin */
                 return $origin->getId() == $linkedOriginId;
-            }));
+            });
+            $origin = array_pop($array);
             if ($origin === null) {
                 $msg = "The linked origin syncing group was not found, please check that the correct origin is linked";
                 throw new HubException($msg);
@@ -180,7 +182,7 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
             if (!$group->getILIASId()) {
                 throw new HubException("The linked group does not (yet) exist in ILIAS");
             }
-            if (!self::dic()->tree()->isInTree($group->getILIASId())) {
+            if (!$this->tree->isInTree((int)$group->getILIASId())) {
                 throw new HubException("Could not find the ref-ID of the parent group in the tree: '{$group->getILIASId()}'");
             }
 
@@ -198,11 +200,11 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
     {
         switch ($object->getRole()) {
             case IGroupMembershipDTO::ROLE_ADMIN:
-                return IL_GRP_ADMIN;
+                return ilParticipants::IL_GRP_ADMIN;
             case IGroupMembershipDTO::ROLE_MEMBER:
-                return IL_GRP_MEMBER;
+                return ilParticipants::IL_GRP_MEMBER;
             default:
-                return IL_CRS_MEMBER;
+                return ilParticipants::IL_CRS_MEMBER;
         }
     }
 
@@ -216,8 +218,6 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
         switch ($object->getRole()) {
             case IGroupMembershipDTO::ROLE_ADMIN:
                 return $group->getDefaultAdminRole();
-            case IGroupMembershipDTO::ROLE_MEMBER:
-                return $group->getDefaultMemberRole();
             default:
                 return $group->getDefaultMemberRole();
         }

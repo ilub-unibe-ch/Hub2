@@ -19,7 +19,6 @@ declare(strict_types=1);
 use srag\Plugins\Hub2\Config\ArConfig;
 use srag\Plugins\Hub2\UI\CustomView\BaseCustomViewGUI;
 
-
 /**
  * Class CustomViewGUI
  * @package srag\Plugins\Hub2\UI\CustomView
@@ -27,15 +26,17 @@ use srag\Plugins\Hub2\UI\CustomView\BaseCustomViewGUI;
  */
 class hub2CustomViewGUI
 {
-
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    protected \ILIAS\DI\UIServices $ui;
 
     /**
      * hub2CustomViewGUI constructor
      */
     public function __construct()
     {
+        global $DIC;
 
+        $this->ui = $DIC->ui();
     }
 
     /**
@@ -59,11 +60,12 @@ class hub2CustomViewGUI
             if (!($class instanceof BaseCustomViewGUI)) {
                 throw new Exception("Class " . $class_name . " is not an instance of BaseCustomViewGUI");
             }
+            $class->executeCommand();
         } catch (Throwable $e) {
-            ilUtil::sendInfo(ilHub2Plugin::getInstance()->txt("admin_custom_view_class_not_found_1") . " '"
+            throw $e;
+            $this->ui->mainTemplate()->setOnScreenMessage('info', ilHub2Plugin::getInstance()->txt("admin_custom_view_class_not_found_1") . " '"
                 . ArConfig::getField(ArConfig::KEY_CUSTOM_VIEWS_PATH) . "' " . ilHub2Plugin::getInstance()->txt("admin_custom_view_class_not_found_2")
                 . " Error: " . $e->getMessage());
         }
-        $class->executeCommand();
     }
 }

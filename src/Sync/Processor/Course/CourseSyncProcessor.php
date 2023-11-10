@@ -49,6 +49,7 @@ use srag\Plugins\Hub2\Sync\Processor\ObjectSyncProcessor;
 use srag\Plugins\Hub2\Sync\Processor\TaxonomySyncProcessor;
 use srag\Plugins\Hub2\Object\Course\ICourseDTO;
 use srag\Plugins\Hub2\Origin\Properties\Course\ICourseProperties;
+use ilCourseConstants;
 
 /**
  * Class CourseSyncProcessor
@@ -163,19 +164,8 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
         if ($dto->getDidacticTemplate() > 0) {
             $ilObjCourse->applyDidacticTemplate($dto->getDidacticTemplate());
         }
-        if ($dto->getIcon() !== '') {
-            $ilObjCourse->saveIcons($dto->getIcon());
-        }
         if ($this->props->get(ICourseProperties::SET_ONLINE)) {
             $ilObjCourse->setOfflineStatus(false);
-            //Does not exist in 5.4
-            //$ilObjCourse->setActivationType(IL_CRS_ACTIVATION_UNLIMITED);
-        }
-
-        if ($this->props->get(ICourseProperties::CREATE_ICON)) {
-            // TODO
-            //			$this->updateIcon($this->ilias_object);
-            //			$this->ilias_object->update();
         }
         if ($this->props->get(ICourseProperties::SEND_CREATE_NOTIFICATION)) {
             $this->sendMailNotifications($dto, $ilObjCourse);
@@ -184,7 +174,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
         $this->setNewsSetting($dto, $ilObjCourse);
 
         $this->setLanguage($dto, $ilObjCourse);
-        $ilObjCourse->enableSessionLimit($dto->isSessionLimitEnabled());
+        $ilObjCourse->enableSessionLimit((int)$dto->isSessionLimitEnabled());
 
         $ilObjCourse->update();
 
@@ -193,9 +183,6 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
         $this->handleAppointementsColor($ilObjCourse, $dto);
     }
 
-    /**
-     * @param IDataTransferObject $dto
-     */
     protected function handleOrdering(IDataTransferObject $dto, ilObjCourse $ilObjCourse)
     {
         $settings = new ilContainerSortingSettings($ilObjCourse->getId());
@@ -224,12 +211,12 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
     protected function getCloneOptions($source_id): array
     {
         $options = [];
-        foreach (self::dic()->tree()->getSubTree($root = self::dic()->tree()->getNodeData($source_id)) as $node) {
+        foreach ($this->tree->getSubTree($this->tree->getNodeData($source_id)) as $node) {
             if ($node['type'] == 'rolf') {
                 continue;
             }
 
-            if (self::dic()->objDefinition()->allowCopy($node['type'])) {
+            if ($this->object_definition->allowCopy($node['type'])) {
                 $options[$node['ref_id']] = ['type' => ilCopyWizardOptions::COPY_WIZARD_COPY];
             }
             // this should be a config
@@ -254,7 +241,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
         // Save wizard options
         $copy_id = ilCopyWizardOptions::_allocateCopyId();
         $wizard_options = ilCopyWizardOptions::_getInstance($copy_id);
-        $wizard_options->saveOwner(self::dic()->user()->getId());
+        $wizard_options->saveOwner($this->user->getId());
         $wizard_options->saveRoot($clone_source);
 
         // add entry for source container
@@ -283,11 +270,12 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
     protected function setLanguage(CourseDTO $dto, ilObjCourse $ilObjCourse)
     {
         $md_general = (new ilMD($ilObjCourse->getId()))->getGeneral();
+        $lng_ids = $md_general->getLanguageIds();
         //Note: this is terribly stupid, but the best (only) way if found to get to the
         //lang id of the primary language of some object. There seems to be multy lng
         //support however, not through the GUI. Maybe there is some bug in the generation
         //of the respective metadata form. See: initQuickEditForm() in ilMDEditorGUI
-        $language = $md_general->getLanguage(array_pop($md_general->getLanguageIds()));
+        $language = $md_general->getLanguage(array_pop($lng_ids));
         $language->setLanguage(new ilMDLanguageItem($dto->getLanguageCode()));
         $language->update();
     }
@@ -301,9 +289,9 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
         //There is some weird connection between subscription limitation type ond subscription type, see e.g. ilObjCourseGUI
         $ilObjCourse->setSubscriptionType($dto->getSubscriptionLimitationType());
         if ($dto->getSubscriptionLimitationType() == ICourseDTO::SUBSCRIPTION_TYPE_DEACTIVATED) {
-            $ilObjCourse->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_DEACTIVATED);
+            $ilObjCourse->setSubscriptionLimitationType(ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED);
         } else {
-            $ilObjCourse->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_UNLIMITED);
+            $ilObjCourse->setSubscriptionLimitationType(ilCourseConstants::IL_CRS_SUBSCRIPTION_UNLIMITED);
         }
     }
 
@@ -317,14 +305,10 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
         $ilObjCourse->setNewsBlockActivated($dto->getNewsSetting());
     }
 
-    /**
-     * @param CourseDTO $dto
-     */
     protected function sendMailNotifications(CourseDTO $dto, ilObjCourse $ilObjCourse)
     {
         $mail = new ilMimeMail();
-        $sender_factory = new ilMailMimeSenderFactory(self::dic()->settings());
-        $sender = null;
+        $sender_factory = new ilMailMimeSenderFactory($this->settings);
         if ($this->props->get(ICourseProperties::CREATE_NOTIFICATION_FROM)) {
             $sender = $sender_factory->userByEmailAddress($this->props->get(ICourseProperties::CREATE_NOTIFICATION_FROM));
         } else {
@@ -373,9 +357,9 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
      * @inheritdoc
      * @param CourseDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, string $iliasId)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
     {
-        $this->current_ilias_object = $ilObjCourse = $this->findILIASCourse($iliasId);
+        $this->current_ilias_object = $ilObjCourse = $this->findILIASCourse($ilias_id);
         if ($ilObjCourse === null) {
             return;
         }
@@ -393,15 +377,8 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
         if ($this->props->updateDTOProperty("didacticTemplate") && $dto->getDidacticTemplate() > 0) {
             $ilObjCourse->applyDidacticTemplate($dto->getDidacticTemplate());
         }
-        if ($this->props->updateDTOProperty("icon")) {
-            if ($dto->getIcon() !== '') {
-                $ilObjCourse->saveIcons($dto->getIcon());
-            } else {
-                $ilObjCourse->removeCustomIcon();
-            }
-        }
         if ($this->props->updateDTOProperty("enableSessionLimit")) {
-            $ilObjCourse->enableSessionLimit($dto->isSessionLimitEnabled());
+            $ilObjCourse->enableSessionLimit((int) $dto->isSessionLimitEnabled());
         }
         if ($this->props->updateDTOProperty("subscriptionLimitationType")) {
             $this->setSubscriptionType($dto, $ilObjCourse);
@@ -416,7 +393,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
         }
 
         if ($this->props->updateDTOProperty("enableSessionLimit")) {
-            $ilObjCourse->enableSessionLimit($dto->isSessionLimitEnabled());
+            $ilObjCourse->enableSessionLimit((int) $dto->isSessionLimitEnabled());
         }
 
         if ($this->props->get(ICourseProperties::MOVE_COURSE)) {
@@ -442,7 +419,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
     protected function handleAppointementsColor(ilObjCourse $ilObjCourse, CourseDTO $dto)
     {
         if (!empty($dto->getAppointementsColor())) {
-            self::dic()->objDataCache()->deleteCachedEntry($ilObjCourse->getId());
+            $this->object_data_cache->deleteCachedEntry($ilObjCourse->getId());
             /**
              * @var $cal_cat ilCalendarCategory
              */
@@ -455,7 +432,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
     /**
      * @inheritdoc
      */
-    protected function handleDelete(int $ilias_id)/*: void*/
+    protected function handleDelete(string $ilias_id)/*: void*/
     {
         $this->current_ilias_object = $ilObjCourse = $this->findILIASCourse($ilias_id);
         if ($ilObjCourse === null) {
@@ -473,14 +450,14 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
                 $ilObjCourse->delete();
                 break;
             case ICourseProperties::DELETE_MODE_MOVE_TO_TRASH:
-                self::dic()->tree()->moveToTrash($ilObjCourse->getRefId(), true);
+                $this->tree->moveToTrash($ilObjCourse->getRefId(), true);
                 break;
             case ICourseProperties::DELETE_MODE_DELETE_OR_OFFLINE:
                 if ($this->courseActivities->hasActivities($ilObjCourse)) {
                     $ilObjCourse->setOfflineStatus(true);
                     $ilObjCourse->update();
                 } else {
-                    self::dic()->tree()->moveToTrash($ilObjCourse->getRefId(), true);
+                    $this->tree->moveToTrash($ilObjCourse->getRefId(), true);
                 }
                 break;
         }
@@ -494,13 +471,13 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
     protected function determineParentRefId(CourseDTO $course): int
     {
         if ($course->getParentIdType() == ICourseDTO::PARENT_ID_TYPE_REF_ID) {
-            if (self::dic()->tree()->isInTree($course->getParentId())) {
-                return $course->getParentId();
+            if ($this->tree->isInTree((int)$course->getParentId())) {
+                return (int)$course->getParentId();
             }
             // The ref-ID does not exist in the tree, use the fallback parent ref-ID according to the config
             $parentRefId = $this->config->getParentRefIdIfNoParentIdFound();
-            if (!self::dic()->tree()->isInTree($parentRefId)) {
-                throw new HubException("Could not find the fallback parent ref-ID in tree: '{$parentRefId}'");
+            if (!$this->tree->isInTree($parentRefId)) {
+                throw new HubException("Could not find the fallback parent ref-ID in tree: '$parentRefId'");
             }
 
             return $parentRefId;
@@ -514,10 +491,11 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
                 throw new HubException("Unable to lookup external parent ref-ID because there is no origin linked");
             }
             $originRepository = new OriginRepository();
-            $origin = array_pop(array_filter($originRepository->categories(), function ($origin) use ($linkedOriginId) {
+            $array = array_filter($originRepository->categories(), function ($origin) use ($linkedOriginId) {
                 /** @var IOrigin $origin */
                 return $origin->getId() == $linkedOriginId;
-            }));
+            });
+            $origin = array_pop($array);
             if ($origin === null) {
                 $msg = "The linked origin syncing categories was not found, please check that the correct origin is linked";
                 throw new HubException($msg);
@@ -528,11 +506,11 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
                 throw new HubException("The linked category (" . $category->getExtId() . ") does not (yet) exist in ILIAS for course: "
                     . $course->getExtId());
             }
-            if (!self::dic()->tree()->isInTree($category->getILIASId())) {
+            if (!$this->tree->isInTree((int)$category->getILIASId())) {
                 throw new HubException("Could not find the ref-ID of the parent category in the tree: '{$category->getILIASId()}'");
             }
 
-            return $category->getILIASId();
+            return (int)$category->getILIASId();
         }
 
         return 0;
@@ -584,17 +562,15 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
         // We use a cache for created dependence categories to save some SQL queries
         $cacheKey = hash("sha256", $title . $parentRefId . $level);
         if (isset($cache[$cacheKey])) {
-            return $cache[$cacheKey];
+            return (int)$cache[$cacheKey];
         }
-        $categories = self::dic()->tree()->getChildsByType($parentRefId, 'cat');
+        $categories = $this->tree->getChildsByType($parentRefId, 'cat');
         $matches = array_filter($categories, function ($category) use ($title) {
             return $category['title'] == $title;
         });
         if (count($matches) > 0) {
             $category = array_pop($matches);
-            $cache[$cacheKey] = $category['ref_id'];
-
-            return $category['ref_id'];
+            return (int)$category['ref_id'];
         }
         // No category with the given title found, create it!
         $importId = self::IMPORT_PREFIX . implode('_', [
@@ -610,7 +586,6 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
         $ilObjCategory->createReference();
         $ilObjCategory->putInTree($parentRefId);
         $ilObjCategory->setPermissions($parentRefId);
-        $cache[$cacheKey] = $ilObjCategory->getRefId();
 
         return $ilObjCategory->getRefId();
     }
@@ -638,15 +613,15 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
     {
         $parentRefId = $this->determineParentRefId($course);
         $parentRefId = $this->buildDependenceCategories($course, $parentRefId);
-        if (self::dic()->tree()->isDeleted($ilObjCourse->getRefId())) {
+        if ($this->tree->isDeleted($ilObjCourse->getRefId())) {
             $ilRepUtil = new ilRepUtil();
             $ilRepUtil->restoreObjects($parentRefId, [$ilObjCourse->getRefId()]);
         }
-        $oldParentRefId = self::dic()->tree()->getParentId($ilObjCourse->getRefId());
+        $oldParentRefId = $this->tree->getParentId($ilObjCourse->getRefId());
         if ($oldParentRefId == $parentRefId) {
             return;
         }
-        self::dic()->tree()->moveTree($ilObjCourse->getRefId(), $parentRefId);
-        self::dic()->rbacadmin()->adjustMovedObjectPermissions($ilObjCourse->getRefId(), $oldParentRefId);
+        $this->tree->moveTree($ilObjCourse->getRefId(), $parentRefId);
+        $this->rbac_admin->adjustMovedObjectPermissions($ilObjCourse->getRefId(), $oldParentRefId);
     }
 }

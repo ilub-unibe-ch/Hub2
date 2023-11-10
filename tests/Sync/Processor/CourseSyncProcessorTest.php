@@ -48,7 +48,7 @@ class CourseSyncProcessorTest extends AbstractSyncProcessorTests
     protected function initDTO()
     {
         $this->dto = new CourseDTO('extIdOfCourse');
-        $this->dto->setParentIdType(ICourseDTO::PARENT_ID_TYPE_REF_ID)->setParentId(1)->setDescription("Description")->setTitle("Title")
+        $this->dto->setParentIdType(ICourseDTO::PARENT_ID_TYPE_REF_ID)->setParentId("1")->setDescription("Description")->setTitle("Title")
                   ->setContactEmail("contact@email.com")->setContactResponsibility("Responsibility")->setImportantInformation("Important Information")
                   ->setNotificationEmails(["notification@email.com"])->setOwner(6)->setSubscriptionLimitationType(ICourseDTO::SUBSCRIPTION_TYPE_PASSWORD)
                   ->setViewMode(ICourseDTO::VIEW_MODE_BY_TYPE)->setContactName("Contact Name")->setSyllabus('Syllabus')
@@ -73,7 +73,7 @@ class CourseSyncProcessorTest extends AbstractSyncProcessorTests
     /**
      * Setup default mocks
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->activities = Mockery::mock(ICourseActivities::class);
 
@@ -84,7 +84,7 @@ class CourseSyncProcessorTest extends AbstractSyncProcessorTests
         $this->initDTO();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         Mockery::close();
     }

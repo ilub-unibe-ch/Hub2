@@ -88,7 +88,7 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
     protected function handleCreate(IDataTransferObject $dto)/*: void*/
     {
         $session_ref_id = $this->buildParentRefId($dto);
-        $ilObjSession = $this->findILIASObject($session_ref_id);
+        $ilObjSession = $this->findILIASObject((string) $session_ref_id);
         $this->handleMembership($ilObjSession, $dto);
         $this->handleContact($ilObjSession, $dto);
 
@@ -99,11 +99,11 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
      * @inheritdoc
      * @param SessionMembershipDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, int $iliasId)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
     {
-        $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($iliasId);
+        $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
 
-        $ilObjSession = $this->findILIASObject($obj->getContainerIdIlias());
+        $ilObjSession = $this->findILIASObject((string)$obj->getContainerIdIlias());
         $this->handleMembership($ilObjSession, $dto);
 
         $obj->setUserIdIlias($dto->getUserId());
@@ -118,25 +118,25 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
     /**
      * @inheritdoc
      */
-    protected function handleDelete(int $ilias_id)/*: void*/
+    protected function handleDelete(string $ilias_id)/*: void*/
     {
         $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
-        $ilObjSession = $this->findILIASObject($obj->getContainerIdIlias());
+        $ilObjSession = $this->findILIASObject((string)$obj->getContainerIdIlias());
         $this->removeMembership($ilObjSession, $obj->getUserIdIlias());
     }
 
     /**
-     * @param int $ilias_id
+     * @param string $ilias_id
      * @return ilObjSession
      * @throws HubException
      */
-    protected function findILIASObject(int $ilias_id): ilObjSession
+    protected function findILIASObject(string $ilias_id): ilObjSession
     {
-        if (!ilObject2::_exists($ilias_id, true)) {
+        if (!ilObject2::_exists((int)$ilias_id, true)) {
             throw new HubException("Session not found with ref_id {$ilias_id}");
         }
 
-        return new ilObjSession($ilias_id, true);
+        return new ilObjSession((int)$ilias_id, true);
     }
 
     /**
@@ -147,10 +147,10 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
     protected function buildParentRefId(SessionMembershipDTO $dto): int
     {
         if ($dto->getSessionIdType() == ISessionMembershipDTO::PARENT_ID_TYPE_REF_ID) {
-            if (self::dic()->tree()->isInTree($dto->getSessionId())) {
+            if ($this->tree->isInTree((int)$dto->getSessionId())) {
                 return (int) $dto->getSessionId();
             }
-            throw new HubException("Could not find the ref-ID of the parent session in the tree: '{$dto->getGroupId()}'");
+            throw new HubException("Could not find the ref-ID of the parent session in the tree: '{$dto->getExtId()}'");
         }
         if ($dto->getSessionIdType() == ISessionMembershipDTO::PARENT_ID_TYPE_EXTERNAL_EXT_ID) {
             // The stored parent-ID is an external-ID from a category.
@@ -161,10 +161,11 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
                 throw new HubException("Unable to lookup external parent ref-ID because there is no origin linked");
             }
             $originRepository = new OriginRepository();
-            $origin = array_pop(array_filter($originRepository->sessions(), function ($origin) use ($linkedOriginId) {
+            $array = array_filter($originRepository->sessions(), function ($origin) use ($linkedOriginId) {
                 /** @var IOrigin $origin */
                 return $origin->getId() == $linkedOriginId;
-            }));
+            });
+            $origin = array_pop($array);
             if ($origin === null) {
                 $msg = "The linked origin syncing sessions was not found, please check that the correct origin is linked";
                 throw new HubException($msg);
@@ -174,7 +175,7 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
             if (!$session->getILIASId()) {
                 throw new HubException("The linked session does not (yet) exist in ILIAS");
             }
-            if (!self::dic()->tree()->isInTree($session->getILIASId())) {
+            if (!$this->tree->isInTree((int)$session->getILIASId())) {
                 throw new HubException("Could not find the ref-ID of the parent session in the tree: '{$session->getILIASId()}'");
             }
 
@@ -233,16 +234,16 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
          * $ilSessionParticipants->getEventParticipants()->updateUser();
          */
         $event_id = $ilSessionParticipants->getEventParticipants()->getEventId();
-        $query = "UPDATE event_participants " . "SET contact = " . self::dic()->database()->quote(
+        $query = "UPDATE event_participants " . "SET contact = " . $this->database->quote(
             $dto->isContact(),
             'integer'
         ) . " "
-            . "WHERE event_id = " . self::dic()->database()->quote(
+            . "WHERE event_id = " . $this->database->quote(
                 $event_id,
                 'integer'
-            ) . " " . "AND usr_id = " . self::dic()->database()
+            ) . " " . "AND usr_id = " . $this->database
                                                          ->quote($user_id, 'integer') . " ";
-        self::dic()->database()->manipulate($query);
+        $this->database->manipulate($query);
     }
 
     /**

@@ -51,7 +51,7 @@ class SessionSyncProcessorTest extends AbstractSyncProcessorTests
     /**
      * Setup default mocks
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $arr = [
             'update_dto_title' => true,
@@ -65,7 +65,7 @@ class SessionSyncProcessorTest extends AbstractSyncProcessorTests
         $this->initDTO();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         Mockery::close();
     }
@@ -121,7 +121,7 @@ class SessionSyncProcessorTest extends AbstractSyncProcessorTests
     protected function initDTO()
     {
         $this->dto = new SessionDTO('extIdOfSession');
-        $this->dto->setParentId(1)->setParentIdType(ISessionDTO::PARENT_ID_TYPE_REF_ID)->setTitle('Title')->setDescription('Description')
+        $this->dto->setParentId("1")->setParentIdType(ISessionDTO::PARENT_ID_TYPE_REF_ID)->setTitle('Title')->setDescription('Description')
                   ->setLocation('Location');
     }
 

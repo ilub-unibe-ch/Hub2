@@ -22,7 +22,7 @@ use InvalidArgumentException;
 use srag\Plugins\Hub2\MappingStrategy\MappingStrategyAwareDataTransferObject;
 use srag\Plugins\Hub2\Object\DTO\DataTransferObject;
 use srag\Plugins\Hub2\Object\DTO\MetadataAwareDataTransferObject;
-use srag\ActiveRecordConfig\Hub2\Config\Config;
+use srag\Plugins\Hub2\Config\Config;
 
 /**
  * Class UserDTO
@@ -52,132 +52,45 @@ class UserDTO extends DataTransferObject implements IUserDTO
         self::AUTH_MODE_LDAP,
         self::AUTH_MODE_RADIUS,
     ];
-    /**
-     * @var string
-     */
+
     protected string $authMode = self::AUTH_MODE_ILIAS;
-    /**
-     * @var string
-     */
-    protected string $externalAccount;
-    /**
-     * @var string
-     */
-    protected string $passwd;
-    /**
-     * @var string
-     */
-    protected string $firstname;
-    /**
-     * @var string
-     */
-    protected string $lastname;
-    /**
-     * @var string
-     */
-    protected string $login;
-    /**
-     * @var string
-     */
-    protected string $title;
-    /**
-     * @var string
-     */
-    protected string $gender;
-    /**
-     * @var string
-     */
-    protected string $email;
-    /**
-     * @var string
-     */
-    protected string $emailPassword;
-    /**
-     * @var string
-     */
-    protected string $institution;
-    /**
-     * @var string
-     */
-    protected string $street;
-    /**
-     * @var string
-     */
-    protected string $city;
-    /**
-     * @var int
-     */
-    protected int $zipcode;
-    /**
-     * @var string
-     */
-    protected string $country;
-    /**
-     * @var string
-     */
-    protected string $selectedCountry;
-    /**
-     * @var string
-     */
-    protected string $phoneOffice;
-    /**
-     * @var string
-     */
-    protected string $department;
-    /**
-     * @var string
-     */
-    protected string $phoneHome;
-    /**
-     * @var string
-     */
-    protected string $phoneMobile;
-    /**
-     * @var string
-     */
-    protected string $fax;
-    /**
-     * @var int
-     */
-    protected int $timeLimitOwner;
-    /**
-     * @var bool
-     */
+    protected ?string $externalAccount = null;
+    protected ?string $passwd = null;
+    protected ?string $firstname = null;
+    protected ?string $lastname = null;
+    protected ?string $login = null;
+    protected ?string $title = null;
+    protected ?string $gender = null;
+    protected ?string $email = null;
+    protected ?string $emailPassword = null;
+    protected ?string $institution = null;
+    protected ?string $street = null;
+    protected ?string $city = null;
+    protected ?int $zipcode = null;
+    protected ?string $country = null;
+    protected ?string $selectedCountry = null;
+    protected ?string $phoneOffice = null;
+    protected ?string $department = null;
+    protected ?string $phoneHome = null;
+    protected ?string $phoneMobile = null;
+    protected ?string $fax = null;
+    protected ?int $timeLimitOwner = null;
     protected bool $timeLimitUnlimited = true;
-    /**
-     * @var string
-     */
-    protected string $timeLimitFrom;
-    /**
-     * @var string
-     */
-    protected string $timeLimitUntil;
-    /**
-     * @var string
-     */
-    protected string $matriculation;
-    /**
-     * @var string
-     */
-    protected string $birthday;
+    protected ?string $timeLimitFrom = null;
+    protected ?string $timeLimitUntil = null;
+    protected ?string $matriculation = null;
+    protected ?string $birthday = null;
     /**
      * @var array
      * @description usr_prop_ilias_roles_info
      */
     protected array $iliasRoles = [];
 
-    /**
-     * @return string
-     */
-    public function getPasswd(): string
+    public function getPasswd(): ?string
     {
         return $this->passwd;
     }
 
-    /**
-     * @param string $passwd
-     * @return UserDTO
-     */
     public function setPasswd(string $passwd): UserDTO
     {
         $this->passwd = $passwd;
@@ -185,18 +98,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getFirstname(): string
+    public function getFirstname(): ?string
     {
         return $this->firstname;
     }
 
-    /**
-     * @param string $firstname
-     * @return UserDTO
-     */
     public function setFirstname(string $firstname): UserDTO
     {
         $this->firstname = $firstname;
@@ -204,18 +110,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getLastname(): string
+    public function getLastname(): ?string
     {
         return $this->lastname;
     }
 
-    /**
-     * @param string $lastname
-     * @return UserDTO
-     */
     public function setLastname(string $lastname): UserDTO
     {
         $this->lastname = $lastname;
@@ -223,18 +122,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getLogin(): string
+    public function getLogin(): ?string
     {
         return $this->login;
     }
 
-    /**
-     * @param string $login
-     * @return UserDTO
-     */
     public function setLogin(string $login): UserDTO
     {
         $this->login = $login;
@@ -242,18 +134,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    /**
-     * @param string $title
-     * @return UserDTO
-     */
     public function setTitle(string $title): UserDTO
     {
         $this->title = $title;
@@ -261,18 +146,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getGender(): string
+    public function getGender(): ?string
     {
         return $this->gender;
     }
 
-    /**
-     * @param string $gender
-     * @return UserDTO
-     */
     public function setGender(string $gender): UserDTO
     {
         if (!in_array($gender, self::$genders)) {
@@ -283,18 +161,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    /**
-     * @param string $email
-     * @return UserDTO
-     */
     public function setEmail(string $email): UserDTO
     {
         $this->email = $email;
@@ -302,18 +173,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getEmailPassword(): string
+    public function getEmailPassword(): ?string
     {
         return $this->emailPassword;
     }
 
-    /**
-     * @param string $emailPassword
-     * @return UserDTO
-     */
     public function setEmailPassword(string $emailPassword): UserDTO
     {
         $this->emailPassword = $emailPassword;
@@ -321,18 +185,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getInstitution(): string
+    public function getInstitution(): ?string
     {
         return $this->institution;
     }
 
-    /**
-     * @param string $institution
-     * @return UserDTO
-     */
     public function setInstitution(string $institution): UserDTO
     {
         $this->institution = $institution;
@@ -340,18 +197,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getStreet(): string
+    public function getStreet(): ?string
     {
         return $this->street;
     }
 
-    /**
-     * @param string $street
-     * @return UserDTO
-     */
     public function setStreet(string $street): UserDTO
     {
         $this->street = $street;
@@ -359,18 +209,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getCity(): string
+    public function getCity(): ?string
     {
         return $this->city;
     }
 
-    /**
-     * @param string $city
-     * @return UserDTO
-     */
     public function setCity(string $city): UserDTO
     {
         $this->city = $city;
@@ -378,18 +221,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getZipcode(): int
+    public function getZipcode(): ?int
     {
         return $this->zipcode;
     }
 
-    /**
-     * @param int $zipcode
-     * @return UserDTO
-     */
     public function setZipcode(int $zipcode): UserDTO
     {
         $this->zipcode = $zipcode;
@@ -397,18 +233,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getCountry(): string
+    public function getCountry(): ?string
     {
         return $this->country;
     }
 
-    /**
-     * @param string $country
-     * @return UserDTO
-     */
     public function setCountry(string $country): UserDTO
     {
         $this->country = $country;
@@ -416,18 +245,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getSelectedCountry(): string
+    public function getSelectedCountry(): ?string
     {
         return $this->selectedCountry;
     }
 
-    /**
-     * @param string $selectedCountry
-     * @return UserDTO
-     */
     public function setSelectedCountry(string $selectedCountry): UserDTO
     {
         $this->selectedCountry = $selectedCountry;
@@ -435,18 +257,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getPhoneOffice(): string
+    public function getPhoneOffice(): ?string
     {
         return $this->phoneOffice;
     }
 
-    /**
-     * @param string $phoneOffice
-     * @return UserDTO
-     */
     public function setPhoneOffice(string $phoneOffice): UserDTO
     {
         $this->phoneOffice = $phoneOffice;
@@ -454,18 +269,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getDepartment(): string
+    public function getDepartment(): ?string
     {
         return $this->department;
     }
 
-    /**
-     * @param string $department
-     * @return UserDTO
-     */
     public function setDepartment(string $department): UserDTO
     {
         $this->department = $department;
@@ -473,18 +281,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getPhoneHome(): string
+    public function getPhoneHome(): ?string
     {
         return $this->phoneHome;
     }
 
-    /**
-     * @param string $phoneHome
-     * @return UserDTO
-     */
     public function setPhoneHome(string $phoneHome): UserDTO
     {
         $this->phoneHome = $phoneHome;
@@ -492,18 +293,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getPhoneMobile(): string
+    public function getPhoneMobile(): ?string
     {
         return $this->phoneMobile;
     }
 
-    /**
-     * @param string $phoneMobile
-     * @return UserDTO
-     */
     public function setPhoneMobile(string $phoneMobile): UserDTO
     {
         $this->phoneMobile = $phoneMobile;
@@ -511,18 +305,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getFax(): string
+    public function getFax(): ?string
     {
         return $this->fax;
     }
 
-    /**
-     * @param string $fax
-     * @return UserDTO
-     */
     public function setFax(string $fax): UserDTO
     {
         $this->fax = $fax;
@@ -530,18 +317,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getTimeLimitOwner(): int
+    public function getTimeLimitOwner(): ?int
     {
         return $this->timeLimitOwner;
     }
 
-    /**
-     * @param int $timeLimitOwner
-     * @return UserDTO
-     */
     public function setTimeLimitOwner(int $timeLimitOwner): UserDTO
     {
         $this->timeLimitOwner = $timeLimitOwner;
@@ -549,18 +329,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function getTimeLimitUnlimited(): bool
     {
         return $this->timeLimitUnlimited;
     }
 
-    /**
-     * @param bool $timeLimitUnlimited
-     * @return UserDTO
-     */
     public function setTimeLimitUnlimited(bool $timeLimitUnlimited): UserDTO
     {
         $this->timeLimitUnlimited = $timeLimitUnlimited;
@@ -568,18 +341,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getTimeLimitFrom(): string
+    public function getTimeLimitFrom(): ?string
     {
         return $this->timeLimitFrom;
     }
 
-    /**
-     * @param DateTime $timeLimitFrom
-     * @return UserDTO
-     */
     public function setTimeLimitFrom(DateTime $timeLimitFrom): UserDTO
     {
         $this->timeLimitFrom = $timeLimitFrom->format(Config::SQL_DATE_FORMAT);
@@ -587,18 +353,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getTimeLimitUntil(): string
+    public function getTimeLimitUntil(): ?string
     {
         return $this->timeLimitUntil;
     }
 
-    /**
-     * @param DateTime $timeLimitUntil
-     * @return UserDTO
-     */
     public function setTimeLimitUntil(DateTime $timeLimitUntil): UserDTO
     {
         $this->timeLimitUntil = $timeLimitUntil->format(Config::SQL_DATE_FORMAT);
@@ -606,18 +365,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getMatriculation(): string
+    public function getMatriculation(): ?string
     {
         return $this->matriculation;
     }
 
-    /**
-     * @param string $matriculation
-     * @return UserDTO
-     */
     public function setMatriculation(string $matriculation): UserDTO
     {
         $this->matriculation = $matriculation;
@@ -625,18 +377,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getBirthday(): string
+    public function getBirthday(): ?string
     {
         return $this->birthday;
     }
 
-    /**
-     * @param DateTime $birthday
-     * @return UserDTO
-     */
     public function setBirthday(DateTime $birthday): UserDTO
     {
         $this->birthday = $birthday->format(Config::SQL_DATE_FORMAT);
@@ -644,18 +389,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function getIliasRoles(): array
     {
         return $this->iliasRoles;
     }
 
-    /**
-     * @param array $iliasRoles
-     * @return UserDTO
-     */
     public function setIliasRoles(array $iliasRoles): UserDTO
     {
         $this->iliasRoles = $iliasRoles;
@@ -663,17 +401,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getAuthMode()
+    public function getAuthMode(): ?string
     {
         return $this->authMode;
     }
 
-    /**
-     * @param string $authMode
-     */
     public function setAuthMode(string $authMode): UserDTO
     {
         if (!in_array($authMode, self::$auth_modes)) {
@@ -684,18 +416,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getExternalAccount(): string
+    public function getExternalAccount(): ?string
     {
         return $this->externalAccount;
     }
 
-    /**
-     * @param string $externalAccount
-     * @return UserDTO $this
-     */
     public function setExternalAccount(string $externalAccount): UserDTO
     {
         $this->externalAccount = $externalAccount;

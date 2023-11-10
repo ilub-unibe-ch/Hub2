@@ -17,17 +17,16 @@
  *********************************************************************/
 
 declare(strict_types=1);
+
 namespace srag\Plugins\Hub2\Shortlink;
 
 use ilContext;
 use ilDBInterface;
 use ilHub2Plugin;
 use ilInitialisation;
-use ilUtil;
 
 use srag\Plugins\Hub2\Config\ArConfig;
 use srag\Plugins\Hub2\Exception\ShortlinkException;
-
 
 /**
  * Class Handler
@@ -38,6 +37,10 @@ class Handler
 {
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
     public const PLUGIN_BASE = "Customizing/global/plugins/Services/Cron/CronHook/Hub2/";
+    protected \ilCtrlInterface $ctrl;
+    protected \ILIAS\DI\UIServices $ui;
+    protected \ilObjUser $user;
+    protected ilDBInterface $database;
     /**
      * @var bool
      */
@@ -57,8 +60,14 @@ class Handler
      */
     public function __construct(string $ext_id)
     {
+        global $DIC;
+
         $this->init = false;
         $this->ext_id = $ext_id;
+        $this->database = $DIC->database();
+        $this->ctrl = $DIC->ctrl();
+        $this->ui = $DIC->ui();
+        $this->user = $DIC->user();
     }
 
     /**
@@ -74,7 +83,7 @@ class Handler
      */
     public function process()
     {
-        if (!$this->init || !self::dic()->database() instanceof ilDBInterface) {
+        if (!$this->init || !$this->database instanceof ilDBInterface) {
             throw new ShortlinkException("ILIAS not initialized, aborting...");
         }
 
@@ -110,7 +119,7 @@ class Handler
     protected function sendMessage(string $message)
     {
         if ($message !== '') {
-            ilUtil::sendInfo($message, true);
+            $this->ui->mainTemplate()->setOnScreenMessage('info', $message, true);
         }
     }
 
@@ -144,7 +153,7 @@ class Handler
         $a_id = ANONYMOUS_USER_ID;
         $ilAuthSession->setUserId($a_id);
         $ilAuthSession->setAuthenticated(false, $a_id);
-        self::dic()->user()->setId($a_id);
+        $this->user->setId($a_id);
 
         $this->init = true;
     }

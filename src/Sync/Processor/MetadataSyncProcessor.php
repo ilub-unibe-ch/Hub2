@@ -40,11 +40,11 @@ trait MetadataSyncProcessor
     {
         if (count($dto->getMetaData()) > 0) {
 
-            ilContainer::_writeContainerSetting($object->getId(), ilObjectServiceSettingsGUI::CUSTOM_METADATA, 1);
+            ilContainer::_writeContainerSetting($object->getId(), ilObjectServiceSettingsGUI::CUSTOM_METADATA, "1");
             $f = new MetadataImplementationFactory();
 
             foreach ($dto->getMetaData() as $metaDatum) {
-                $f->getImplementationForDTO($dto, $metaDatum, $object->getId())->write();
+                $f->getImplementationForDTO($dto, $metaDatum, (string) $object->getId())->write();
             }
         }
     }

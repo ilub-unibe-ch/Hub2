@@ -21,7 +21,6 @@ declare(strict_types=1);
 namespace srag\Plugins\Hub2\UI\Data;
 
 use hub2DataGUI;
-use hub2LogsGUI;
 use ilAdvancedSelectionListGUI;
 use ilCheckboxInputGUI;
 use ilExcel;
@@ -29,11 +28,8 @@ use ilFormPropertyGUI;
 use ilHub2Plugin;
 use ilSelectInputGUI;
 use ilTable2GUI;
-use ilTemplateException;
 use ilTextInputGUI;
-use ReflectionException;
 
-use srag\DIC\Hub2\Exception\DICException;
 use srag\Plugins\Hub2\Object\ARObject;
 use srag\Plugins\Hub2\Object\Category\ARCategory;
 use srag\Plugins\Hub2\Object\Course\ARCourse;
@@ -50,7 +46,7 @@ use srag\Plugins\Hub2\Origin\IOrigin;
 use srag\Plugins\Hub2\Origin\IOriginRepository;
 use srag\Plugins\Hub2\Origin\OriginFactory;
 use srag\Plugins\Hub2\Shortlink\ObjectLinkFactory;
-
+use ilTableFilterItem;
 
 /**
  * Class OriginsTableGUI
@@ -77,6 +73,8 @@ class DataTableGUI extends ilTable2GUI
         AROrgUnit::class,
         AROrgUnitMembership::class,
     ];
+    protected \ILIAS\DI\UIServices $ui;
+    protected \ilDBInterface $database;
     /**
      * @var ObjectLinkFactory
      */
@@ -105,6 +103,10 @@ class DataTableGUI extends ilTable2GUI
      */
     public function __construct(hub2DataGUI $a_parent_obj, $a_parent_cmd)
     {
+        global $DIC;
+        $this->database = $DIC->database();
+        $this->ui = $DIC->ui();
+
         $this->a_parent_obj = $a_parent_obj;
         $this->originFactory = new OriginFactory();
         $this->originLinkfactory = new ObjectLinkFactory();
@@ -130,7 +132,7 @@ class DataTableGUI extends ilTable2GUI
         $this->initTableData();
     }
 
-    public function initFilter()
+    public function initFilter(): void
     {
         $this->setDisableFilterHiding(true);
 
@@ -171,7 +173,7 @@ class DataTableGUI extends ilTable2GUI
     /**
      * @param ilFormPropertyGUI $item
      */
-    protected function addAndReadFilterItem(ilFormPropertyGUI $item)
+    protected function addAndReadFilterItem(ilTableFilterItem $item)
     {
         $this->addFilterItem($item);
         if ($this->hasSessionValue($item->getFieldId())) { // Supports filter default values
@@ -239,7 +241,7 @@ class DataTableGUI extends ilTable2GUI
         $order_by_query = " ORDER BY " . $order_field . " " . $this->getOrderDirection();
 
         $query = $union_query . $order_by_query;
-        $result = self::dic()->database()->query($query);
+        $result = $this->database->query($query);
         while ($row = $result->fetchRow()) {
             $data[] = $row;
         }
@@ -248,19 +250,10 @@ class DataTableGUI extends ilTable2GUI
         $this->setData($data);
     }
 
-    /**
-     * @param array $a_set
-     * @throws ReflectionException
-     * @throws ilTemplateException
-     * @throws DICException
-     */
-    protected function fillRow(array $a_set)
+    protected function fillRow(array $a_set): void
     {
         $this->ctrl->setParameter($this->parent_obj, self::F_EXT_ID, $a_set[self::F_EXT_ID]);
         $this->ctrl->setParameter($this->parent_obj, self::F_ORIGIN_ID, $a_set[self::F_ORIGIN_ID]);
-
-        $this->ctrl->setParameterByClass(hub2LogsGUI::class, self::F_EXT_ID, $a_set[self::F_EXT_ID]);
-        $this->ctrl->setParameterByClass(hub2LogsGUI::class, self::F_ORIGIN_ID, $a_set[self::F_ORIGIN_ID]);
 
         $origin = $this->originFactory->getById($a_set[self::F_ORIGIN_ID]);
 
@@ -290,37 +283,31 @@ class DataTableGUI extends ilTable2GUI
                     }
                     break;
                 default:
-                    $this->tpl->setVariable('VALUE', $value ? $value : "&nbsp;");
+                    $this->tpl->setVariable('VALUE', $value ?: "&nbsp;");
                     break;
             }
 
             $this->tpl->parseCurrentBlock();
         }
 
-        $modal = self::dic()->ui()->factory()->modal()->roundtrip(
+        $modal = $this->ui->factory()->modal()->roundtrip(
             $a_set[self::F_EXT_ID],
-            self::dic()->ui()->factory()->legacy('')
-        )
-                     ->withAsyncRenderUrl($this->ctrl->getLinkTarget(
-                         $this->parent_obj,
-                         'renderData',
-                         '',
-                         true
-                     ));
+            $this->ui->factory()->legacy('')
+        )->withAsyncRenderUrl($this->ctrl->getLinkTarget(
+            $this->parent_obj,
+            'renderData',
+            '',
+            true
+        ));
 
         $actions = new ilAdvancedSelectionListGUI();
         $actions->setListTitle(ilHub2Plugin::getInstance()->txt("data_table_header_actions"));
         $actions->addItem(ilHub2Plugin::getInstance()->txt("data_table_header_data"), "view");
-        $actions->addItem(ilHub2Plugin::getInstance()->txt("show_logs", hub2LogsGUI::LANG_MODULE_LOGS), "", $this->ctrl
-                                                                                                         ->getLinkTargetByClass(
-                                                                                                             [hub2LogsGUI::class,],
-                                                                                                             hub2LogsGUI::CMD_SHOW_LOGS_OF_EXT_ID
-                                                                                                         ));
-        $actions_html = self::output()->getHTML($actions);
+        $actions_html = $actions->getHTML();
 
         // Use a fake button to use clickable open modal on selection list. Replace the id with the button id
-        $button = self::dic()->ui()->factory()->button()->shy("", "#")->withOnClick($modal->getShowSignal());
-        $button_html = self::output()->getHTML($button);
+        $button = $this->ui->factory()->button()->shy("", "#")->withOnClick($modal->getShowSignal());
+        $button_html = $this->ui->renderer()->render($button);
         $button_id = [];
         preg_match('/id="([a-z0-9_]+)"/', $button_html, $button_id);
         if (is_array($button_id) && count($button_id) > 1) {
@@ -330,7 +317,7 @@ class DataTableGUI extends ilTable2GUI
         }
 
         $this->tpl->setCurrentBlock('cell');
-        $this->tpl->setVariable('VALUE', self::output()->getHTML([$actions_html, $modal]));
+        $this->tpl->setVariable('VALUE', $this->ui->renderer()->render([$actions_html, $modal]));
         $this->tpl->parseCurrentBlock();
 
         $this->ctrl->clearParameters($this->parent_obj);
@@ -340,7 +327,7 @@ class DataTableGUI extends ilTable2GUI
      * @param ilExcel $a_excel
      * @param int     $a_row
      */
-    protected function fillHeaderExcel(ilExcel $a_excel, int &$a_row)
+    protected function fillHeaderExcel(ilExcel $a_excel, int &$a_row): void
     {
         $col = 0;
 
@@ -352,29 +339,21 @@ class DataTableGUI extends ilTable2GUI
         $a_excel->setBold("A" . $a_row . ":" . $a_excel->getColumnCoord($col - 1) . $a_row);
     }
 
-    /**
-     * @param ilExcel $excel
-     * @param int     $row
-     * @param array   $result
-     */
-    protected function fillRowExcel(
-        ilExcel $excel, /*int*/
-        int &$row, /*array*/
-        array $result
-    ) {/*: void*/
+    protected function fillRowExcel(ilExcel $a_excel, &$a_row, array $a_set): void
+    {
 
         $col = 0;
-        foreach ($result as $key => $value) {
+        foreach ($a_set as $key => $value) {
             switch ($key) {
                 case 'status':
-                    $excel->setCell(
-                        $row,
+                    $a_excel->setCell(
+                        $a_row,
                         $col,
                         ilHub2Plugin::getInstance()->txt("data_table_status_" . ARObject::$available_status[$value])
                     );
                     break;
                 default:
-                    $excel->setCell($row, $col, $value);
+                    $a_excel->setCell($a_row, $col, $value);
                     break;
             }
             $col++;
@@ -387,7 +366,7 @@ class DataTableGUI extends ilTable2GUI
      * @param IOrigin|null $origin
      * @return string
      */
-    protected function renderILIASLinkForIliasId(int $ilias_id, string $ext_id, IOrigin $origin = null): string
+    protected function renderILIASLinkForIliasId(string $ilias_id, string $ext_id, IOrigin $origin = null): string
     {
         if (!$origin) {
             return strval($ilias_id);
@@ -395,9 +374,9 @@ class DataTableGUI extends ilTable2GUI
 
         $link = $this->originLinkfactory->findByExtIdAndOrigin($ext_id, $origin);
         if ($link->doesObjectExist()) {
-            $link_factory = self::dic()->ui()->factory()->link();
+            $link_factory = $this->ui->factory()->link();
 
-            return self::output()->getHTML($link_factory->standard(
+            return $this->ui->renderer()->render($link_factory->standard(
                 $ilias_id,
                 $link->getAccessGrantedInternalLink()
             )->withOpenInNewViewport(true));
@@ -422,10 +401,6 @@ class DataTableGUI extends ilTable2GUI
         ];
     }
 
-    /**
-     * @return array
-     * @throws DICException
-     */
     private function getAvailableOrigins(): array
     {
         static $origins;

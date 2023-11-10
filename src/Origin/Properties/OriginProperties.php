@@ -28,46 +28,29 @@ namespace srag\Plugins\Hub2\Origin\Properties;
  */
 abstract class OriginProperties implements IOriginProperties
 {
-    /**
-     * @var array
-     */
-    protected $data = [];
+    protected array $data = [];
 
-    /**
-     * @param array $data
-     */
     public function __construct(array $data = [])
     {
         $this->data = array_merge($this->data, $data);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function get(string $key)
     {
-        return (isset($this->data[$key])) ? $this->data[$key] : null;
+        return $this->data[$key] ?? null;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function updateDTOProperty(string $property)
+    public function updateDTOProperty(string $property): bool
     {
-        return $this->get(self::PREFIX_UPDATE_DTO . $property);
+        return (bool) $this->get(self::PREFIX_UPDATE_DTO . $property);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function setData(array $data)
+    public function setData(array $data): self
     {
         $this->data = array_merge($this->data, $data);
+        return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getData(): array
     {
         return $this->data;

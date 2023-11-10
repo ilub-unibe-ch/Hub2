@@ -25,7 +25,6 @@ use ilAdvancedSelectionListGUI;
 use ilHub2Plugin;
 use ilTable2GUI;
 
-use srag\DIC\Hub2\Exception\DICException;
 use srag\Plugins\Hub2\Object\IObjectRepository;
 use srag\Plugins\Hub2\Origin\IOriginRepository;
 
@@ -52,7 +51,6 @@ class OriginsTableGUI extends ilTable2GUI
      * @param hub2ConfigOriginsGUI $a_parent_obj
      * @param string               $a_parent_cmd
      * @param IOriginRepository    $originRepository
-     * @throws DICException
      * @internal param
      */
     public function __construct($a_parent_obj, $a_parent_cmd, IOriginRepository $originRepository)
@@ -99,9 +97,7 @@ class OriginsTableGUI extends ilTable2GUI
     {
         $data = [];
         foreach ($this->originRepository->all() as $origin) {
-            $class = "srag\\Plugins\\Hub2\\Object\\" . ucfirst($origin->getObjectType()) . "\\" . ucfirst($origin->getObjectType()) . "Repository";
             /** @var IObjectRepository $objectRepository */
-            $objectRepository = new $class($origin);
             $row = [];
             $row['id'] = $origin->getId();
             $row['sort'] = $origin->getSort();
@@ -120,9 +116,9 @@ class OriginsTableGUI extends ilTable2GUI
     /**
      * @param array $a_set
      */
-    protected function fillRow(array $a_set)
+    protected function fillRow(array $a_set): void
     {
-        foreach ($a_set as $key => $value) {
+        foreach ($a_set as $value) {
             $this->tpl->setCurrentBlock('cell');
             $this->tpl->setVariable('VALUE', !is_null($value) ? $value : "&nbsp;");
             $this->tpl->parseCurrentBlock();
@@ -154,7 +150,7 @@ class OriginsTableGUI extends ilTable2GUI
         );
         $this->ctrl->clearParameters($this->parent_obj);
         $this->tpl->setCurrentBlock('cell');
-        $this->tpl->setVariable('VALUE', self::output()->getHTML($actions));
+        $this->tpl->setVariable('VALUE', $actions->getHTML());
         $this->tpl->parseCurrentBlock();
     }
 }

@@ -19,6 +19,8 @@ declare(strict_types=1);
  * Class ilHub2ConfigGUI
  * @author  Stefan Wanzenried <sw@studer-raimann.ch>
  * @author  Fabian Schmid <fs@studer-raimann.ch>
+ *
+ * @ilCtrl_isCalledBy ilHub2ConfigGUI: ilObjComponentSettingsGUI
  */
 class ilHub2ConfigGUI extends ilPluginConfigGUI
 {
@@ -26,7 +28,7 @@ class ilHub2ConfigGUI extends ilPluginConfigGUI
 
     public function performCommand($cmd): void
     {
-        global $DIC;;
+        global $DIC;
 
         switch ($DIC->ctrl()->getNextClass()) {
             case strtolower(hub2MainGUI::class):

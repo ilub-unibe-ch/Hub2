@@ -94,11 +94,7 @@ final class GlobalHook implements IGlobalHook
      */
     public function beforeSync(array $active_orgins): bool
     {
-        if ($this->global_hook) {
-            return $this->global_hook->beforeSync($active_orgins);
-        }
-
-        return true;
+        return $this->global_hook->beforeSync($active_orgins);
     }
 
     /**
@@ -106,11 +102,7 @@ final class GlobalHook implements IGlobalHook
      */
     public function afterSync(array $active_orgins): bool
     {
-        if ($this->global_hook) {
-            return $this->global_hook->afterSync($active_orgins);
-        }
-
-        return true;
+        return $this->global_hook->afterSync($active_orgins);
     }
 
     /**
@@ -118,9 +110,7 @@ final class GlobalHook implements IGlobalHook
      */
     public function handleLog(ILog $log)
     {
-        if ($this->global_hook) {
-            $this->global_hook->handleLog($log);
-        }
+        $this->global_hook->handleLog($log);
     }
 
     /**
@@ -128,8 +118,6 @@ final class GlobalHook implements IGlobalHook
      */
     public function handleThrowable(Throwable $throwable)
     {
-        if ($this->global_hook) {
-            $this->global_hook->handleThrowable($throwable);
-        }
+        $this->global_hook->handleThrowable($throwable);
     }
 }

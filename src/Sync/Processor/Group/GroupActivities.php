@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 namespace srag\Plugins\Hub2\Sync\Processor\Group;
 
-use ilDB;
 use ilDBInterface;
 use ilObject2;
 use ilObjGroup;
@@ -33,9 +32,9 @@ use ilObjGroup;
 class GroupActivities implements IGroupActivities
 {
     /**
-     * @var ilDB
+     * @var ilDBInterface
      */
-    protected $db;
+    protected ilDBInterface $db;
 
     /**
      * @param ilDBInterface $db

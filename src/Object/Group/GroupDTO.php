@@ -24,6 +24,7 @@ use srag\Plugins\Hub2\Object\DTO\ITaxonomyAwareDataTransferObject;
 use srag\Plugins\Hub2\Object\DTO\MetadataAwareDataTransferObject;
 use srag\Plugins\Hub2\Object\DTO\TaxonomyAwareDataTransferObject;
 use srag\Plugins\Hub2\Object\Course\CourseDTO;
+use ilDateTime;
 
 /**
  * Class GroupDTO
@@ -70,148 +71,41 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
      * @var string
      */
     protected string $title;
-    /**
-     * @var string
-     */
-    protected string $description;
-    /**
-     * @var string
-     */
-    protected string $information;
-    /**
-     * @var int
-     */
-    protected int $groupType;
-    /**
-     * @var int
-     */
-    protected int $registrationType;
-    /**
-     * @var bool
-     */
-    protected bool $regUnlimited;
-    /**
-     * @var int timestamp
-     */
-    protected int $registrationStart;
-    /**
-     * @var int timestamp
-     */
-    protected int $registrationEnd;
-    /**
-     * @var int
-     */
-    protected int $owner;
-    /**
-     * @var string
-     */
-    protected string $password;
-    /**
-     * @var bool
-     */
-    protected bool $regMembershipLimitation;
-    /**
-     * @var int
-     */
-    protected int $minMembers;
-    /**
-     * @var int
-     */
-    protected int $maxMembers;
-    /**
-     * @var bool
-     */
-    protected bool $waitingList;
-    /**
-     * @var bool
-     */
-    protected bool $waitingListAutoFill;
-    /**
-     * @var int timestamp
-     */
-    protected int $cancellationEnd;
-    /**
-     * @var int timestamp
-     */
-    protected int $start;
-    /**
-     * @var int timestamp
-     */
-    protected int $end;
-    /**
-     * @var float
-     */
-    protected float $latitude;
-    /**
-     * @var  float
-     */
-    protected float $longitude;
-    /**
-     * @var int
-     */
-    protected int $locationzoom;
-    /**
-     * @var int
-     */
-    protected int $enableGroupMap;
-    /**
-     * @var bool
-     */
-    protected bool $regAccessCodeEnabled;
-    /**
-     * @var string
-     */
-    protected string $registrationAccessCode;
-    /**
-     * @var int
-     */
-    protected int $viewMode;
-    /**
-     * @var bool
-     */
-    protected bool $sessionLimit;
-    /**
-     * @var int
-     */
-    protected int $numberOfNextSessions;
-    /**
-     * @var int
-     */
-    protected int $numberOfPreviousSessions;
-    /**
-     * @var string
-     */
+    protected ?string $description = null;
+    protected ?string $information = null;
+    protected ?int $groupType = null;
+    protected ?int $registrationType = null;
+    protected bool $regUnlimited = false;
+    protected ?ilDateTime $registrationStart = null;
+    protected ?ilDateTime $registrationEnd = null;
+    protected ?int $owner = null;
+    protected ?string $password = null;
+    protected bool $regMembershipLimitation = false;
+    protected ?int $minMembers = null;
+    protected ?int $maxMembers = null;
+    protected bool $waitingList = false;
+    protected bool $waitingListAutoFill = false;
+    protected ?int $cancellationEnd = null;
+    protected ?ilDateTime $start = null;
+    protected ?ilDateTime $end = null;
+    protected ?float $latitude = null;
+    protected ?float $longitude = null;
+    protected ?int $locationzoom = null;
+    protected ?int $enableGroupMap = null;
+    protected bool $regAccessCodeEnabled = false;
+    protected ?string $registrationAccessCode = null;
+    protected ?int $viewMode = null;
+    protected bool $sessionLimit = false;
+    protected ?int $numberOfNextSessions = null;
+    protected ?int $numberOfPreviousSessions = null;
     protected string $parentId;
-    /**
-     * @var int
-     */
-    protected int $parentIdType = self::PARENT_ID_TYPE_REF_ID;
-    /**
-     * @var string
-     */
+    protected ?int $parentIdType = self::PARENT_ID_TYPE_REF_ID;
     protected string $appointementsColor = '';
-
-    /**
-     * @var string
-     */
     protected string $languageCode = 'en';
-    /**
-     * @var int
-     */
-    protected int $orderType = self::SORT_TITLE;
-    /**
-     * @var int
-     */
-    protected int $orderDirection = self::SORT_DIRECTION_ASC;
-
-    /**
-     * @var bool
-     */
+    protected ?int $orderType = self::SORT_TITLE;
+    protected ?int $orderDirection = self::SORT_DIRECTION_ASC;
     protected bool $newsSetting = true;
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->title;
@@ -231,7 +125,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -250,7 +144,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return int
      */
-    public function getRegistrationType(): int
+    public function getRegistrationType(): ?int
     {
         return $this->registrationType;
     }
@@ -269,7 +163,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return string
      */
-    public function getInformation(): string
+    public function getInformation(): ?string
     {
         return $this->information;
     }
@@ -288,7 +182,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return int
      */
-    public function getGroupType(): int
+    public function getGroupType(): ?int
     {
         return $this->groupType;
     }
@@ -307,7 +201,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return int
      */
-    public function getOwner(): int
+    public function getOwner(): ?int
     {
         return $this->owner;
     }
@@ -342,38 +236,24 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getRegistrationStart(): int
+    public function getRegistrationStart(): ?ilDateTime
     {
         return $this->registrationStart;
     }
 
-    /**
-     * @param int $registrationStart
-     * @return GroupDTO
-     */
-    public function setRegistrationStart(int $registrationStart): GroupDTO
+    public function setRegistrationStart(?ilDateTime $registrationStart): GroupDTO
     {
         $this->registrationStart = $registrationStart;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getRegistrationEnd(): int
+    public function getRegistrationEnd(): ?ilDateTime
     {
         return $this->registrationEnd;
     }
 
-    /**
-     * @param int $registrationEnd
-     * @return GroupDTO
-     */
-    public function setRegistrationEnd(int $registrationEnd): GroupDTO
+    public function setRegistrationEnd(?ilDateTime $registrationEnd): GroupDTO
     {
         $this->registrationEnd = $registrationEnd;
 
@@ -383,7 +263,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return string
      */
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -421,7 +301,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return int
      */
-    public function getMinMembers(): int
+    public function getMinMembers(): ?int
     {
         return $this->minMembers;
     }
@@ -440,7 +320,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return int
      */
-    public function getMaxMembers(): int
+    public function getMaxMembers(): ?int
     {
         return $this->maxMembers;
     }
@@ -497,7 +377,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return int
      */
-    public function getCancellationEnd(): int
+    public function getCancellationEnd(): ?int
     {
         return $this->cancellationEnd;
     }
@@ -516,7 +396,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return int
      */
-    public function getStart(): int
+    public function getStart(): ?int
     {
         return $this->start;
     }
@@ -535,7 +415,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return int
      */
-    public function getEnd(): int
+    public function getEnd(): ?int
     {
         return $this->end;
     }
@@ -554,7 +434,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return float
      */
-    public function getLatitude(): float
+    public function getLatitude(): ?float
     {
         return $this->latitude;
     }
@@ -573,7 +453,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return float
      */
-    public function getLongitude(): float
+    public function getLongitude(): ?float
     {
         return $this->longitude;
     }
@@ -592,7 +472,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return int
      */
-    public function getLocationzoom(): int
+    public function getLocationzoom(): ?int
     {
         return $this->locationzoom;
     }
@@ -611,7 +491,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return int
      */
-    public function getEnableGroupMap(): int
+    public function getEnableGroupMap(): ?int
     {
         return $this->enableGroupMap;
     }
@@ -649,7 +529,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return string
      */
-    public function getRegistrationAccessCode(): string
+    public function getRegistrationAccessCode(): ?string
     {
         return $this->registrationAccessCode;
     }
@@ -668,7 +548,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return int
      */
-    public function getViewMode(): int
+    public function getViewMode(): ?int
     {
         return $this->viewMode;
     }
@@ -708,13 +588,13 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
         return $this;
     }
 
-    public function getNumberOfPreviousSessions(): int
+    public function getNumberOfPreviousSessions(): ?int
     {
         return $this->numberOfPreviousSessions;
 
     }
 
-    public function getNumberOfNextSessions(): int
+    public function getNumberOfNextSessions(): ?int
     {
         return $this->numberOfNextSessions;
 
@@ -761,13 +641,14 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return string
      */
-    public function getAppointementsColor(): string
+    public function getAppointementsColor(): ?string
     {
         return $this->appointementsColor;
     }
 
     /**
      * @param string $appointementsColor
+     * @return GroupDTO
      */
     public function setAppointementsColor(string $appointementsColor): GroupDTO
     {
@@ -779,7 +660,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return string
      */
-    public function getLanguageCode(): string
+    public function getLanguageCode(): ?string
     {
         return $this->languageCode;
     }
@@ -803,7 +684,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return int
      */
-    public function getOrderType(): int
+    public function getOrderType(): ?int
     {
         return $this->orderType;
     }
@@ -821,7 +702,7 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
     /**
      * @return int
      */
-    public function getOrderDirection(): int
+    public function getOrderDirection(): ?int
     {
         return $this->orderDirection;
     }

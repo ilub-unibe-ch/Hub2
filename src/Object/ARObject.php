@@ -28,7 +28,7 @@ use srag\Plugins\Hub2\Taxonomy\ITaxonomy;
 use srag\Plugins\Hub2\Taxonomy\Node\Node;
 use srag\Plugins\Hub2\Taxonomy\Taxonomy;
 
-use srag\ActiveRecordConfig\Hub2\Config\Config;
+use srag\Plugins\Hub2\Config\Config;
 
 /**
  * Class ARObject
@@ -84,7 +84,7 @@ abstract class ARObject extends ActiveRecord implements IObject
      * @db_fieldtype    text
      * @db_length       255
      */
-    protected string $id;
+    protected ?string $id;
     /**
      * @var int
      * @db_has_field    true
@@ -93,7 +93,7 @@ abstract class ARObject extends ActiveRecord implements IObject
      * @db_length       8
      * @db_index        true
      */
-    protected int $origin_id;
+    protected ?int $origin_id = null;
     /**
      * @var string
      * @db_has_field    true
@@ -107,20 +107,20 @@ abstract class ARObject extends ActiveRecord implements IObject
      * @db_has_field    true
      * @db_fieldtype    timestamp
      */
-    protected string $delivery_date;
+    protected ?string $delivery_date = null;
     /**
      * @var string
      * @db_has_field    true
      * @db_fieldtype    timestamp
      */
-    protected string $processed_date;
+    protected ?string $processed_date = null;
     /**
      * @var string
      * @db_has_field    true
      * @db_fieldtype    text
      * @db_length       256
      */
-    protected string $ilias_id;
+    protected ?string $ilias_id = null;
     /**
      * @var int
      * @db_has_field    true
@@ -142,7 +142,7 @@ abstract class ARObject extends ActiveRecord implements IObject
      * @db_fieldtype    text
      * @db_length       512
      */
-    protected string $hash_code;
+    protected ?string $hash_code = null;
     /**
      * @var array
      * @db_has_field    true
@@ -283,7 +283,7 @@ abstract class ARObject extends ActiveRecord implements IObject
     /**
      * @inheritdoc
      */
-    public function getDeliveryDate(): DateTime
+    public function getDeliveryDate(): ?DateTime
     {
         return new DateTime($this->delivery_date);
     }
@@ -291,7 +291,7 @@ abstract class ARObject extends ActiveRecord implements IObject
     /**
      * @inheritdoc
      */
-    public function getProcessedDate(): DateTime
+    public function getProcessedDate(): ?DateTime
     {
         return new DateTime($this->processed_date);
     }
@@ -317,14 +317,14 @@ abstract class ARObject extends ActiveRecord implements IObject
     /**
      * @inheritdoc
      */
-    public function getILIASId(): string
+    public function getILIASId(): ?string
     {
         return $this->ilias_id;
     }
 
     /**
      * @inheritdoc
-     */f
+     */
     public function setILIASId(string $id): self
     {
         $this->ilias_id = $id;
@@ -417,7 +417,7 @@ abstract class ARObject extends ActiveRecord implements IObject
     /**
      * @inheritdoc
      */
-    public function getHashCode(): string
+    public function getHashCode(): ?string
     {
         return $this->hash_code;
     }

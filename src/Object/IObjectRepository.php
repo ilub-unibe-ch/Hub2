@@ -53,6 +53,7 @@ interface IObjectRepository
      * However it only checks for items in the scope of a set of parent containers. E.g. only returns
      * membership to delete for memberships of a course with an ext_id in $parent_ext_ids.
      * @param array $ext_ids
+     * @param array $parent_ext_ids
      * @return IObject[]
      */
     public function getToDeleteByParentScope(array $ext_ids, array $parent_ext_ids): array;

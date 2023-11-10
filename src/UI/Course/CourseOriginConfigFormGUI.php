@@ -31,6 +31,7 @@ use srag\Plugins\Hub2\Origin\Course\ARCourseOrigin;
 use srag\Plugins\Hub2\Origin\Properties\Course\CourseProperties;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
 use srag\Plugins\Hub2\Origin\Properties\Course\ICourseProperties;
+use ilHub2Plugin;
 
 /**
  * Class CourseOriginConfigFormGUI
@@ -77,35 +78,32 @@ class CourseOriginConfigFormGUI extends OriginConfigFormGUI
     protected function addPropertiesNew()
     {
         parent::addPropertiesNew();
-        
+
         $cb = new ilCheckboxInputGUI(
             ilHub2Plugin::getInstance()->txt('crs_prop_activate'),
             $this->prop(ICourseProperties::SET_ONLINE)
         );
-        $cb->setChecked($this->origin->properties()->get(ICourseProperties::SET_ONLINE));
+        $cb->setChecked((bool)$this->origin->properties()->get(ICourseProperties::SET_ONLINE));
         $this->addItem($cb);
 
         //		$cb = new ilCheckboxInputGUI(ilHub2Plugin::getInstance()->txt('crs_prop_create_icon'), $this->prop(CourseOriginProperties::CREATE_ICON));
         //		$this->addItem($cb);
 
         $send_mail = new ilCheckboxInputGUI(
-            ilHub2Plugin::getInstance()
-                                                ->translate('crs_prop_send_notification'),
+            ilHub2Plugin::getInstance()->txt('crs_prop_send_notification'),
             $this->prop(ICourseProperties::SEND_CREATE_NOTIFICATION)
         );
         $send_mail->setInfo(ilHub2Plugin::getInstance()->txt('crs_prop_send_notification_info'));
-        $send_mail->setChecked($this->origin->properties()->get(ICourseProperties::SEND_CREATE_NOTIFICATION));
+        $send_mail->setChecked((bool)$this->origin->properties()->get(ICourseProperties::SEND_CREATE_NOTIFICATION));
         $notification_subject = new ilTextInputGUI(
-            ilHub2Plugin::getInstance()
-                                                       ->translate('crs_prop_notification_subject'),
+            ilHub2Plugin::getInstance()->txt('crs_prop_notification_subject'),
             $this->prop(ICourseProperties::CREATE_NOTIFICATION_SUBJECT)
         );
         $notification_subject->setValue($this->origin->properties()->get(ICourseProperties::CREATE_NOTIFICATION_SUBJECT));
 
         $send_mail->addSubItem($notification_subject);
         $notification_body = new ilTextAreaInputGUI(
-            ilHub2Plugin::getInstance()
-                                                        ->translate('crs_prop_notification_body'),
+            ilHub2Plugin::getInstance()->txt('crs_prop_notification_body'),
             $this->prop(ICourseProperties::CREATE_NOTIFICATION_BODY)
         );
         $notification_body->setInfo(CourseProperties::getPlaceHolderStrings());
@@ -114,8 +112,7 @@ class CourseOriginConfigFormGUI extends OriginConfigFormGUI
         $notification_body->setValue($this->origin->properties()->get(ICourseProperties::CREATE_NOTIFICATION_BODY));
         $send_mail->addSubItem($notification_body);
         $notification_from = new ilEMailInputGUI(
-            ilHub2Plugin::getInstance()
-                                                     ->translate('crs_prop_notification_from'),
+            ilHub2Plugin::getInstance()->txt('crs_prop_notification_from'),
             $this->prop(ICourseProperties::CREATE_NOTIFICATION_FROM)
         );
         $notification_from->setValue($this->origin->properties()->get(ICourseProperties::CREATE_NOTIFICATION_FROM));
@@ -134,7 +131,7 @@ class CourseOriginConfigFormGUI extends OriginConfigFormGUI
             ilHub2Plugin::getInstance()->txt('crs_prop_move'),
             $this->prop(ICourseProperties::MOVE_COURSE)
         );
-        $cb->setChecked($this->origin->properties()->get(ICourseProperties::MOVE_COURSE));
+        $cb->setChecked((bool)$this->origin->properties()->get(ICourseProperties::MOVE_COURSE));
 
         $cb->setInfo(ilHub2Plugin::getInstance()->txt('crs_prop_move_info'));
         $this->addItem($cb);
@@ -143,7 +140,7 @@ class CourseOriginConfigFormGUI extends OriginConfigFormGUI
             ilHub2Plugin::getInstance()->txt('crs_prop_reactivate'),
             $this->prop(ICourseProperties::SET_ONLINE_AGAIN)
         );
-        $cb->setChecked($this->origin->properties()->get(ICourseProperties::SET_ONLINE_AGAIN));
+        $cb->setChecked((bool)$this->origin->properties()->get(ICourseProperties::SET_ONLINE_AGAIN));
         $this->addItem($cb);
     }
 
@@ -158,7 +155,7 @@ class CourseOriginConfigFormGUI extends OriginConfigFormGUI
             ilHub2Plugin::getInstance()->txt('crs_prop_delete_mode'),
             $this->prop(ICourseProperties::DELETE_MODE)
         );
-        $delete->setValue($this->origin->properties()->get(ICourseProperties::DELETE_MODE));
+        $delete->setValue((string)$this->origin->properties()->get(ICourseProperties::DELETE_MODE));
 
         $opt = new ilRadioOption(
             ilHub2Plugin::getInstance()->txt('crs_prop_delete_mode_none'),
@@ -179,8 +176,7 @@ class CourseOriginConfigFormGUI extends OriginConfigFormGUI
         $delete->addOption($opt);
 
         $opt = new ilRadioOption(
-            ilHub2Plugin::getInstance()
-                                     ->translate('crs_prop_delete_mode_delete_or_inactive'),
+            ilHub2Plugin::getInstance()->txt('crs_prop_delete_mode_delete_or_inactive'),
             (string) ICourseProperties::DELETE_MODE_DELETE_OR_OFFLINE
         );
         $opt->setInfo(nl2br(ilHub2Plugin::getInstance()->txt('crs_prop_delete_mode_delete_or_inactive_info'), false));

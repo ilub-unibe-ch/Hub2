@@ -35,5 +35,5 @@ interface ITaxonomyImplementationFactory
      * @param ilObject  $ilias_object
      * @return ITaxonomyImplementation
      */
-    public function taxonomy(ITaxonomy $Taxonomy, ilObject $ilias_object): ITaxonomyImplementation;
+    public function taxonomy(ITaxonomy $Taxonomy, ilObject $ilias_object): ?ITaxonomyImplementation;
 }
