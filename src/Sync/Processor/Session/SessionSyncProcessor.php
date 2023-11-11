@@ -115,8 +115,14 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
 
         // Properties
         foreach (self::getProperties() as $property) {
-            $setter = "set" . ucfirst($property);
-            $getter = "get" . ucfirst($property);
+            if($property == "registrationWaitingList") {
+                $getter = "is" . ucfirst($property);
+                $setter = "enable" . ucfirst($property);
+            } else {
+                $getter = "get" . ucfirst($property);
+                $setter = "set" . ucfirst($property);
+            }
+
             if ($dto->$getter() !== null) {
                 $ilObjSession->$setter($dto->$getter());
             }
@@ -161,8 +167,13 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
             if (!$this->props->updateDTOProperty($property)) {
                 continue;
             }
-            $setter = "set" . ucfirst($property);
-            $getter = "get" . ucfirst($property);
+            if($property == "registrationWaitingList") {
+                $getter = "is" . ucfirst($property);
+                $setter = "enable" . ucfirst($property);
+            } else {
+                $getter = "get" . ucfirst($property);
+                $setter = "set" . ucfirst($property);
+            }
             if ($dto->$getter() !== null) {
                 $ilObjSession->$setter($dto->$getter());
             }

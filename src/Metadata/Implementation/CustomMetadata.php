@@ -70,8 +70,8 @@ class CustomMetadata extends AbstractImplementation implements IMetadataImplemen
                 $ilADT->setTargetRefId($value);
                 break;
             case ($ilADT instanceof ilADTLocation):
-                $ilADT->setLatitude($value['latitude']);
-                $ilADT->setLongitude($value['longitude']);
+                $ilADT->setLatitude((float)$value['latitude']);
+                $ilADT->setLongitude((float)$value['longitude']);
                 $ilADT->setZoom($value['zoom']);
                 break;
         }

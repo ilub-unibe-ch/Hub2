@@ -51,7 +51,7 @@ class SessionOriginConfigFormGUI extends OriginConfigFormGUI
             ilHub2Plugin::getInstance()->txt('sess_prop_move'),
             $this->prop(ISessionProperties::MOVE_SESSION)
         );
-        $cb->setChecked($this->origin->properties()->get(ISessionProperties::MOVE_SESSION));
+        $cb->setChecked((bool)$this->origin->properties()->get(ISessionProperties::MOVE_SESSION));
         $cb->setInfo(ilHub2Plugin::getInstance()->txt('sess_prop_move_info'));
         $this->addItem($cb);
     }
@@ -67,7 +67,7 @@ class SessionOriginConfigFormGUI extends OriginConfigFormGUI
             ilHub2Plugin::getInstance()->txt('sess_prop_delete_mode'),
             $this->prop(ISessionProperties::DELETE_MODE)
         );
-        $delete->setValue($this->origin->properties()->get(ISessionProperties::DELETE_MODE));
+        $delete->setValue((string)$this->origin->properties()->get(ISessionProperties::DELETE_MODE));
 
         $opt = new ilRadioOption(
             ilHub2Plugin::getInstance()->txt('sess_prop_delete_mode_none'),

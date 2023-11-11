@@ -115,7 +115,7 @@ class HookObject
      * in the case of IOriginImplementation::beforeCreateILIASObject()
      * @return int
      */
-    public function getILIASId(): string
+    public function getILIASId(): ?string
     {
         return $this->object->getILIASId();
     }

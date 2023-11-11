@@ -33,104 +33,33 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
     use MetadataAwareDataTransferObject;
     use TaxonomyAwareDataTransferObject;
 
-    /**
-     * @var string
-     */
     protected string $parentId;
-    /**
-     * @var int
-     */
     protected int $parentIdType = self::PARENT_ID_TYPE_REF_ID;
-    /**
-     * @var string
-     */
     protected string $title;
-    /**
-     * @var string
-     */
-    protected string $description;
-    /**
-     * @var string
-     */
-    protected string $location;
-    /**
-     * @var string
-     */
-    protected string $details;
-    /**
-     * @var string
-     */
-    protected string $name;
-    /**
-     * @var string
-     */
-    protected string $phone;
-    /**
-     * @var string
-     */
-    protected string $email;
-    /**
-     * @var int
-     */
-    protected int $registrationType;
-    /**
-     * @var bool
-     */
+    protected ?string $description = null;
+    protected ?string $location = null;
+    protected ?string $details = null;
+    protected ?string $name = null;
+    protected ?string $phone = null;
+    protected ?string $email = null;
+    protected ?int $registrationType = null;
     protected bool $registrationLimited = false;
-    /**
-     * @var int
-     */
-    protected int $registrationMinUsers;
-    /**
-     * @var int
-     */
-    protected int $registrationMaxUsers;
-    /**
-     * @var bool
-     */
-    protected bool $registrationWaitingList;
-    /**
-     * @var int
-     */
-    protected int $cannotParticipateOption;
-    /**
-     * @var bool
-     */
-    protected bool $waitingListAutoFill;
-    /**
-     * @var bool
-     */
+    protected ?int $registrationMinUsers = null;
+    protected ?int $registrationMaxUsers = null;
+    protected bool $registrationWaitingList = false;
+    protected ?int $cannotParticipateOption = null;
+    protected bool $waitingListAutoFill = false;
     protected bool $fullDay = false;
-    /**
-     * @var int
-     */
-    protected int $start;
-    /**
-     * @var int
-     */
-    protected int $end;
-    /**
-     * @var string
-     */
-    protected string $languageCode = 'en';
-
-    /**
-     * @var bool
-     */
+    protected ?int $start = null;
+    protected ?int $end = null;
+    protected ?string $languageCode = 'en';
     protected bool $showMembers = false;
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-     * @param string $title
-     * @return SessionDTO
-     */
     public function setTitle(string $title): SessionDTO
     {
         $this->title = $title;
@@ -138,18 +67,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    /**
-     * @param string $description
-     * @return SessionDTO
-     */
     public function setDescription(string $description): SessionDTO
     {
         $this->description = $description;
@@ -157,18 +79,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getLocation(): string
+    public function getLocation(): ?string
     {
         return $this->location;
     }
 
-    /**
-     * @param string $location
-     * @return SessionDTO
-     */
     public function setLocation(string $location): SessionDTO
     {
         $this->location = $location;
@@ -176,18 +91,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getDetails(): string
+    public function getDetails(): ?string
     {
         return $this->details;
     }
 
-    /**
-     * @param string $details
-     * @return SessionDTO
-     */
     public function setDetails(string $details): SessionDTO
     {
         $this->details = $details;
@@ -195,18 +103,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     * @return SessionDTO
-     */
     public function setName(string $name): SessionDTO
     {
         $this->name = $name;
@@ -214,18 +115,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getPhone(): string
+    public function getPhone(): ?string
     {
         return $this->phone;
     }
 
-    /**
-     * @param string $phone
-     * @return SessionDTO
-     */
     public function setPhone(string $phone): SessionDTO
     {
         $this->phone = $phone;
@@ -233,18 +127,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    /**
-     * @param string $email
-     * @return SessionDTO
-     */
     public function setEmail(string $email): SessionDTO
     {
         $this->email = $email;
@@ -252,18 +139,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getRegistrationType(): int
+    public function getRegistrationType(): ?int
     {
         return $this->registrationType;
     }
 
-    /**
-     * @param int $registrationType
-     * @return SessionDTO
-     */
     public function setRegistrationType(int $registrationType): SessionDTO
     {
         $this->registrationType = $registrationType;
@@ -271,18 +151,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function getRegistrationLimited(): bool
     {
         return $this->registrationLimited;
     }
 
-    /**
-     * @param bool $registrationLimited
-     * @return SessionDTO
-     */
     public function setRegistrationLimited(bool $registrationLimited): SessionDTO
     {
         $this->registrationLimited = $registrationLimited;
@@ -290,18 +163,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getRegistrationMinUsers(): int
+    public function getRegistrationMinUsers(): ?int
     {
         return $this->registrationMinUsers;
     }
 
-    /**
-     * @param int $registrationMinUsers
-     * @return SessionDTO
-     */
     public function setRegistrationMinUsers(int $registrationMinUsers): SessionDTO
     {
         $this->registrationMinUsers = $registrationMinUsers;
@@ -309,18 +175,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getRegistrationMaxUsers(): int
+    public function getRegistrationMaxUsers(): ?int
     {
         return $this->registrationMaxUsers;
     }
 
-    /**
-     * @param int $registrationMaxUsers
-     * @return SessionDTO
-     */
     public function setRegistrationMaxUsers(int $registrationMaxUsers): SessionDTO
     {
         $this->registrationMaxUsers = $registrationMaxUsers;
@@ -328,37 +187,23 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function getRegistrationWaitingList(): bool
+    public function isRegistrationWaitingList(): bool
     {
         return $this->registrationWaitingList;
     }
 
-    /**
-     * @param bool $registrationWaitingList
-     * @return SessionDTO
-     */
-    public function setRegistrationWaitingList(bool $registrationWaitingList): SessionDTO
+    public function enableRegistrationWaitingList(bool $registrationWaitingList): SessionDTO
     {
         $this->registrationWaitingList = $registrationWaitingList;
 
         return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function getWaitingListAutoFill(): bool
     {
         return $this->waitingListAutoFill;
     }
 
-    /**
-     * @param bool $waitingListAutoFill
-     * @return SessionDTO
-     */
     public function setWaitingListAutoFill(bool $waitingListAutoFill): SessionDTO
     {
         $this->waitingListAutoFill = $waitingListAutoFill;
@@ -366,7 +211,7 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    public function getCannotParticipateOption(): int
+    public function getCannotParticipateOption(): ?int
     {
         return $this->cannotParticipateOption;
     }
@@ -377,18 +222,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getParentId(): string
+    public function getParentId(): ?string
     {
         return $this->parentId;
     }
 
-    /**
-     * @param string $parentId
-     * @return SessionDTO
-     */
     public function setParentId(string $parentId): SessionDTO
     {
         $this->parentId = $parentId;
@@ -396,18 +234,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getParentIdType(): int
+    public function getParentIdType(): ?int
     {
         return $this->parentIdType;
     }
 
-    /**
-     * @param int $parentIdType
-     * @return SessionDTO
-     */
     public function setParentIdType(int $parentIdType): SessionDTO
     {
         $this->parentIdType = $parentIdType;
@@ -415,18 +246,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function isFullDay(): bool
     {
         return $this->fullDay;
     }
 
-    /**
-     * @param bool $fullDay
-     * @return SessionDTO
-     */
     public function setFullDay(bool $fullDay): SessionDTO
     {
         $this->fullDay = $fullDay;
@@ -434,18 +258,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getStart(): int
+    public function getStart(): ?int
     {
         return $this->start;
     }
 
-    /**
-     * @param int $start
-     * @return SessionDTO
-     */
     public function setStart(int $start): SessionDTO
     {
         $this->start = $start;
@@ -453,18 +270,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getEnd(): int
+    public function getEnd(): ?int
     {
         return $this->end;
     }
 
-    /**
-     * @param int $end Unix Timestamp
-     * @return SessionDTO
-     */
     public function setEnd(int $end): SessionDTO
     {
         $this->end = $end;
@@ -472,19 +282,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getLanguageCode(): string
+    public function getLanguageCode(): ?string
     {
         return $this->languageCode;
     }
 
-    /**
-     * @param $languageCode
-     * @return SessionDTO
-     * @throws LanguageCodeException
-     */
     public function setLanguageCode($languageCode): SessionDTO
     {
         if (!CourseDTO::isLanguageCode($languageCode)) {
@@ -496,18 +298,11 @@ class SessionDTO extends DataTransferObject implements ISessionDTO
         return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function getShowMembers(): bool
     {
         return $this->showMembers;
     }
 
-    /**
-     * @param bool $showMembers
-     * @return $this
-     */
     public function setShowMembers(bool $showMembers): SessionDTO
     {
         $this->showMembers = $showMembers;

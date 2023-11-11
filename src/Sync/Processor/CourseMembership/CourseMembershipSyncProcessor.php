@@ -193,7 +193,7 @@ class CourseMembershipSyncProcessor extends ObjectSyncProcessor implements ICour
     {
 
         if ($course_membership->getCourseIdType() == CourseMembershipDTO::COURSE_ID_TYPE_REF_ID) {
-            return $course_membership->getCourseId();
+            return (int)$course_membership->getCourseId();
         }
         if ($course_membership->getCourseIdType() == CourseMembershipDTO::COURSE_ID_TYPE_EXTERNAL_EXT_ID) {
             // The stored course-ID is an external-ID from a course.
