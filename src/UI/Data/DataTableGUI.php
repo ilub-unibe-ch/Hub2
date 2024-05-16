@@ -255,7 +255,7 @@ class DataTableGUI extends ilTable2GUI
         $this->ctrl->setParameter($this->parent_obj, self::F_EXT_ID, $a_set[self::F_EXT_ID]);
         $this->ctrl->setParameter($this->parent_obj, self::F_ORIGIN_ID, $a_set[self::F_ORIGIN_ID]);
 
-        $origin = $this->originFactory->getById($a_set[self::F_ORIGIN_ID]);
+        $origin = $this->originFactory->getById((int)$a_set[self::F_ORIGIN_ID]);
 
         foreach ($a_set as $key => $value) {
             $this->tpl->setCurrentBlock('cell');
@@ -317,7 +317,7 @@ class DataTableGUI extends ilTable2GUI
         }
 
         $this->tpl->setCurrentBlock('cell');
-        $this->tpl->setVariable('VALUE', $this->ui->renderer()->render([$actions_html, $modal]));
+        $this->tpl->setVariable('VALUE', $actions_html." ".$this->ui->renderer()->render([$modal]));
         $this->tpl->parseCurrentBlock();
 
         $this->ctrl->clearParameters($this->parent_obj);
