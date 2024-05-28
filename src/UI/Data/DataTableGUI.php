@@ -75,26 +75,11 @@ class DataTableGUI extends ilTable2GUI
     ];
     protected \ILIAS\DI\UIServices $ui;
     protected \ilDBInterface $database;
-    /**
-     * @var ObjectLinkFactory
-     */
     protected ObjectLinkFactory $originLinkfactory;
-    /**
-     * @var array
-     */
-    protected array $filtered = [];
-    /**
-     * @var OriginFactory
-     */
     protected OriginFactory $originFactory;
-    /**
-     * @var int
-     */
-    protected $a_parent_obj;
-    /**
-     * @var IOriginRepository
-     */
+    protected hub2DataGUI $a_parent_obj;
     protected IOriginRepository $originRepository;
+    protected array $filter = [];
 
     /**
      * DataTableGUI constructor
@@ -134,7 +119,6 @@ class DataTableGUI extends ilTable2GUI
 
     public function initFilter(): void
     {
-        $this->setDisableFilterHiding(true);
 
         $origin = new ilSelectInputGUI(ilHub2Plugin::getInstance()->txt('data_table_header_origin_id'), 'origin_id');
         $origin->setOptions($this->getAvailableOrigins());
@@ -176,14 +160,9 @@ class DataTableGUI extends ilTable2GUI
     protected function addAndReadFilterItem(ilTableFilterItem $item)
     {
         $this->addFilterItem($item);
-        if ($this->hasSessionValue($item->getFieldId())) { // Supports filter default values
-            $item->readFromSession();
-        }
-        if ($item instanceof ilCheckboxInputGUI) {
-            $this->filtered[$item->getPostVar()] = $item->getChecked();
-        } else {
-            $this->filtered[$item->getPostVar()] = $item->getValue();
-        }
+        $item->readFromSession();
+        $this->filter[$item->getPostVar()] = $item->getValue();
+
     }
 
     /**
@@ -204,8 +183,8 @@ class DataTableGUI extends ilTable2GUI
     {
         $data = [];
 
-        $where_query = " WHERE true = true"; // TODO: ???
-        foreach ($this->filtered as $postvar => $value) {
+        $where_query = " WHERE true = true";
+        foreach ($this->filter as $postvar => $value) {
             if (!$postvar || !$value) {
                 continue;
             }
@@ -228,6 +207,7 @@ class DataTableGUI extends ilTable2GUI
                     break;
             }
         }
+
 
         $union_query = "";
         $columns = implode(", ", $this->getFields());

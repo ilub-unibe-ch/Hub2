@@ -54,9 +54,7 @@ class hub2DataGUI extends hub2MainGUI
     {
         $table = new DataTableGUI($this, self::CMD_INDEX);
         $table->writeFilterToSession();
-        $table->resetOffset();
-        //$this->ctrl->redirect($this, self::CMD_INDEX);
-        $this->index(); // Fix reset offset
+        $this->ctrl->redirect($this, self::CMD_INDEX);
     }
 
     /**
@@ -67,8 +65,8 @@ class hub2DataGUI extends hub2MainGUI
         $table = new DataTableGUI($this, self::CMD_INDEX);
         $table->resetFilter();
         $table->resetOffset();
-        //$this->ctrl->redirect($this, self::CMD_INDEX);
-        $this->index(); // Fix reset offset
+        $this->ctrl->redirect($this, self::CMD_INDEX);
+
     }
 
     /**
@@ -88,7 +86,7 @@ class hub2DataGUI extends hub2MainGUI
         $origin_id = $this->request->getQueryParams()[DataTableGUI::F_ORIGIN_ID];
 
         $origin_factory = new OriginFactory();
-        $object_factory = new ObjectFactory($origin_factory->getById($origin_id));
+        $object_factory = new ObjectFactory($origin_factory->getById((int)$origin_id));
 
         $object = $object_factory->undefined($ext_id);
 
@@ -138,10 +136,11 @@ class hub2DataGUI extends hub2MainGUI
         $data_table = $factory->listing()->descriptive($filtered);
 
         $modal = $factory->modal()->roundtrip(
-            ilHub2Plugin::getInstance()->txt("data_table_header_data") . "<br>" . ilHub2Plugin::getInstance()->txt("data_table_hash"),
+            ilHub2Plugin::getInstance()->txt("data_table_header_data"),
             $data_table
         )->withCancelButtonLabel("close");
 
-        $this->ui->mainTemplate()->setContent($this->ui->renderer()->renderAsync($modal));
+        echo $this->ui->renderer()->renderAsync($modal);
+        exit;
     }
 }

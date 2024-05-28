@@ -83,6 +83,8 @@ class hub2MainGUI
                 $this->ctrl->forwardCommand(new hub2CustomViewGUI());
                 break;
             case strtolower(hub2DataGUI::class):
+                $this->ctrl->forwardCommand(new hub2DataGUI());
+                break;
             default:
                 $cmd = $this->ctrl->getCmd(self::CMD_INDEX);
                 $this->{$cmd}();
