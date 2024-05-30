@@ -137,3 +137,7 @@ $database->modifyTableColumn(
     ]
 );
 ?>
+<#16>
+<?php
+\srag\Plugins\Hub2\Log\Log::updateDB();
+?>
