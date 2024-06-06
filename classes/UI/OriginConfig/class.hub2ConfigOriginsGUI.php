@@ -29,6 +29,7 @@ use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginsTableGUI;
 use srag\Plugins\Hub2\UI\OriginFormFactory;
 use srag\Plugins\Hub2\Jobs\CronNotifier;
+use srag\Plugins\Hub2\Jobs\Result\Error;
 
 /**
  * Class ConfigOriginsGUI
@@ -268,9 +269,30 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     {
         $summary = $this->summaryFactory->web();
 
-        (new RunSync(new CronNotifier(), $origins, $summary, $force_update))->run();
+        $runner = new RunSync(new CronNotifier(), $origins, $summary, $force_update);
+        $result = $runner->run();
 
-        $this->ui->mainTemplate()->setOnScreenMessage('info', nl2br($summary->getOutputAsString(), false), true);
+        if($result instanceof Error) {
+            /**
+             * @var $result Error
+             */
+            $e = $result->getError();
+            if ($e) {
+                $this->ui->mainTemplate()->setOnScreenMessage(
+                    'failure',
+                    "{$e->getMessage()} in file: {$e->getFile()} line: {$e->getLine()}<pre>{$e->getTraceAsString()}</pre>",
+                    true
+                );
+            } else {
+                $this->ui->mainTemplate()->setOnScreenMessage(
+                    'info',
+                    "No data has been processed. Note that one reason could be, that some other chunk of data is still being processed.",
+                    true
+                );
+            }
+        } else {
+            $this->ui->mainTemplate()->setOnScreenMessage('info', nl2br($summary->getOutputAsString(), false), true);
+        }
 
         $this->ctrl->redirect($this);
     }
