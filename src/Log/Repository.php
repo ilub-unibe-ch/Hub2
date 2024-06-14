@@ -441,7 +441,7 @@ final class Repository implements IRepository
     /**
      * @inheritdoc
      */
-    public function storeLog(ILog $log): void/*: void*/
+    public function storeLog(ILog $log, bool $new = false): void/*: void*/
     {
         $date = new ilDateTime(time(), IL_CAL_UNIX);
 
@@ -466,7 +466,7 @@ final class Repository implements IRepository
                     "status" => [ilDBConstants::T_INTEGER, $log->getStatus()],
                 ],
                 "log_id",
-                $log->getLogId()
+                $new ? null : $log->getLogId()
             )
         );
 

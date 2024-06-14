@@ -108,7 +108,7 @@ interface ILog
     public function withObjectIliasId(int $object_ilias_id = null): self;
 
     /**
-     * Syntactic sugar for self::logs()->storeLog($log->withMessage()->withLevel());
+     * Syntactic sugar for self::logs()->storeLog($log->withMessage()->withLevel(), true);
      */
-    public function write(string $message, int $level = self::LEVEL_INFO): void;
+    public function write(string $message, int $level = self::LEVEL_INFO, bool $new = false): void;
 }

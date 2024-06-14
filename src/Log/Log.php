@@ -306,8 +306,8 @@ class Log extends ActiveRecord implements ILog
     /**
      * @inheritdoc
      */
-    public function write(string $message, int $level = self::LEVEL_INFO): void
+    public function write(string $message, int $level = self::LEVEL_INFO, bool $new = false): void
     {
-        $this->log_repo->storeLog($this->withMessage($message)->withLevel($level));
+        $this->log_repo->storeLog($this->withMessage($message)->withLevel($level), true);
     }
 }
