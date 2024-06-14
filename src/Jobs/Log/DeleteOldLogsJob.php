@@ -116,17 +116,15 @@ class DeleteOldLogsJob extends ilCronJob
         $keep_log_ids = [];
         $result = $this->database->query("SELECT MAX(log_id) AS log_id FROM " . Log::TABLE_NAME . " GROUP BY origin_id,object_ext_id");
         while (($row = $result->fetchAssoc()) !== false) {
-            $keep_log_ids[] = intval($row["log_id"]);
+            if($row && array_key_exists("log_id", $row)) {
+                $keep_log_ids[] = intval($row["log_id"]);
+            }
         }
 
+
         $count = $this->database->manipulateF(
-            "DELETE FROM " . Log::TABLE_NAME . " WHERE date<%s AND " . $this->database
-                                                                                                                     ->in(
-                                                                                                                         "log_id",
-                                                                                                                         $keep_log_ids,
-                                                                                                                         true,
-                                                                                                                         "integer"
-                                                                                                                     ),
+            "DELETE FROM " . Log::TABLE_NAME . " WHERE date<%s 
+            AND " . $this->database->in("log_id", $keep_log_ids, true, "integer"),
             ["text"],
             [$keep_old_logs_time_date->get(IL_CAL_DATETIME)]
         );
