@@ -150,7 +150,7 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
             if ($this->tree->isInTree((int)$dto->getSessionId())) {
                 return (int) $dto->getSessionId();
             }
-            throw new HubException("Could not find the ref-ID of the parent session in the tree: '{$dto->getExtId()}'");
+            throw new HubException("isInTree, Could not find the ref-ID of the parent session in the tree: '{$dto->getExtId()}', '{$dto->getSessionId()}'");
         }
         if ($dto->getSessionIdType() == ISessionMembershipDTO::PARENT_ID_TYPE_EXTERNAL_EXT_ID) {
             // The stored parent-ID is an external-ID from a category.
@@ -176,7 +176,8 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
                 throw new HubException("The linked session does not (yet) exist in ILIAS");
             }
             if (!$this->tree->isInTree((int)$session->getILIASId())) {
-                throw new HubException("Could not find the ref-ID of the parent session in the tree: '{$session->getILIASId()}'");
+
+                throw new HubException("Could not find the ref-ID of the parent session in the tree: '{$session->getILIASId()}' Ext_id: {$session->getExtId()}");
             }
 
             return (int) $session->getILIASId();
