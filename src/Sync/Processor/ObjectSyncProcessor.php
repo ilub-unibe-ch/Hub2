@@ -52,6 +52,7 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
     use Helper;
 
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    protected \ilLogger $log;
     protected \ilLanguage $lng;
     protected ilMailMimeSenderFactory $sender_factory;
     protected \ilObjectDataCache $object_data_cache;
@@ -99,6 +100,7 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
         $this->object_data_cache = $DIC['ilObjDataCache'];
         $this->sender_factory = $DIC['mail.mime.sender.factory'];
         $this->lng = $DIC->language();
+        $this->log = $DIC->logger()->root();
 
         $this->origin = $origin;
         $this->transition = $transition;

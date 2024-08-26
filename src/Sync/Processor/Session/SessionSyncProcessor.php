@@ -43,6 +43,7 @@ use srag\Plugins\Hub2\Sync\Processor\ObjectSyncProcessor;
 use srag\Plugins\Hub2\Sync\Processor\TaxonomySyncProcessor;
 use srag\Plugins\Hub2\Object\Session\ISessionDTO;
 use srag\Plugins\Hub2\Origin\Properties\Session\ISessionProperties;
+use ILIAS\DI\Exceptions\Exception;
 
 /**
  * Class SessionSyncProcessor
@@ -178,14 +179,17 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
                 $ilObjSession->$setter($dto->$getter());
             }
         }
-
-        if ($this->props->get(ISessionProperties::MOVE_SESSION)) {
-            $this->moveSession($ilObjSession, $dto);
+        try {
+            if ($this->props->get(ISessionProperties::MOVE_SESSION)) {
+                $this->moveSession($ilObjSession, $dto);
+            }
+            $this->setLanguage($dto, $ilObjSession);
+            $ilObjSession = $this->setDataForFirstAppointment($dto, $ilObjSession, true);
+            $ilObjSession->update();
+            $ilObjSession->getFirstAppointment()->update();
+        } catch(\Throwable $e) {
+            $this->log->error("Hub2, SessionSyncProcesser, ilObjSession could  not be moved. Session ID :".$ilObjSession->getRefId());
         }
-        $this->setLanguage($dto, $ilObjSession);
-        $ilObjSession = $this->setDataForFirstAppointment($dto, $ilObjSession, true);
-        $ilObjSession->update();
-        $ilObjSession->getFirstAppointment()->update();
     }
 
     /**
