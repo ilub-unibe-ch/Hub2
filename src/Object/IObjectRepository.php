@@ -24,7 +24,7 @@ namespace srag\Plugins\Hub2\Object;
  */
 interface IObjectRepository
 {
-    public const GLUE = "|||";
+    public const GLUE = '|||';
 
     /**
      * Return all objects

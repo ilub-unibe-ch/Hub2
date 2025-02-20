@@ -34,18 +34,19 @@ trait MetadataSyncProcessor
     /**
      * @param IMetadataAwareDataTransferObject $dto
      * @param ilObject                         $object
-     * @throws HubException
      */
-    public function handleMetadata(IMetadataAwareDataTransferObject $dto, ilObject $object)
+    public function handleMetadata(IMetadataAwareDataTransferObject $dto, ilObject $object): mixed
     {
         if (count($dto->getMetaData()) > 0) {
 
-            ilContainer::_writeContainerSetting($object->getId(), ilObjectServiceSettingsGUI::CUSTOM_METADATA, "1");
+            ilContainer::_writeContainerSetting($object->getId(), ilObjectServiceSettingsGUI::CUSTOM_METADATA, '1');
             $f = new MetadataImplementationFactory();
 
             foreach ($dto->getMetaData() as $metaDatum) {
                 $f->getImplementationForDTO($dto, $metaDatum, (string) $object->getId())->write();
             }
         }
+        return null;
     }
+
 }

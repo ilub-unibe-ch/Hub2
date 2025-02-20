@@ -33,7 +33,7 @@ class Metadata implements IMetadata
     /**
      * @var mixed
      */
-    protected $value;
+    protected mixed $value;
     /**
      * @var int
      */
@@ -53,7 +53,7 @@ class Metadata implements IMetadata
     /**
      * @inheritdoc
      */
-    public function setValue($value): IMetadata
+    public function setValue(mixed $value): IMetadata
     {
         $this->value = $value;
 
@@ -73,7 +73,7 @@ class Metadata implements IMetadata
     /**
      * @inheritdoc
      */
-    public function getValue()
+    public function getValue(): mixed
     {
         return $this->value;
     }

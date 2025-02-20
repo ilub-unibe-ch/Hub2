@@ -24,6 +24,7 @@ use ActiveRecord;
 use ilHub2Plugin;
 
 use srag\Plugins\Hub2\UI\Data\DataTableGUI;
+use ilDBInterface;
 
 /**
  * Class OriginFactory
@@ -34,7 +35,7 @@ use srag\Plugins\Hub2\UI\Data\DataTableGUI;
 class OriginFactory implements IOriginFactory
 {
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
-    protected \ilDBInterface $database;
+    protected ilDBInterface $database;
 
     /**
      *
@@ -117,14 +118,14 @@ class OriginFactory implements IOriginFactory
     /**
      * @param int $origin_id
      */
-    public function delete(int $origin_id)/*: void*/
+    public function delete(int $origin_id): void/*: void*/
     {
         /**
          * @var ActiveRecord $object
          */
 
         foreach (DataTableGUI::$classes as $class) {
-            foreach ($class::where(["origin_id" => $origin_id])->get() as $object) {
+            foreach ($class::where(['origin_id' => $origin_id])->get() as $object) {
                 $object->delete();
             }
         }

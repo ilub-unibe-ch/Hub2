@@ -33,7 +33,7 @@ abstract class DataTransferObject implements IDataTransferObject
     private string $ext_id;
     private string $period = '';
     private bool $should_deleted = false;
-    protected ?string $additionalData = "";
+    protected ?string $additionalData = '';
 
     /**
      * @param string $ext_id
@@ -88,7 +88,7 @@ abstract class DataTransferObject implements IDataTransferObject
     public function setData(array $data): IDataTransferObject
     {
         foreach ($data as $key => $value) {
-            if ($key !== "should_deleted") {
+            if ($key !== 'should_deleted') {
                 $this->{$key} = $value;
             }
         }
@@ -101,9 +101,13 @@ abstract class DataTransferObject implements IDataTransferObject
      */
     protected function getProperties(): array
     {
-        return array_filter(array_keys(get_class_vars(get_class($this))), function (string $property): bool {
-            return ($property !== "should_deleted");
-        });
+        $array_filter = [];
+        foreach (array_keys(get_class_vars(get_class($this))) as $key => $property) {
+            if ($property !== 'should_deleted') {
+                $array_filter[$key] = $property;
+            }
+        }
+        return $array_filter;
     }
 
     /**
@@ -112,8 +116,8 @@ abstract class DataTransferObject implements IDataTransferObject
     public function __toString()
     {
         return implode(', ', [
-            "ext_id: " . $this->getExtId(),
-            "period: " . $this->getPeriod(),
+            'ext_id: ' . $this->getExtId(),
+            'period: ' . $this->getPeriod(),
         ]);
     }
 
@@ -151,7 +155,7 @@ abstract class DataTransferObject implements IDataTransferObject
     /**
      * @inheritdoc
      */
-    public function withAdditionalData(Serializable $additionalData)
+    public function withAdditionalData(Serializable $additionalData): mixed
     {
         $this->additionalData = serialize($additionalData);
 

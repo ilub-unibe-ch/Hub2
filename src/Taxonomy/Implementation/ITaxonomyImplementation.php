@@ -33,7 +33,7 @@ interface ITaxonomyImplementation
      * Writes the Value in the ILIAS representative
      * @return void
      */
-    public function write();
+    public function write(): void;
 
     /**
      * @return ITaxonomy

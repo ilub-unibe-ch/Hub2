@@ -47,11 +47,11 @@ class OrgUnitMembershipSyncProcessor extends ObjectSyncProcessor implements IOrg
     /**
      * @var IOrgUnitMembershipProperties
      */
-    private $props;
+    private IOrgUnitMembershipProperties|\srag\Plugins\Hub2\Origin\Properties\IOriginProperties $props;
     /**
      * @var IOrgUnitMembershipOriginConfig
      */
-    private $config;
+    private IOrgUnitMembershipOriginConfig|\srag\Plugins\Hub2\Origin\Config\IOriginConfig $config;
     /**
      * @var array
      */
@@ -59,7 +59,7 @@ class OrgUnitMembershipSyncProcessor extends ObjectSyncProcessor implements IOrg
     /**
      * @var FakeOrgUnitMembershipObject|null
      */
-    protected $current_ilias_object = null;
+    protected \ilObject|FakeIliasObject|null $current_ilias_object = null;
 
     /**
      * @param IOrigin                 $origin
@@ -88,7 +88,7 @@ class OrgUnitMembershipSyncProcessor extends ObjectSyncProcessor implements IOrg
      * @inheritdoc
      * @param IOrgUnitMembershipDTO $dto
      */
-    protected function handleCreate(IDataTransferObject $dto)/*: void*/
+    protected function handleCreate(IDataTransferObject $dto): void/*: void*/
     {
         $this->current_ilias_object = $this->getFakeIliasObject($this->assignToOrgUnit($dto));
     }
@@ -117,11 +117,11 @@ class OrgUnitMembershipSyncProcessor extends ObjectSyncProcessor implements IOrg
     protected function handleDelete(string $ilias_id): void
     {
         $this->current_ilias_object = FakeOrgUnitMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
-
-        $assignment = ilOrgUnitUserAssignment::where([
-            "orgu_id" => $this->current_ilias_object->getContainerIdIlias(),
-            "user_id" => $this->current_ilias_object->getUserIdIlias(),
-            "position_id" => $this->current_ilias_object->getPositionId()
+        /** @var ActiveRecord $class */
+        $assignment = $class::where([
+            'orgu_id' => $this->current_ilias_object->getContainerIdIlias(),
+            'user_id' => $this->current_ilias_object->getUserIdIlias(),
+            'position_id' => $this->current_ilias_object->getPositionId()
         ])->first();
 
         if ($assignment !== null) {
@@ -138,18 +138,18 @@ class OrgUnitMembershipSyncProcessor extends ObjectSyncProcessor implements IOrg
     {
         switch ($dto->getPosition()) {
             case IOrgUnitMembershipDTO::POSITION_EMPLOYEE:
-                $position_id = ilOrgUnitPosition::getCorePositionId(self::IL_POSITION_EMPLOYEE);
+                $position_id = ilOrgUnitPosition::CORE_POSITION_EMPLOYEE;
                 break;
 
             case IOrgUnitMembershipDTO::POSITION_SUPERIOR:
-                $position_id = ilOrgUnitPosition::getCorePositionId(self::IL_POSITION_SUPERIOR);
+                $position_id = ilOrgUnitPosition::CORE_POSITION_SUPERIOR;
                 break;
 
             default:
                 throw new HubException("Invalid position {$dto->getPosition()}!");
         }
-
-        return ilOrgUnitUserAssignment::findOrCreateAssignment(
+        $org_repo= new \ilOrgUnitUserAssignmentDBRepository($this->database);
+        return $org_repo->get(
             $dto->getUserId(),
             $position_id,
             $this->getOrgUnitId($dto)
@@ -183,7 +183,7 @@ class OrgUnitMembershipSyncProcessor extends ObjectSyncProcessor implements IOrg
 
                 $linkedOriginId = $this->config->getLinkedOriginId();
                 if (!$linkedOriginId) {
-                    throw new HubException("Unable to lookup external ref-ID because there is no origin linked");
+                    throw new HubException('Unable to lookup external ref-ID because there is no origin linked');
                 }
 
                 $origin_factory = new OriginFactory();

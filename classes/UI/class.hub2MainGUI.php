@@ -21,6 +21,7 @@ use srag\Plugins\Hub2\Origin\OriginFactory;
 use srag\Plugins\Hub2\Origin\OriginRepository;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
 use Psr\Http\Message\RequestInterface;
+use ILIAS\DI\UIServices;
 
 /**
  * Class MainGUI
@@ -42,7 +43,7 @@ class hub2MainGUI
     protected ilObjUser $user;
     protected RequestInterface $request;
     protected ilRbacReview $rbac_review;
-    protected \ILIAS\DI\UIServices $ui;
+    protected UIServices $ui;
     protected ilToolbarGUI $toolbar;
     protected ilTabsGUI $tabs;
     protected ilCtrlInterface $ctrl;
@@ -64,9 +65,9 @@ class hub2MainGUI
     }
 
     /**
-     *
+     * @throws ilCtrlException
      */
-    public function executeCommand()/*: void*/
+    public function executeCommand(): void
     {
         $this->initTabs();
         $nextClass = $this->ctrl->getNextClass();
@@ -92,17 +93,15 @@ class hub2MainGUI
     }
 
     /**
-     *
+     * @throws ilCtrlException
      */
-    protected function index()/*: void*/
+    protected function index(): void
     {
         $this->ctrl->redirectByClass(hub2ConfigGUI::class);
     }
 
-    /**
-     *
-     */
-    protected function initTabs()/*: void*/
+
+    protected function initTabs(): void
     {
         $this->tabs->addTab(
             self::TAB_PLUGIN_CONFIG,
@@ -127,7 +126,7 @@ class hub2MainGUI
     /**
      *
      */
-    protected function cancel()/*: void*/
+    protected function cancel(): void
     {
         $this->index();
     }
@@ -135,7 +134,7 @@ class hub2MainGUI
     /**
      *
      */
-    protected function handleExplorerCommand()/*: void*/
+    protected function handleExplorerCommand(): void
     {
         (new OriginConfigFormGUI(
             new hub2ConfigOriginsGUI(),

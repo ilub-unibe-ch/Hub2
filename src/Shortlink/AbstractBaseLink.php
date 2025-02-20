@@ -23,6 +23,9 @@ namespace srag\Plugins\Hub2\Shortlink;
 use ilHub2Plugin;
 
 use srag\Plugins\Hub2\Object\ARObject;
+use ilAccessHandler;
+use ilTree;
+use ilCtrlInterface;
 
 /**
  * Class AbstractBaseLink
@@ -32,9 +35,9 @@ use srag\Plugins\Hub2\Object\ARObject;
 abstract class AbstractBaseLink implements IObjectLink
 {
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
-    protected \ilCtrlInterface $ctrl;
-    protected \ilTree $tree;
-    protected \ilAccessHandler $access;
+    protected ilCtrlInterface $ctrl;
+    protected ilTree $tree;
+    protected ilAccessHandler $access;
     /**
      * @var ARObject
      */
@@ -60,6 +63,6 @@ abstract class AbstractBaseLink implements IObjectLink
      */
     public function getNonExistingLink(): string
     {
-        return "index.php";
+        return 'index.php';
     }
 }

@@ -29,6 +29,7 @@ use srag\Plugins\Hub2\Object\OrgUnit\OrgUnitDTO;
 use srag\Plugins\Hub2\Object\OrgUnitMembership\OrgUnitMembershipDTO;
 use srag\Plugins\Hub2\Object\User\UserDTO;
 use srag\Plugins\Hub2\Object\Course\ICourseDTO;
+use ilDBInterface;
 
 /**
  * Class ByTitle
@@ -37,23 +38,30 @@ use srag\Plugins\Hub2\Object\Course\ICourseDTO;
  */
 class ByTitle extends AMappingStrategy implements IMappingStrategy
 {
-    protected \ilDBInterface $database;
+    protected ilDBInterface $database;
 
+    private \ilTree $tree;
+
+    public function __construct()
+    {
+        global $DIC;
+        $this->tree = $DIC['tree'];
+    }
     /**
      * @inheritdoc
      */
     public function map(IDataTransferObject $dto): int
     {
         switch (true) {
-            case ($dto instanceof UserDTO):
-            case ($dto instanceof CourseMembershipDTO):
-            case ($dto instanceof GroupMembershipDTO):
-            case ($dto instanceof OrgUnitMembershipDTO):
-                throw new HubException("Mapping using Title not supported for this type of DTO");
-            case ($dto instanceof GroupDTO):
-            case ($dto instanceof CourseDTO):
-            case ($dto instanceof OrgUnitDTO):
-            case ($dto instanceof CategoryDTO):
+            case $dto instanceof UserDTO:
+            case $dto instanceof CourseMembershipDTO:
+            case $dto instanceof GroupMembershipDTO:
+            case $dto instanceof OrgUnitMembershipDTO:
+                throw new HubException('Mapping using Title not supported for this type of DTO');
+            case $dto instanceof GroupDTO:
+            case $dto instanceof CourseDTO:
+            case $dto instanceof OrgUnitDTO:
+            case $dto instanceof CategoryDTO:
                 if ($dto->getParentIdType() != ICourseDTO::PARENT_ID_TYPE_REF_ID) {
                     return 0;
                 }
@@ -81,14 +89,14 @@ class ByTitle extends AMappingStrategy implements IMappingStrategy
     private function getTypeByDTO(IDataTransferObject $dto): string
     {
         switch (true) {
-            case ($dto instanceof GroupDTO):
-                return "grp";
-            case ($dto instanceof CourseDTO):
-                return "crs";
-            case ($dto instanceof OrgUnitDTO):
-                return "orgu";
-            case ($dto instanceof CategoryDTO):
-                return "cat";
+            case $dto instanceof GroupDTO:
+                return 'grp';
+            case $dto instanceof CourseDTO:
+                return 'crs';
+            case $dto instanceof OrgUnitDTO:
+                return 'orgu';
+            case $dto instanceof CategoryDTO:
+                return 'cat';
         }
 
         return '';

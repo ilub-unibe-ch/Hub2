@@ -84,5 +84,5 @@ interface IDataTransferObject
      * @param Serializable $additionalData
      * @return mixed
      */
-    public function withAdditionalData(Serializable $additionalData);
+    public function withAdditionalData(Serializable $additionalData): mixed;
 }

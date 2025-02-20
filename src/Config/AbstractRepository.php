@@ -20,6 +20,7 @@ namespace srag\Plugins\Hub2\Config;
 use ilDateTime;
 use ilDateTimeException;
 use LogicException;
+use ilDBInterface;
 
 /**
  * Class AbstractRepository
@@ -28,7 +29,7 @@ use LogicException;
  */
 abstract class AbstractRepository
 {
-    protected \ilDBInterface $db;
+    protected ilDBInterface $db;
 
     /**
      * AbstractRepository constructor
@@ -53,7 +54,7 @@ abstract class AbstractRepository
     /**
      * @return mixed
      */
-    public function getValue(string $name)
+    public function getValue(string $name): mixed
     {
         if (isset($this->getFields()[$name])) {
             $field = $this->getFields()[$name];
@@ -67,7 +68,7 @@ abstract class AbstractRepository
 
             switch ($type) {
                 case Config::TYPE_STRING:
-                    return $this->getStringValue($name, $default_value);
+                    return $this->getStringValue($name, (string)$default_value);
 
                 case Config::TYPE_INTEGER:
                     return $this->getIntegerValue($name, $default_value);
@@ -76,7 +77,7 @@ abstract class AbstractRepository
                     return $this->getFloatValue($name, $default_value);
 
                 case Config::TYPE_BOOLEAN:
-                    return $this->getBooleanValue($name, $default_value);
+                    return $this->getBooleanValue($name, (bool) $default_value);
 
                 case Config::TYPE_TIMESTAMP:
                     return $this->getTimestampValue($name, $default_value);
@@ -125,7 +126,7 @@ abstract class AbstractRepository
     /**
      * @param mixed $value
      */
-    public function setValue(string $name, $value): void
+    public function setValue(string $name, mixed $value): void
     {
         if (isset($this->getFields()[$name])) {
             $field = $this->getFields()[$name];
@@ -195,11 +196,7 @@ abstract class AbstractRepository
         $config->delete();
     }
 
-    /**
-     * @param mixed $default_value
-     *
-     */
-    protected function getBooleanValue(string $name, $default_value = false): bool
+    protected function getBooleanValue(string $name, bool $default_value = false): bool
     {
         return filter_var($this->getXValue($name, $default_value), FILTER_VALIDATE_BOOLEAN);
     }
@@ -212,8 +209,8 @@ abstract class AbstractRepository
 
         $config = null;
 
-        if(Config::where(["name" => $name])->hasSets()) {
-            $config = Config::where(["name" => $name])->first();
+        if(Config::where(['name' => $name])->hasSets()) {
+            $config = Config::where(['name' => $name])->first();
         }
 
 
@@ -234,7 +231,7 @@ abstract class AbstractRepository
      * @param ilDateTime|null $default_value
      *
      */
-    protected function getDateTimeValue(string $name, /*?*/ ilDateTime $default_value = null): ?ilDateTime
+    protected function getDateTimeValue(string $name, ?ilDateTime $default_value = null): ?ilDateTime
     {
         $value = $this->getXValue($name);
 
@@ -253,30 +250,24 @@ abstract class AbstractRepository
 
     abstract protected function getFields(): array;
 
-    /**
-     * @param mixed $default_value
-     *
-     */
-    protected function getFloatValue(string $name, $default_value = 0.0): float
+
+    protected function getFloatValue(string $name, float $default_value = 0.0): float
     {
         return (float) $this->getXValue($name, $default_value);
     }
 
-    /**
-     * @param mixed $default_value
-     *
-     */
-    protected function getIntegerValue(string $name, $default_value = 0): int
+
+    protected function getIntegerValue(string $name, int $default_value = 0): int
     {
         return (int) $this->getXValue($name, $default_value);
     }
 
     /**
-     * @param mixed $default_value
+     * @param mixed|null $default_value
      *
      * @return mixed
      */
-    protected function getJsonValue(string $name, bool $assoc = false, $default_value = null)
+    protected function getJsonValue(string $name, bool $assoc = false, mixed $default_value = null): mixed
     {
         return json_decode(
             $this->getXValue($name, json_encode($default_value, JSON_THROW_ON_ERROR)),
@@ -287,10 +278,10 @@ abstract class AbstractRepository
     }
 
     /**
-     * @param mixed $default_value
+     * @param mixed|string $default_value
      *
      */
-    protected function getStringValue(string $name, $default_value = ""): string
+    protected function getStringValue(string $name, string $default_value = ''): string
     {
         return (string) $this->getXValue($name, $default_value);
     }
@@ -309,10 +300,10 @@ abstract class AbstractRepository
     }
 
     /**
-     * @param mixed $default_value
+     * @param mixed|null $default_value
      * @return mixed
      */
-    protected function getXValue(string $name, $default_value = null)
+    protected function getXValue(string $name, mixed $default_value = null): mixed
     {
         $config = $this->getConfig($name);
         $value = $config->getValue();
@@ -325,13 +316,13 @@ abstract class AbstractRepository
 
     protected function isNullValue(string $name): bool
     {
-        return ($this->getXValue($name) === null);
+        return $this->getXValue($name) === null;
     }
 
     /**
      * @param mixed $value
      */
-    protected function setBooleanValue(string $name, $value): void
+    protected function setBooleanValue(string $name, mixed $value): void
     {
         $this->setXValue($name, json_encode(filter_var($value, FILTER_VALIDATE_BOOLEAN), JSON_THROW_ON_ERROR));
     }
@@ -351,7 +342,7 @@ abstract class AbstractRepository
     /**
      * @param mixed $value
      */
-    protected function setFloatValue(string $name, $value): void
+    protected function setFloatValue(string $name, mixed $value): void
     {
         $this->setXValue($name, (float) $value);
     }
@@ -359,7 +350,7 @@ abstract class AbstractRepository
     /**
      * @param mixed $value
      */
-    protected function setIntegerValue(string $name, $value): void
+    protected function setIntegerValue(string $name, mixed $value): void
     {
         $this->setXValue($name, (int) $value);
     }
@@ -367,7 +358,7 @@ abstract class AbstractRepository
     /**
      * @param mixed $value
      */
-    protected function setJsonValue(string $name, $value): void
+    protected function setJsonValue(string $name, mixed $value): void
     {
         $this->setXValue($name, json_encode($value, JSON_THROW_ON_ERROR));
     }
@@ -380,7 +371,7 @@ abstract class AbstractRepository
     /**
      * @param mixed $value
      */
-    protected function setStringValue(string $name, $value): void
+    protected function setStringValue(string $name, mixed $value): void
     {
         $this->setXValue($name, (string) $value);
     }
@@ -393,7 +384,7 @@ abstract class AbstractRepository
     /**
      * @param mixed $value
      */
-    protected function setXValue(string $name, $value): void
+    protected function setXValue(string $name, mixed $value): void
     {
         $config = $this->getConfig($name, false);
 

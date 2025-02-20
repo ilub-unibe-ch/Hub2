@@ -27,6 +27,9 @@ use ilInitialisation;
 
 use srag\Plugins\Hub2\Config\ArConfig;
 use srag\Plugins\Hub2\Exception\ShortlinkException;
+use ilObjUser;
+use ILIAS\DI\UIServices;
+use ilCtrlInterface;
 
 /**
  * Class Handler
@@ -36,10 +39,11 @@ use srag\Plugins\Hub2\Exception\ShortlinkException;
 class Handler
 {
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
-    public const PLUGIN_BASE = "Customizing/global/plugins/Services/Cron/CronHook/Hub2/";
-    protected \ilCtrlInterface $ctrl;
-    protected \ILIAS\DI\UIServices $ui;
-    protected \ilObjUser $user;
+    public const PLUGIN_BASE = 'Customizing/global/plugins/Services/Cron/CronHook/Hub2/';
+    private \ilAuthSession $auth_session;
+    protected ilCtrlInterface $ctrl;
+    protected UIServices $ui;
+    protected ilObjUser $user;
     protected ilDBInterface $database;
     /**
      * @var bool
@@ -68,23 +72,24 @@ class Handler
         $this->ctrl = $DIC->ctrl();
         $this->ui = $DIC->ui();
         $this->user = $DIC->user();
+        $this->auth_session = $DIC['ilAuthSession'];
     }
 
     /**
      *
      */
-    public function storeQuery()
+    public function storeQuery(): void
     {
-        $return = setcookie('xhub_query', $this->ext_id, time() + 10);
+        setcookie('xhub_query', $this->ext_id, time() + 10);
     }
 
     /**
      * @throws ShortlinkException
      */
-    public function process()
+    public function process(): void
     {
         if (!$this->init || !$this->database instanceof ilDBInterface) {
-            throw new ShortlinkException("ILIAS not initialized, aborting...");
+            throw new ShortlinkException('ILIAS not initialized, aborting...');
         }
 
         $object_link_factory = new ObjectLinkFactory();
@@ -107,7 +112,7 @@ class Handler
     /**
      * @param string $link
      */
-    protected function doRedirect(string $link)
+    protected function doRedirect(string $link): void
     {
         $link = $this->sanitizeLink($link);
         $this->ctrl->redirectToURL($link);
@@ -116,7 +121,7 @@ class Handler
     /**
      * @param string $message
      */
-    protected function sendMessage(string $message)
+    protected function sendMessage(string $message): void
     {
         if ($message !== '') {
             $this->ui->mainTemplate()->setOnScreenMessage('info', $message, true);
@@ -126,11 +131,11 @@ class Handler
     /**
      *
      */
-    public function tryILIASInit()
+    public function tryILIASInit(): void
     {
         $this->prepareILIASInit();
 
-        require_once("Services/Init/classes/class.ilInitialisation.php");
+        require_once 'Services/Init/classes/class.ilInitialisation.php';
         ilInitialisation::initILIAS();
 
         $this->init = true;
@@ -139,42 +144,42 @@ class Handler
     /**
      *
      */
-    public function tryILIASInitPublic()
+    public function tryILIASInitPublic(): void
     {
         $this->prepareILIASInit();
 
         require_once 'Services/Context/classes/class.ilContext.php';
         ilContext::init(ilContext::CONTEXT_WAC);
-        require_once "Services/Init/classes/class.ilInitialisation.php";
+        require_once 'Services/Init/classes/class.ilInitialisation.php';
         ilInitialisation::initILIAS();
-        $ilAuthSession = self::dic()->authSession();
-        $ilAuthSession->init();
-        $ilAuthSession->regenerateId();
+        $this->auth_session->init();
+        $this->auth_session->regenerateId();
         $a_id = ANONYMOUS_USER_ID;
-        $ilAuthSession->setUserId($a_id);
-        $ilAuthSession->setAuthenticated(false, $a_id);
+        $this->auth_session->setUserId($a_id);
+        $this->auth_session->setAuthenticated(false, $a_id);
         $this->user->setId($a_id);
 
         $this->init = true;
     }
 
+
     /**
      * @param string $link
      * @return mixed|string
      */
-    protected function sanitizeLink(string $link)
+    protected function sanitizeLink(string $link): mixed
     {
-        $link = str_replace(self::PLUGIN_BASE, "", $link);
-        $link = ltrim($link, "/");
+        $link = str_replace(self::PLUGIN_BASE, '', $link);
+        $link = ltrim($link, '/');
         return "/{$link}";
     }
 
     /**
      *
      */
-    protected function prepareILIASInit()
+    protected function prepareILIASInit(): void
     {
         $GLOBALS['COOKIE_PATH'] = '/';
-        $_GET["client_id"] = $_COOKIE['ilClientId'];
+        $_GET['client_id'] = $_COOKIE['ilClientId'];
     }
 }

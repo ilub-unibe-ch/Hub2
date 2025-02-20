@@ -45,7 +45,7 @@ class HookObject
     /**
      * @var ilObject|FakeIliasObject
      */
-    private $ilias_object;
+    private ilObject|FakeIliasObject $ilias_object;
 
     /**
      * @param IObject             $object
@@ -79,7 +79,7 @@ class HookObject
      * @param int $status
      * @throws HubException
      */
-    public function overrideStatus(int $status)
+    public function overrideStatus(int $status): void
     {
         $this->object->setStatus($status);
     }
@@ -88,7 +88,7 @@ class HookObject
      * @param ilObject|FakeIliasObject $object
      * @return HookObject
      */
-    public function withILIASObject($object): HookObject
+    public function withILIASObject(FakeIliasObject|ilObject $object): HookObject
     {
         $clone = clone $this;
         $clone->ilias_object = $object;
@@ -103,7 +103,7 @@ class HookObject
      * before callbacks
      * @return ilObject|FakeIliasObject
      */
-    public function getILIASObject()
+    public function getILIASObject(): FakeIliasObject|ilObject
     {
         return $this->ilias_object;
     }

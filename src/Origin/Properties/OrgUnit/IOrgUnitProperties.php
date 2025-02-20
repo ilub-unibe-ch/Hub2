@@ -32,29 +32,29 @@ interface IOrgUnitProperties extends IOriginProperties
     /**
      * @var string
      */
-    public const PROP_DESCRIPTION = "description";
+    public const PROP_DESCRIPTION = 'description';
     /**
      * @var string
      */
-    public const PROP_EXT_ID = "ext_id";
+    public const PROP_EXT_ID = 'ext_id';
     /**
      * @var string
      */
-    public const PROP_ORG_UNIT_TYPE = "org_unit_type";
+    public const PROP_ORG_UNIT_TYPE = 'org_unit_type';
     /**
      * @var string
      */
-    public const PROP_OWNER = "owner";
+    public const PROP_OWNER = 'owner';
     /**
      * @var string
      */
-    public const PROP_PARENT_ID = "parent_id";
+    public const PROP_PARENT_ID = 'parent_id';
     /**
      * @var string
      */
-    public const PROP_PARENT_ID_TYPE = "parent_id_type";
+    public const PROP_PARENT_ID_TYPE = 'parent_id_type';
     /**
      * @var string
      */
-    public const PROP_TITLE = "title";
+    public const PROP_TITLE = 'title';
 }

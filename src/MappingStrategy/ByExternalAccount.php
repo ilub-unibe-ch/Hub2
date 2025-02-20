@@ -34,7 +34,7 @@ class ByExternalAccount extends AMappingStrategy implements IMappingStrategy
     public function map(IDataTransferObject $dto): int
     {
         if (!$dto instanceof UserDTO) {
-            throw new HubException("Mapping using External Account not supported for this type of DTO");
+            throw new HubException('Mapping using External Account not supported for this type of DTO');
         }
         $login = ilObjUser::_checkExternalAuthAccount($dto->getAuthMode(), $dto->getExternalAccount());
 

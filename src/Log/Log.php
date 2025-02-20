@@ -31,7 +31,7 @@ use srag\Plugins\Hub2\Log\Repository as LogRepository;
  */
 class Log extends ActiveRecord implements ILog
 {
-    public const TABLE_NAME = "sr_hub2_log";
+    public const TABLE_NAME = 'sr_hub2_log';
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
     protected IRepository $log_repo;
 
@@ -73,14 +73,14 @@ class Log extends ActiveRecord implements ILog
      * @con_fieldtype    text
      * @con_is_notnull   true
      */
-    protected string $title = "";
+    protected string $title = '';
     /**
      * @var string
      * @con_has_field    true
      * @con_fieldtype    text
      * @con_is_notnull   true
      */
-    protected string $message = "";
+    protected string $message = '';
     /**
      * @var int
      * @con_has_field    true
@@ -124,7 +124,7 @@ class Log extends ActiveRecord implements ILog
      * @con_fieldtype    text
      * @con_is_notnull   true
      */
-    protected string $origin_object_type = "";
+    protected string $origin_object_type = '';
     /**
      * @var string|null
      * @con_has_field    true
@@ -241,7 +241,7 @@ class Log extends ActiveRecord implements ILog
         return $this;
     }
 
-    public function addAdditionalData(string $key, $value): ILog
+    public function addAdditionalData(string $key, mixed $value): ILog
     {
         $this->additional_data->{$key} = $value;
 

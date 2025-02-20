@@ -36,7 +36,7 @@ class CustomMetadata extends AbstractImplementation implements IMetadataImplemen
     /**
      * @inheritdoc
      */
-    public function write()
+    public function write(): void
     {
         $id = $this->getMetadata()->getIdentifier();
 
@@ -44,7 +44,7 @@ class CustomMetadata extends AbstractImplementation implements IMetadataImplemen
             $this->getMetadata()->getRecordId(),
             $this->getIliasId(),
             null,
-            "-"
+            '-'
         );
 
         $ilAdvancedMDValues->read();
@@ -53,23 +53,23 @@ class CustomMetadata extends AbstractImplementation implements IMetadataImplemen
         $ilADT = $ilADTGroup->getElement($id);
 
         switch (true) {
-            case ($ilADT instanceof ilADTLocalizedText):
-                $ilADT->setTranslation("de", $value);
+            case $ilADT instanceof ilADTLocalizedText:
+                $ilADT->setTranslation('de', $value);
                 break;
-            case ($ilADT instanceof ilADTText):
+            case $ilADT instanceof ilADTText:
                 $ilADT->setText($value);
                 break;
-            case ($ilADT instanceof ilADTDate):
+            case $ilADT instanceof ilADTDate:
                 $ilADT->setDate(new ilDateTime(time(), IL_CAL_UNIX));
                 break;
-            case ($ilADT instanceof ilADTExternalLink):
+            case $ilADT instanceof ilADTExternalLink:
                 $ilADT->setUrl($value['url']);
                 $ilADT->setTitle($value['title']);
                 break;
-            case ($ilADT instanceof ilADTInternalLink):
+            case $ilADT instanceof ilADTInternalLink:
                 $ilADT->setTargetRefId($value);
                 break;
-            case ($ilADT instanceof ilADTLocation):
+            case $ilADT instanceof ilADTLocation:
                 $ilADT->setLatitude((float)$value['latitude']);
                 $ilADT->setLongitude((float)$value['longitude']);
                 $ilADT->setZoom($value['zoom']);
@@ -82,7 +82,7 @@ class CustomMetadata extends AbstractImplementation implements IMetadataImplemen
     /**
      * @inheritdoc
      */
-    public function read()
+    public function read(): void
     {
         // no need for a read-Method since wo have to update them anyways due to performance-issues when reading all metadata everytime
     }

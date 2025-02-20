@@ -32,17 +32,17 @@ interface IOrgUnitMembershipProperties extends IOriginProperties
     /**
      * @var string
      */
-    public const PROP_ORG_UNIT_ID = "org_unit_id";
+    public const PROP_ORG_UNIT_ID = 'org_unit_id';
     /**
      * @var string
      */
-    public const PROP_ORG_UNIT_ID_TYPE = "org_unit_id_type";
+    public const PROP_ORG_UNIT_ID_TYPE = 'org_unit_id_type';
     /**
      * @var string
      */
-    public const PROP_POSITION = "position";
+    public const PROP_POSITION = 'position';
     /**
      * @var string
      */
-    public const PROP_USER_ID = "user_id";
+    public const PROP_USER_ID = 'user_id';
 }

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . "/../AbstractHub2Tests.php";
+require_once __DIR__ . '/../AbstractHub2Tests.php';
 
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Mockery\MockInterface;
@@ -36,32 +36,32 @@ class OriginSyncTest extends AbstractHub2Tests
     /**
      * @var MockInterface
      */
-    protected $originImplementation;
+    protected IOriginImplementation|\Mockery\LegacyMockInterface|MockInterface|object $originImplementation;
     /**
      * @var MockInterface
      */
-    protected $origin;
+    protected IOrigin|MockInterface|\Mockery\LegacyMockInterface|object $origin;
     /**
      * @var MockInterface
      */
-    protected $repository;
+    protected \Mockery\LegacyMockInterface|IObjectRepository|MockInterface|object $repository;
     /**
      * @var MockInterface
      */
-    protected $factory;
+    protected \Mockery\LegacyMockInterface|IObjectFactory|MockInterface|object $factory;
     /**
      * @var MockInterface
      */
-    protected $processor;
+    protected IObjectSyncProcessor|MockInterface|\Mockery\LegacyMockInterface|object $processor;
     /**
      * @var MockInterface
      * @deprecated
      */
-    protected $statusTransition;
+    protected IObjectStatusTransition|\Mockery\LegacyMockInterface|MockInterface|object $statusTransition;
     /**
      * @var MockInterface
      */
-    protected $originConfig;
+    protected IOriginConfig|\Mockery\LegacyMockInterface|MockInterface|object $originConfig;
 
     protected function setUp(): void
     {
@@ -105,9 +105,7 @@ class OriginSyncTest extends AbstractHub2Tests
             $this->origin,
             $this->repository,
             $this->factory,
-            $this->processor,
-            $this->statusTransition,
-            $this->originImplementation
+            $this->processor
         );
         $this->expectException(ParseDataFailedException::class);
         $originSync->execute();
@@ -224,7 +222,7 @@ class OriginSyncTest extends AbstractHub2Tests
         $this->originConfig->shouldReceive('getCheckAmountData')->andReturn(false);
         $this->repository->shouldReceive('count');
         $this->origin->shouldReceive('getObjectType')->andReturn('user');
-        $this->originImplementation->shouldReceive('buildObjects')->andReturn([new UserDTO("1")]);
+        $this->originImplementation->shouldReceive('buildObjects')->andReturn([new UserDTO('1')]);
         $this->statusTransition->shouldReceive('finalToIntermediate');
         $userMock = Mockery::mock(IUser::class);
         $userMock->shouldReceive('setDeliveryDate', 'setStatus');
@@ -242,9 +240,7 @@ class OriginSyncTest extends AbstractHub2Tests
             $this->origin,
             $this->repository,
             $this->factory,
-            $this->processor,
-            $this->statusTransition,
-            $this->originImplementation
+            $this->processor
         );
         $originSync->execute();
         //$this->assertEquals($exception, array_pop($originSync->getLogs()));

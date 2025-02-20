@@ -84,28 +84,28 @@ abstract class ObjectRepository implements IObjectRepository
     {
         $glue = self::GLUE;
         $class = $this->getClass();
-        $existing_ext_id_query = "";
+        $existing_ext_id_query = '';
 
         if (count($parent_ext_ids) > 0) {
             if (count($ext_ids) > 0) {
                 $existing_ext_id_query = " AND ext_id NOT IN ('" . implode("','", $ext_ids) . "') ";
             }
             if ($this instanceof GroupRepository || $this instanceof SessionRepository) {
-                $parent_scope_query = " AND (";
+                $parent_scope_query = ' AND (';
                 foreach ($parent_ext_ids as $parent_ext_id) {
                     $parent_scope_query .= " data LIKE '%\"parentId\":\"$parent_ext_id\"%' OR";
                 }
-                $parent_scope_query = rtrim($parent_scope_query, "OR");
-                $parent_scope_query .= ")";
+                $parent_scope_query = rtrim($parent_scope_query, 'OR');
+                $parent_scope_query .= ')';
             } else {
                 $parent_scope_query = " AND SUBSTRING_INDEX(ext_id,'" . $glue . "',1) IN ('" . implode(
                     "','",
                     $parent_ext_ids
                 ) . "') ";
             }
-
+            /** @var ActiveRecord $class */
             return $class::where(
-                "origin_id = " . $this->origin->getId() . " AND status IN ('" . implode("','", [
+                'origin_id = ' . $this->origin->getId() . " AND status IN ('" . implode("','", [
                     IObject::STATUS_CREATED,
                     IObject::STATUS_UPDATED,
                     IObject::STATUS_IGNORED

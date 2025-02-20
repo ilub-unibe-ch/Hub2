@@ -28,7 +28,7 @@ class OK extends AbstractResult
     /**
      * @inheritdoc
      */
-    protected function initStatus()
+    protected function initStatus(): void
     {
         $this->setStatus(self::STATUS_OK);
     }

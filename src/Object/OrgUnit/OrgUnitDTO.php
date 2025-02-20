@@ -29,11 +29,11 @@ class OrgUnitDTO extends DataTransferObject implements IOrgUnitDTO
     /**
      * @var string
      */
-    protected string $title = "";
+    protected string $title = '';
     /**
      * @var string
      */
-    protected string $description = "";
+    protected string $description = '';
     /**
      * @var int
      */
@@ -41,7 +41,7 @@ class OrgUnitDTO extends DataTransferObject implements IOrgUnitDTO
     /**
      * @var int|string|null
      */
-    protected $parent_id = null;
+    protected string|int|null $parent_id = null;
     /**
      * @var int
      */
@@ -49,11 +49,11 @@ class OrgUnitDTO extends DataTransferObject implements IOrgUnitDTO
     /**
      * @var string
      */
-    protected string $org_unit_type = "";
+    protected string $org_unit_type = '';
     /**
      * @var string
      */
-    protected string $ext_id = "";
+    protected string $ext_id = '';
 
     /**
      * @inheritdoc
@@ -121,7 +121,7 @@ class OrgUnitDTO extends DataTransferObject implements IOrgUnitDTO
     /**
      * @inheritdoc
      */
-    public function getParentId()
+    public function getParentId(): int|string|null
     {
         return $this->parent_id;
     }
@@ -129,7 +129,7 @@ class OrgUnitDTO extends DataTransferObject implements IOrgUnitDTO
     /**
      * @inheritdoc
      */
-    public function setParentId($parent_id): IOrgUnitDTO
+    public function setParentId(int|string|null $parent_id): IOrgUnitDTO
     {
         $this->parent_id = $parent_id;
 

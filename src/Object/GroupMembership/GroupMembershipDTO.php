@@ -104,7 +104,7 @@ class GroupMembershipDTO extends DataTransferObject implements IGroupMembershipD
     /**
      * @return int
      */
-    public function getRole()
+    public function getRole(): int
     {
         return $this->role;
     }
@@ -113,7 +113,7 @@ class GroupMembershipDTO extends DataTransferObject implements IGroupMembershipD
      * @param mixed $role
      * @return GroupMembershipDTO
      */
-    public function setRole($role): GroupMembershipDTO
+    public function setRole(mixed $role): GroupMembershipDTO
     {
         $this->role = $role;
 

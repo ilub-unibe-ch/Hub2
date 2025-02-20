@@ -52,7 +52,7 @@ class TaxonomySelect extends AbstractTaxonomy implements ITaxonomyImplementation
     /**
      * @inheritdoc
      */
-    public function write()
+    public function write(): void
     {
         $this->initSelectableTaxonomies();
 
@@ -66,7 +66,7 @@ class TaxonomySelect extends AbstractTaxonomy implements ITaxonomyImplementation
     /**
      *
      */
-    protected function handleNodes()
+    protected function handleNodes(): void
     {
         $this->initTaxTree();
         foreach ($this->getTaxonomy()->getNodes() as $node) {
@@ -80,7 +80,7 @@ class TaxonomySelect extends AbstractTaxonomy implements ITaxonomyImplementation
     /**
      *
      */
-    private function selectTaxonomy()
+    private function selectTaxonomy(): void
     {
         $tax_id = array_search($this->getTaxonomy()->getTitle(), $this->selectable_taxonomies);
         if (!$tax_id) {
@@ -89,7 +89,7 @@ class TaxonomySelect extends AbstractTaxonomy implements ITaxonomyImplementation
         $this->ilObjTaxonomy = new ilObjTaxonomy($tax_id);
         $this->container_obj_id = ilObject2::_lookupObjId($this->getILIASParentId());
         $a_component_id = ilObject2::_lookupType($this->container_obj_id);
-        $this->ilTaxNodeAssignment = new ilTaxNodeAssignment($a_component_id, $this->container_obj_id, "obj", $tax_id);
+        $this->ilTaxNodeAssignment = new ilTaxNodeAssignment($a_component_id, $this->container_obj_id, 'obj', $tax_id);
     }
 
     /**
@@ -97,7 +97,7 @@ class TaxonomySelect extends AbstractTaxonomy implements ITaxonomyImplementation
      * @throws TaxonomyNodeNotFoundException
      * @throws ilTaxonomyException
      */
-    private function selectNode(INode $node)
+    private function selectNode(INode $node): void
     {
         $node_id = array_search($node->getTitle(), $this->childs);
         if (!$node_id) {
@@ -118,17 +118,17 @@ class TaxonomySelect extends AbstractTaxonomy implements ITaxonomyImplementation
     /**
      *
      */
-    private function initSelectableTaxonomies()
+    private function initSelectableTaxonomies(): void
     {
         $res = [];
         foreach ($this->tree->getPathFull($this->getILIASParentId()) as $node) {
-            if ($node["ref_id"] != $this->getILIASParentId()) {
-                if ($node["type"] == "cat") {
+            if ($node['ref_id'] != $this->getILIASParentId()) {
+                if ($node['type'] == 'cat') {
                     if (ilContainer::_lookupContainerSetting(
-                        $node["obj_id"],
+                        $node['obj_id'],
                         ilObjectServiceSettingsGUI::TAXONOMIES
                     )) {
-                        $tax_ids = ilObjTaxonomy::getUsageOfObject($node["obj_id"]);
+                        $tax_ids = ilObjTaxonomy::getUsageOfObject($node['obj_id']);
                         if (sizeof($tax_ids)) {
                             $res = array_merge($res, $tax_ids);
                         }

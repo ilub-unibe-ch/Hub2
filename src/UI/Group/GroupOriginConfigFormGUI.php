@@ -29,6 +29,7 @@ use srag\Plugins\Hub2\Origin\Group\ARGroupOrigin;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
 use srag\Plugins\Hub2\Origin\Properties\Group\IGroupProperties;
 use ilHub2Plugin;
+use srag\Plugins\Hub2\Origin\IOrigin;
 
 /**
  * Class GroupOriginConfigFormGUI
@@ -40,12 +41,12 @@ class GroupOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @var ARGroupOrigin
      */
-    protected \srag\Plugins\Hub2\Origin\IOrigin $origin;
+    protected IOrigin $origin;
 
     /**
      * @inheritdoc
      */
-    protected function addSyncConfig()
+    protected function addSyncConfig(): void
     {
         parent::addSyncConfig();
 
@@ -61,7 +62,7 @@ class GroupOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesUpdate()
+    protected function addPropertiesUpdate(): void
     {
         parent::addPropertiesUpdate();
 
@@ -77,7 +78,7 @@ class GroupOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesDelete()
+    protected function addPropertiesDelete(): void
     {
         parent::addPropertiesDelete();
 

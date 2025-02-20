@@ -38,7 +38,7 @@ abstract class FakeIliasObject
      * FakeIliasObject constructor
      * @param string $id
      */
-    public function __construct(string $id = "")
+    public function __construct(string $id = '')
     {
         $this->id = $id;
     }
@@ -54,7 +54,7 @@ abstract class FakeIliasObject
     /**
      * @param string $id
      */
-    public function setId(string $id)
+    public function setId(string $id): void
     {
         $this->id = $id;
     }
@@ -62,5 +62,5 @@ abstract class FakeIliasObject
     /**
      * @return mixed
      */
-    abstract public function initId();
+    abstract public function initId(): mixed;
 }

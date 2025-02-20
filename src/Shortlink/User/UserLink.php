@@ -72,7 +72,7 @@ class UserLink extends AbstractBaseLink implements IObjectLink
      */
     public function getAccessDeniedLink(): string
     {
-        return "ilias.php";
+        return 'ilias.php';
     }
 
     /**
@@ -80,9 +80,9 @@ class UserLink extends AbstractBaseLink implements IObjectLink
      */
     public function getAccessGrantedInternalLink(): string
     {
-        $this->ctrl->setParameterByClass(ilObjUserGUI::class, "ref_id", 7);
-        $this->ctrl->setParameterByClass(ilObjUserGUI::class, "obj_id", $this->object->getILIASId());
+        $this->ctrl->setParameterByClass(ilObjUserGUI::class, 'ref_id', 7);
+        $this->ctrl->setParameterByClass(ilObjUserGUI::class, 'obj_id', $this->object->getILIASId());
 
-        return $this->ctrl->getLinkTargetByClass([ilAdministrationGUI::class, ilObjUserGUI::class], "view");
+        return $this->ctrl->getLinkTargetByClass([ilAdministrationGUI::class, ilObjUserGUI::class], 'view');
     }
 }

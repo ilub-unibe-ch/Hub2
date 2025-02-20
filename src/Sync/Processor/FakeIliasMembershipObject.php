@@ -82,7 +82,7 @@ class FakeIliasMembershipObject extends FakeIliasObject
     /**
      * @param int $user_id_ilias
      */
-    public function setUserIdIlias(int $user_id_ilias)
+    public function setUserIdIlias(int $user_id_ilias): void
     {
         $this->user_id_ilias = $user_id_ilias;
     }
@@ -98,7 +98,7 @@ class FakeIliasMembershipObject extends FakeIliasObject
     /**
      * @param int $container_id_ilias
      */
-    public function setContainerIdIlias(int $container_id_ilias)
+    public function setContainerIdIlias(int $container_id_ilias): void
     {
         $this->container_id_ilias = $container_id_ilias;
     }
@@ -106,8 +106,9 @@ class FakeIliasMembershipObject extends FakeIliasObject
     /**
      *
      */
-    public function initId()
+    public function initId(): mixed
     {
         $this->setId(implode(self::GLUE, [$this->container_id_ilias, $this->user_id_ilias]));
+        return true;
     }
 }

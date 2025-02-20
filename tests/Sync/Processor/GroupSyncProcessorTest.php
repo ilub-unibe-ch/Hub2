@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . "/../../AbstractSyncProcessorTests.php";
+require_once __DIR__ . '/../../AbstractSyncProcessorTests.php';
 
 use Mockery\MockInterface;
 use srag\Plugins\Hub2\Object\Group\GroupDTO;
@@ -11,6 +11,7 @@ use srag\Plugins\Hub2\Origin\Config\Group\GroupOriginConfig;
 use srag\Plugins\Hub2\Origin\Properties\Group\GroupProperties;
 use srag\Plugins\Hub2\Sync\Processor\Group\GroupSyncProcessor;
 use srag\Plugins\Hub2\Sync\Processor\Group\IGroupActivities;
+use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 
 /**
  * Class GroupSyncProcessorTest
@@ -29,34 +30,38 @@ class GroupSyncProcessorTest extends AbstractSyncProcessorTests
     /**
      * @var MockInterface|IGroupActivities
      */
-    protected $activities;
+    protected IGroupActivities|\Mockery\LegacyMockInterface|MockInterface|object $activities;
     /**
      * @var MockInterface|IGroup
      */
-    protected $iobject;
+    protected IGroup|MockInterface $iobject;
     /**
      * @var GroupDTO
      */
-    protected \srag\Plugins\Hub2\Object\DTO\IDataTransferObject $dto;
+    protected IDataTransferObject $dto;
     /**
      * @var MockInterface|ilObjGroup
      * @see http://docs.mockery.io/en/latest/cookbook/mocking_hard_dependencies.html
      */
     protected MockInterface $ilObject;
 
-    protected function initDTO()
+    protected function initDTO(): void
     {
         $this->dto = new GroupDTO('extIdOfGroup');
-        $this->dto->setParentIdType(GroupDTO::PARENT_ID_TYPE_REF_ID)->setParentId("1")->setDescription("Description")->setTitle("Title")
-                  ->setInformation("Information")->setGroupType(GroupDTO::GRP_TYPE_CLOSED)
-                  ->setRegUnlimited(false)->setRegistrationStart(1507202887)->setRegistrationEnd(1507202887 + 30)->setPassword("Password")
+        $this->dto->setParentIdType(GroupDTO::PARENT_ID_TYPE_REF_ID)->setParentId('1')->setDescription('Description')->setTitle(
+            'Title'
+        )
+                  ->setInformation('Information')->setGroupType(GroupDTO::GRP_TYPE_CLOSED)
+                  ->setRegUnlimited(false)->setRegistrationStart(1507202887)->setRegistrationEnd(1507202887 + 30)->setPassword(
+                'Password'
+            )
                   ->setRegMembershipLimitation(true)->setMinMembers(1)->setMaxMembers(10)->setWaitingList(true)->setWaitingListAutoFill(true)
                   ->setStart(1507202887)->setEnd(1507202887 + 30)->setLatitude(7.1234)->setLongitude(45.1234)->setLocationzoom(5)->setEnableGroupMap(1)
-                  ->setRegAccessCodeEnabled(true)->setRegistrationAccessCode("AccessCode")->setOwner(6)->setViewMode(GroupDTO::VIEW_BY_TYPE)
+                  ->setRegAccessCodeEnabled(true)->setRegistrationAccessCode('AccessCode')->setOwner(6)->setViewMode(GroupDTO::VIEW_BY_TYPE)
                   ->setCancellationEnd(1507202887);
     }
 
-    protected function initHubObject()
+    protected function initHubObject(): void
     {
         $this->iobject = Mockery::mock(IGroup::class);
         $this->iobject->shouldReceive('setProcessedDate')->once();
@@ -65,7 +70,7 @@ class GroupSyncProcessorTest extends AbstractSyncProcessorTests
         $this->iobject->shouldReceive('save')->once();
     }
 
-    protected function initILIASObject()
+    protected function initILIASObject(): void
     {
         $this->ilObject = Mockery::mock('overload:' . ilObjGroup::class, ilObject::class);
         $this->ilObject->shouldReceive('getId')->andReturn(self::ILIAS_USER_ID);
@@ -156,7 +161,7 @@ class GroupSyncProcessorTest extends AbstractSyncProcessorTests
         $processor->process($this->iobject, $this->dto);
     }
 
-    protected function initDataExpectations()
+    protected function initDataExpectations(): void
     {
         $this->ilObject->shouldReceive('setTitle')->once()->with($this->dto->getTitle());
         $this->ilObject->shouldReceive('setDescription')->once()->with($this->dto->getDescription());

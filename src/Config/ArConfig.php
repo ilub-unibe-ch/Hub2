@@ -40,7 +40,7 @@ class ArConfig extends ActiveRecordConfig
     public const KEY_GLOBAL_HOCK_ACTIVE = 'key_global_hock_active';
     public const KEY_GLOBAL_HOCK_PATH = 'key_global_hock_path';
     public const KEY_GLOBAL_HOCK_CLASS = 'key_global_hock_class';
-    public const KEY_KEEP_OLD_LOGS_TIME = "keep_old_logs_time";
+    public const KEY_KEEP_OLD_LOGS_TIME = 'keep_old_logs_time';
     /**
      * @var array
      */

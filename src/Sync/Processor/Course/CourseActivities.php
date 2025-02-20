@@ -63,6 +63,6 @@ class CourseActivities implements ICourseActivities
 				    wre.obj_id = " . $this->db->quote(ilObject2::_lookupObjId($ilObjCourse->getRefId()), 'integer');
         $query = $this->db->query($sql);
 
-        return ($this->db->numRows($query) > 0);
+        return $this->db->numRows($query) > 0;
     }
 }

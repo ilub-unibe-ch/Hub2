@@ -34,6 +34,7 @@ use srag\Plugins\Hub2\Sync\Summary\OriginSyncSummaryFactory;
 use srag\Plugins\Hub2\Log\Repository as LogRepository;
 
 use Throwable;
+use ILIAS\Cron\Schedule\CronJobScheduleType;
 
 /**
  * Class RunSync
@@ -44,21 +45,16 @@ class RunSync extends ilCronJob
 {
     public const CRON_JOB_ID = ilHub2Plugin::PLUGIN_ID;
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    private \srag\Plugins\Hub2\Log\IRepository $log_repo;
     /**
      * @var IOrigin[]
      */
     protected array $origins;
-    /**
-     * @var IOriginSyncSummary
-     */
+    
     protected ?IOriginSyncSummary $summary = null;
-    /**
-     * @var IOriginSyncSummary
-     */
-    protected $force_update;
-    /**
-     * @var Notifier
-     */
+   
+    protected IOriginSyncSummary|bool $force_update;
+   
     protected Notifier $notifier;
 
     /**
@@ -74,7 +70,7 @@ class RunSync extends ilCronJob
     ) {
         $this->origins = $origins;
         $this->summary = $summary;
-        $this->force_update = $force_update || (getenv('HUB2_FORCED_SYNC') === "true");
+        $this->force_update = $force_update || getenv('HUB2_FORCED_SYNC') === 'true';
         $this->notifier = $notifier;
         $this->log_repo = LogRepository::getInstance();
     }
@@ -100,7 +96,7 @@ class RunSync extends ilCronJob
      */
     public function getDescription(): string
     {
-        return "";
+        return '';
     }
 
     /**
@@ -119,17 +115,11 @@ class RunSync extends ilCronJob
         return true;
     }
 
-    /**
-     * @return int
-     */
-    public function getDefaultScheduleType(): int
+    public function getDefaultScheduleType(): CronJobScheduleType
     {
-        return ilCronJob::SCHEDULE_TYPE_DAILY;
+        return CronJobScheduleType::SCHEDULE_TYPE_DAILY;
     }
 
-    /**
-     * @return null
-     */
     public function getDefaultScheduleValue(): ?int
     {
         return 1;
@@ -153,7 +143,7 @@ class RunSync extends ilCronJob
             }
 
             if (!$global_hook->beforeSync($this->origins)) {
-                return ResultFactory::error("there was an error");
+                return ResultFactory::error('there was an error');
             }
 
             foreach ($this->origins as $origin) {
@@ -174,7 +164,7 @@ class RunSync extends ilCronJob
                 try {
                     $originSyncFactory->initImplementation($originSync);
 
-                    $originSync->execute($this->notifier);
+                    $originSync->execute();
 
                 } catch (AbortSyncException $e) {
                     throw $e;
@@ -192,13 +182,13 @@ class RunSync extends ilCronJob
             $this->summary->sendEmail();
 
             if (!$global_hook->afterSync($this->origins)) {
-                return ResultFactory::error("there was an error");
+                return ResultFactory::error('there was an error');
             }
 
             return ResultFactory::ok("everything's fine.");
         } catch (Throwable $e) {
             $global_hook->handleThrowable($e);
-            $result = ResultFactory::error("there was an error");
+            $result = ResultFactory::error('there was an error');
             $result->setError($e);
             return $result;
         }

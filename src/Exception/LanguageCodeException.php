@@ -31,7 +31,7 @@ class LanguageCodeException extends HubException
      * LanguageCodeException constructor
      * @param string $code
      */
-    public function __construct($code = "")
+    public function __construct($code = '')
     {
         parent::__construct("Language Code does not exist, ID: '$code'");
     }

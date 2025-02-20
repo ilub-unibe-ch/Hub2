@@ -87,7 +87,7 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
      * @db_fieldtype           integer
      * @db_length              1
      */
-    protected $active = 0;
+    protected int|bool $active = 0;
     /**
      * @var string
      * @db_has_field           true
@@ -153,7 +153,7 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
      * @db_has_field           true
      * @db_fieldtype           timestamp
      */
-    protected ?string $last_run = "";
+    protected ?string $last_run = '';
     /**
      * @var bool
      */
@@ -194,7 +194,7 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
         if (empty($this->sort)) {
             $origins = (new OriginFactory())->getAll();
             if (count($origins) > 0) {
-                $this->sort = (end($origins)->getSort() + 1);
+                $this->sort = end($origins)->getSort() + 1;
             } else {
                 $this->sort = 1;
             }
@@ -215,7 +215,7 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
     /**
      * @inheritdoc
      */
-    public function sleep($field_name)
+    public function sleep($field_name): bool|int|string|null
     {
         $field_value = $this->{$field_name};
 
@@ -240,9 +240,9 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
                 }
 
                 // no break
-            case "adhoc":
-            case "adhoc_parent_scope":
-                return ($field_value ? 1 : 0);
+            case 'adhoc':
+            case 'adhoc_parent_scope':
+                return $field_value ? 1 : 0;
 
             default:
                 return null;
@@ -259,11 +259,11 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
             case 'properties':
                 return json_decode($field_value, true);
 
-            case "adhoc":
-            case "adhoc_parent_scope":
+            case 'adhoc':
+            case 'adhoc_parent_scope':
                 return boolval($field_value);
 
-            case "sort":
+            case 'sort':
                 return intval($field_value);
 
             default:
@@ -371,7 +371,7 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
     /**
      * @param string $implementation_namespace
      */
-    public function setImplementationNamespace(string $implementation_namespace)
+    public function setImplementationNamespace(string $implementation_namespace): void
     {
         $this->implementation_namespace = $implementation_namespace;
     }
@@ -411,7 +411,7 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
     /**
      * @param string $last_run
      */
-    public function setLastRun(string $last_run)
+    public function setLastRun(string $last_run): void
     {
         $this->last_run = $last_run;
     }
@@ -491,7 +491,7 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
     /**
      * Run Sync without Hash comparison
      */
-    public function forceUpdate()
+    public function forceUpdate(): void
     {
         $this->force_update = true;
     }
@@ -515,7 +515,7 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
     /**
      * @inheritdoc
      */
-    public function setAdHoc(bool $adhoc)/*: void*/
+    public function setAdHoc(bool $adhoc): void/*: void*/
     {
         $this->adhoc = $adhoc;
     }
@@ -531,7 +531,7 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
     /**
      * @inheritdoc
      */
-    public function setAdhocParentScope(bool $adhoc_parent_scope)/*: void*/
+    public function setAdhocParentScope(bool $adhoc_parent_scope): void/*: void*/
     {
         $this->adhoc_parent_scope = $adhoc_parent_scope;
     }
@@ -547,7 +547,7 @@ abstract class AROrigin extends ActiveRecord implements IOrigin
     /**
      * @inheritdoc
      */
-    public function setSort(int $sort)/*: void*/
+    public function setSort(int $sort): void/*: void*/
     {
         $this->sort = $sort;
     }

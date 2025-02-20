@@ -57,7 +57,7 @@ interface IObjectFactory
      * @param string $ext_id
      * @return ActiveRecord|ARCategory|ICategory|ARCourse|ICourse|ARCourseMembership|ICourseMembership|ARGroup|IGroup|ARGroupMembership|IGroupMembership|ARSession|ISession|ARUser|IUser|IOrgUnit|AROrgUnit|IOrgUnitMembership|AROrgUnitMembership
      */
-    public function undefined(string $ext_id);
+    public function undefined(string $ext_id): AROrgUnit|ARGroupMembership|IGroupMembership|ICategory|ARCourse|ICourseMembership|AROrgUnitMembership|ARCategory|ARGroup|ARUser|IUser|IOrgUnitMembership|ARSession|ICourse|ISession|IGroup|IOrgUnit|ActiveRecord|ARCourseMembership;
 
     /**
      * @param string $ext_id

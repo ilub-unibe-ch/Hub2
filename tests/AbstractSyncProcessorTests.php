@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . "/AbstractHub2Tests.php";
+require_once __DIR__ . '/AbstractHub2Tests.php';
 
 use ILIAS\DI\Container;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
@@ -48,7 +48,7 @@ abstract class AbstractSyncProcessorTests extends AbstractHub2Tests
     /**
      * @var MockInterface|ilTree
      */
-    protected $tree;
+    protected ilTree|MockInterface $tree;
     /**
      * @var IOriginConfig
      */
@@ -60,14 +60,14 @@ abstract class AbstractSyncProcessorTests extends AbstractHub2Tests
     /**
      * @var MockInterface|IOriginImplementation
      */
-    protected $originImplementation;
+    protected IOriginImplementation|MockInterface $originImplementation;
 
-    protected function initStatusTransitions()
+    protected function initStatusTransitions(): void
     {
         $this->statusTransition = new ObjectStatusTransition(Mockery::mock(IOriginConfig::class));
     }
 
-    protected function setupGeneralDependencies()
+    protected function setupGeneralDependencies(): void
     {
         $this->initStatusTransitions();
         $this->initDIC();
@@ -77,7 +77,7 @@ abstract class AbstractSyncProcessorTests extends AbstractHub2Tests
      * @param IOriginProperties $properties
      * @param IOriginConfig     $config
      */
-    protected function initOrigin(IOriginProperties $properties, IOriginConfig $config)
+    protected function initOrigin(IOriginProperties $properties, IOriginConfig $config): void
     {
         $this->originProperties = $properties;
         $this->originConfig = $config;
@@ -88,7 +88,7 @@ abstract class AbstractSyncProcessorTests extends AbstractHub2Tests
         $this->originImplementation = Mockery::mock(IOriginImplementation::class);
     }
 
-    protected function initDIC()
+    protected function initDIC(): void
     {
         global $DIC;
 

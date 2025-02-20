@@ -38,8 +38,8 @@ interface IOrigin
     public const OBJECT_TYPE_GROUP_MEMBERSHIP = 'groupMembership';
     public const OBJECT_TYPE_SESSION = 'session';
     public const OBJECT_TYPE_SESSION_MEMBERSHIP = 'sessionMembership';
-    public const OBJECT_TYPE_ORGNUNIT = "orgUnit";
-    public const OBJECT_TYPE_ORGNUNIT_MEMBERSHIP = "orgUnitMembership";
+    public const OBJECT_TYPE_ORGNUNIT = 'orgUnit';
+    public const OBJECT_TYPE_ORGNUNIT_MEMBERSHIP = 'orgUnitMembership';
     public const ORIGIN_MAIN_NAMESPACE = "srag\\Plugins\\Hub2\\Origin";
 
     /**

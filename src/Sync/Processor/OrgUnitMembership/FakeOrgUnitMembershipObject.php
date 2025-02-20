@@ -59,7 +59,7 @@ class FakeOrgUnitMembershipObject extends FakeIliasMembershipObject
     /**
      * @param int $position_id
      */
-    public function setPositionId(int $position_id)
+    public function setPositionId(int $position_id): void
     {
         $this->position_id = $position_id;
     }
@@ -67,7 +67,7 @@ class FakeOrgUnitMembershipObject extends FakeIliasMembershipObject
     /**
      *
      */
-    public function initId()
+    public function initId(): void
     {
         $this->setId(implode(self::GLUE, [$this->container_id_ilias, $this->user_id_ilias, $this->position_id]));
     }

@@ -25,6 +25,7 @@ use srag\Plugins\Hub2\Origin\Config\OrgUnit\IOrgUnitOriginConfig;
 use srag\Plugins\Hub2\Origin\OrgUnit\AROrgUnitOrigin;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
 use ilHub2Plugin;
+use srag\Plugins\Hub2\Origin\IOrigin;
 
 /**
  * Class OrgUnitOriginConfigFormGUI
@@ -36,20 +37,20 @@ class OrgUnitOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @var AROrgUnitOrigin
      */
-    protected \srag\Plugins\Hub2\Origin\IOrigin $origin;
+    protected IOrigin $origin;
 
     /**
      * @inheritdoc
      */
-    protected function addSyncConfig()
+    protected function addSyncConfig(): void
     {
         parent::addSyncConfig();
 
         $ref_id_if_no_parent_id = new ilTextInputGUI(
-            ilHub2Plugin::getInstance()->txt("orgunit_ref_id_if_no_parent_id"),
+            ilHub2Plugin::getInstance()->txt('orgunit_ref_id_if_no_parent_id'),
             $this->conf(IOrgUnitOriginConfig::REF_ID_IF_NO_PARENT_ID)
         );
-        $ref_id_if_no_parent_id->setInfo(ilHub2Plugin::getInstance()->txt("orgunit_ref_id_if_no_parent_id_info"));
+        $ref_id_if_no_parent_id->setInfo(ilHub2Plugin::getInstance()->txt('orgunit_ref_id_if_no_parent_id_info'));
         $ref_id_if_no_parent_id->setValue($this->origin->config()->getRefIdIfNoParentId());
         $this->addItem($ref_id_if_no_parent_id);
     }
@@ -57,7 +58,7 @@ class OrgUnitOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesNew()
+    protected function addPropertiesNew(): void
     {
         parent::addPropertiesNew();
     }
@@ -65,7 +66,7 @@ class OrgUnitOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesUpdate()
+    protected function addPropertiesUpdate(): void
     {
         parent::addPropertiesUpdate();
     }
@@ -73,7 +74,7 @@ class OrgUnitOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesDelete()
+    protected function addPropertiesDelete(): void
     {
         parent::addPropertiesDelete();
     }

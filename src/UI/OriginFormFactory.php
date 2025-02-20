@@ -44,6 +44,6 @@ class OriginFormFactory
 
         $ucfirst = ucfirst($type);
 
-        return "srag\\Plugins\\Hub2\\UI\\" . $ucfirst . "\\" . $ucfirst . "OriginConfigFormGUI";
+        return "srag\\Plugins\\Hub2\\UI\\" . $ucfirst . "\\" . $ucfirst . 'OriginConfigFormGUI';
     }
 }

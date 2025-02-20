@@ -78,12 +78,12 @@ class ArConfigOld extends ActiveRecord
      * @return mixed
      * @deprecated
      */
-    public static function getValueByKey(string $key)
+    public static function getValueByKey(string $key): mixed
     {
         /** @var ARConfig $config */
         $config = self::find($key);
 
-        return ($config) ? $config->getValue() : null;
+        return $config?->getValue();
     }
 
     /**
@@ -108,7 +108,7 @@ class ArConfigOld extends ActiveRecord
      * @return false|string|null
      * @deprecated
      */
-    public function sleep($field_name)
+    public function sleep($field_name): bool|string|null
     {
         switch ($field_name) {
             case 'value':
@@ -131,7 +131,7 @@ class ArConfigOld extends ActiveRecord
      * @param string $key
      * @deprecated
      */
-    public function setKey(string $key)
+    public function setKey(string $key): void
     {
         $this->identifier = $key;
     }
@@ -149,7 +149,7 @@ class ArConfigOld extends ActiveRecord
      * @param string $value
      * @deprecated
      */
-    public function setValue(string $value)
+    public function setValue(string $value): void
     {
         $this->value = $value;
     }

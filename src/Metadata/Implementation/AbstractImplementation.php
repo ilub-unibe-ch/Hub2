@@ -52,12 +52,12 @@ abstract class AbstractImplementation implements IMetadataImplementation
     /**
      * @inheritdoc
      */
-    abstract public function write();
+    abstract public function write(): void;
 
     /**
      * @inheritdoc
      */
-    abstract public function read();
+    abstract public function read(): void;
 
     /**
      * @inheritdoc

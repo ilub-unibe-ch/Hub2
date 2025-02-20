@@ -33,7 +33,14 @@ use srag\Plugins\Hub2\Object\Session\ARSession;
 use srag\Plugins\Hub2\Object\SessionMembership\ARSessionMembership;
 use srag\Plugins\Hub2\Object\User\ARUser;
 use srag\Plugins\Hub2\Origin\IOrigin;
-
+use srag\Plugins\Hub2\Object\SessionMembership\ISessionMembership;
+use srag\Plugins\Hub2\Object\GroupMembership\IGroupMembership;
+use srag\Plugins\Hub2\Object\CourseMembership\ICourseMembership;
+use srag\Plugins\Hub2\Object\Session\ISession;
+use srag\Plugins\Hub2\Object\Group\IGroup;
+use srag\Plugins\Hub2\Object\Category\ICategory;
+use srag\Plugins\Hub2\Object\Course\ICourse;
+use srag\Plugins\Hub2\Object\User\IUser;
 
 /**
  * Class ObjectFactory
@@ -60,7 +67,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function undefined(string $ext_id)
+    public function undefined(string $ext_id): AROrgUnit|ARGroupMembership|IGroupMembership|ICategory|ARCourse|ISession|AROrgUnitMembership|ARCategory|ICourse|ARUser|IOrgUnitMembership|IUser|ARSession|ARGroup|ICourseMembership|IGroup|IOrgUnit|\ActiveRecord|ARCourseMembership
     {
         switch ($this->origin->getObjectType()) {
             case IOrigin::OBJECT_TYPE_USER:
@@ -91,7 +98,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function user(string $ext_id): \srag\Plugins\Hub2\Object\User\IUser
+    public function user(string $ext_id): IUser
     {
         $user = ARUser::find($this->getId($ext_id));
         if ($user === null) {
@@ -106,7 +113,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function course(string $ext_id): \srag\Plugins\Hub2\Object\Course\ICourse
+    public function course(string $ext_id): ICourse
     {
         $course = ARCourse::find($this->getId($ext_id));
         if ($course === null) {
@@ -121,7 +128,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function category(string $ext_id): \srag\Plugins\Hub2\Object\Category\ICategory
+    public function category(string $ext_id): ICategory
     {
         $category = ARCategory::find($this->getId($ext_id));
         if ($category === null) {
@@ -136,7 +143,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function group(string $ext_id): \srag\Plugins\Hub2\Object\Group\IGroup
+    public function group(string $ext_id): IGroup
     {
         $group = ARGroup::find($this->getId($ext_id));
         if ($group === null) {
@@ -151,7 +158,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function session(string $ext_id): \srag\Plugins\Hub2\Object\Session\ISession
+    public function session(string $ext_id): ISession
     {
         $session = ARSession::find($this->getId($ext_id));
         if ($session === null) {
@@ -166,7 +173,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function courseMembership(string $ext_id): \srag\Plugins\Hub2\Object\CourseMembership\ICourseMembership
+    public function courseMembership(string $ext_id): ICourseMembership
     {
         $course_membership = ARCourseMembership::find($this->getId($ext_id));
         if ($course_membership === null) {
@@ -181,7 +188,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function groupMembership(string $ext_id): \srag\Plugins\Hub2\Object\GroupMembership\IGroupMembership
+    public function groupMembership(string $ext_id): IGroupMembership
     {
         $group_membership = ARGroupMembership::find($this->getId($ext_id));
         if ($group_membership === null) {
@@ -196,7 +203,7 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function sessionMembership(string $ext_id): \srag\Plugins\Hub2\Object\SessionMembership\ISessionMembership
+    public function sessionMembership(string $ext_id): ISessionMembership
     {
         $session_membership = ARSessionMembership::find($this->getId($ext_id));
         if ($session_membership === null) {

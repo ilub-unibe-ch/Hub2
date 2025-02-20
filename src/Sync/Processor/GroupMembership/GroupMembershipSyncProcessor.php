@@ -48,11 +48,11 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
     /**
      * @var GroupProperties
      */
-    protected $props;
+    protected \srag\Plugins\Hub2\Origin\Properties\IOriginProperties|GroupProperties $props;
     /**
      * @var GroupOriginConfig
      */
-    protected $config;
+    protected GroupOriginConfig|\srag\Plugins\Hub2\Origin\Config\IOriginConfig $config;
 
     /**
      * @param IOrigin                 $origin
@@ -73,7 +73,7 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
      * @inheritdoc
      * @param GroupMembershipDTO $dto
      */
-    protected function handleCreate(IDataTransferObject $dto)/*: void*/
+    protected function handleCreate(IDataTransferObject $dto): void/*: void*/
     {
         $ilias_group_ref_id = $this->buildParentRefId($dto);
 
@@ -94,7 +94,7 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
      * @inheritdoc
      * @param GroupMembershipDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id): void/*: void*/
     {
         $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
 
@@ -113,7 +113,7 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
 
         $membership_obj = $group->getMembersObject();
         $membership_obj->updateRoleAssignments($user_id, [$this->getILIASRole($dto, $group)]);
-        if ($this->props->updateDTOProperty("isContact")) {
+        if ($this->props->updateDTOProperty('isContact')) {
             $membership_obj->updateContact($user_id, $dto->isContact());
         }
 
@@ -125,7 +125,7 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
     /**
      * @inheritdoc
      */
-    protected function handleDelete(string $ilias_id)/*: void*/
+    protected function handleDelete(string $ilias_id): void/*: void*/
     {
         $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
 
@@ -165,22 +165,26 @@ class GroupMembershipSyncProcessor extends ObjectSyncProcessor implements IGroup
             // --> Get an instance of the linked origin and lookup the group by the given external ID.
             $linkedOriginId = $this->config->getLinkedOriginId();
             if (!$linkedOriginId) {
-                throw new HubException("Unable to lookup external parent ref-ID because there is no origin linked");
+                throw new HubException('Unable to lookup external parent ref-ID because there is no origin linked');
             }
             $originRepository = new OriginRepository();
-            $array = array_filter($originRepository->groups(), function ($origin) use ($linkedOriginId) {
-                /** @var IOrigin $origin */
-                return $origin->getId() == $linkedOriginId;
-            });
+            /** @var IOrigin $origin */
+            $array_filter = [];
+            foreach ($originRepository->groups() as $key => $origin) {
+                if ($origin->getId() == $linkedOriginId) {
+                    $array_filter[$key] = $origin;
+                }
+            }
+            $array = $array_filter;
             $origin = array_pop($array);
             if ($origin === null) {
-                $msg = "The linked origin syncing group was not found, please check that the correct origin is linked";
+                $msg = 'The linked origin syncing group was not found, please check that the correct origin is linked';
                 throw new HubException($msg);
             }
             $objectFactory = new ObjectFactory($origin);
             $group = $objectFactory->group($dto->getGroupId());
             if (!$group->getILIASId()) {
-                throw new HubException("The linked group does not (yet) exist in ILIAS");
+                throw new HubException('The linked group does not (yet) exist in ILIAS');
             }
             if (!$this->tree->isInTree((int)$group->getILIASId())) {
                 throw new HubException("Could not find the ref-ID of the parent group in the tree: '{$group->getILIASId()}'");

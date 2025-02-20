@@ -26,6 +26,8 @@ use srag\Plugins\Hub2\Object\OrgUnit\IOrgUnitDTO;
 use srag\Plugins\Hub2\Object\Session\ISessionDTO;
 use srag\Plugins\Hub2\Object\User\IUserDTO;
 use srag\Plugins\Hub2\Sync\Processor\IObjectSyncProcessor;
+use ilTree;
+use ilDBInterface;
 
 /**
  * Class ByImportId
@@ -34,8 +36,8 @@ use srag\Plugins\Hub2\Sync\Processor\IObjectSyncProcessor;
  */
 class ByImportId extends AMappingStrategy implements IMappingStrategy
 {
-    protected \ilDBInterface $database;
-    protected \ilTree $tree;
+    protected ilDBInterface $database;
+    protected ilTree $tree;
 
     public function __construct()
     {
@@ -51,50 +53,53 @@ class ByImportId extends AMappingStrategy implements IMappingStrategy
     {
         switch (true) {
             case $dto instanceof IUserDTO:
-                $object_type = "usr";
+                $object_type = 'usr';
                 break;
 
             case $dto instanceof ICourseDTO:
-                $object_type = "crs";
+                $object_type = 'crs';
                 break;
 
             case $dto instanceof ICategoryDTO:
-                $object_type = "cat";
+                $object_type = 'cat';
                 break;
 
             case $dto instanceof IGroupDTO:
-                $object_type = "grp";
+                $object_type = 'grp';
                 break;
 
             case $dto instanceof ISessionDTO:
-                $object_type = "sess";
+                $object_type = 'sess';
                 break;
 
             case $dto instanceof IOrgUnitDTO:
-                $object_type = "orgu";
+                $object_type = 'orgu';
                 break;
 
             default:
-                throw new HubException("Cannot find import id for type=" . get_class($dto) . ",ext_id=" . $dto->getExtId() . "!");
+                throw new HubException(
+                    'Cannot find import id for type=' . $dto::class . ',ext_id=' . $dto->getExtId() . '!'
+                );
         }
 
         $result = $this->database->queryF(
             'SELECT obj_id FROM object_data WHERE type=%s AND ' . $this->database
                                                                                                             ->like(
-                                                                                                                "import_id",
-                                                                                                                "text",
-                                                                                                                IObjectSyncProcessor::IMPORT_PREFIX . "%%_" . $dto->getExtId()
+                                                                                                                'import_id',
+                                                                                                                'text',
+                                                                                                                IObjectSyncProcessor::IMPORT_PREFIX . '%%_' . $dto->getExtId()
                                                                                                             ),
-            ["text"],
+            ['text'],
             [$object_type]
         );
 
         if ($result->rowCount() > 0) {
             if ($result->rowCount() > 1) {
-                throw new HubException("Multiple import id's for type=" . $object_type . ",ext_id=" . $dto->getExtId() . " found!");
+                throw new HubException("Multiple import id's for type=" . $object_type . ',ext_id=' . $dto->getExtId() . ' found!'
+                );
             }
 
-            return intval($result->fetchAssoc()["obj_id"]);
+            return intval($result->fetchAssoc()['obj_id']);
         }
 
         return 0;

@@ -374,9 +374,6 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getCancellationEnd(): ?int
     {
         return $this->cancellationEnd;
@@ -393,38 +390,28 @@ class GroupDTO extends DataTransferObject implements IMetadataAwareDataTransferO
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getStart(): ?int
+
+    public function getStart(): ?ilDateTime
     {
         return $this->start;
     }
 
-    /**
-     * @param int $start
-     * @return GroupDTO
-     */
-    public function setStart(int $start): GroupDTO
+
+    public function setStart(?ilDateTime $start): GroupDTO
     {
-        $this->start = $start;
+        $this->start =  $start;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getEnd(): ?int
+
+    public function getEnd(): ?ilDateTime
     {
         return $this->end;
     }
 
-    /**
-     * @param int $end
-     * @return GroupDTO
-     */
-    public function setEnd(int $end): GroupDTO
+
+    public function setEnd(ilDateTime$end): GroupDTO
     {
         $this->end = $end;
 

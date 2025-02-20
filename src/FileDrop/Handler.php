@@ -23,7 +23,7 @@ namespace srag\Plugins\Hub2\FileDrop;
 use ilContext;
 use ilInitialisation;
 use srag\Plugins\Hub2\Exception\ShortlinkException;
-use ILIAS\DI\HTTPServices;
+use ILIAS\HTTP\Services;
 use srag\Plugins\Hub2\Origin\OriginFactory;
 use srag\Plugins\Hub2\Origin\IOrigin;
 use srag\Plugins\Hub2\Origin\Config\IOriginConfig;
@@ -34,6 +34,12 @@ use srag\Plugins\Hub2\FileDrop\Exceptions\NotFound;
 use srag\Plugins\Hub2\FileDrop\Exceptions\Success;
 use ILIAS\Filesystem\Stream\Streams;
 use srag\Plugins\Hub2\Origin\Config\OriginImplementationFactory;
+use ILIAS\FileUpload\FileUpload;
+use Exception;
+use Throwable;
+use ILIAS\FileUpload\DTO\ProcessingStatus;
+use ILIAS\FileUpload\Exception\IllegalStateException;
+use ILIAS\FileUpload\DTO\UploadResult;
 
 /**
  * Class Handler
@@ -41,45 +47,24 @@ use srag\Plugins\Hub2\Origin\Config\OriginImplementationFactory;
  */
 class Handler
 {
-    public const PLUGIN_BASE = "Customizing/global/plugins/Services/Cron/CronHook/Hub2/";
-    public const DROP_FILE = "file_drop.php";
+    public const PLUGIN_BASE = 'Customizing/global/plugins/Services/Cron/CronHook/Hub2/';
+    public const DROP_FILE = 'file_drop.php';
     public const METHOD = 'POST';
     public const PHP_AUTH_USER = 'PHP_AUTH_USER';
     public const PHP_AUTH_PW = 'PHP_AUTH_PW';
     public const FD_CONTAINER = 'fd_container';
     /**
-     * @var \ILIAS\FileUpload\DTO\UploadResult[]
+     * @var UploadResult[]
      */
-    private $uploaded_files = [];
-    /**
-     * @var \ILIAS\FileUpload\FileUpload
-     */
-    private $upload;
-    /**
-     * @var ResourceStorage\ResourceStorage
-     */
-    private $storage;
-    /**
-     * @var Token
-     */
-    protected $token;
-    /**
-     * @var string
-     */
-    protected $file_drop_container = '';
-    /**
-     * @var bool
-     */
-    protected $init = false;
-    /**
-     * @var null|HTTPServices
-     */
-    private $http;
+    private array $uploaded_files = [];
+    private FileUpload $upload;
+    private ResourceStorage\ResourceStorage $storage;
 
-    /**
-     * Handler constructor
-     * @param string $ext_id
-     */
+    protected Token $token;
+    protected  string $file_drop_container = '';
+    protected bool $init = false;
+    private ?Services $http;
+
     public function __construct()
     {
         $this->tryILIASInitPublic();
@@ -105,14 +90,15 @@ class Handler
         $origin_id = (int) ltrim($file_drop_container, 'o');
         $repo = new OriginFactory();
         $origin = $repo->getById($origin_id);
-        if (!$origin instanceof \srag\Plugins\Hub2\Origin\IOrigin) {
+        if (!$origin instanceof IOrigin) {
             throw new NotFound("FileDrop '$file_drop_container' not Found");
         }
         return $origin;
     }
 
     /**
-     * @throws \ILIAS\FileUpload\Exception\IllegalStateException
+     * @throws IllegalStateException
+     * @throws NotFound
      */
     protected function processFiles(): void
     {
@@ -136,7 +122,7 @@ class Handler
                 $result = end($this->uploaded_files);
 
                 if (null === $result || $result->getStatus()->getCode(
-                ) !== \ILIAS\FileUpload\DTO\ProcessingStatus::OK) {
+                ) !== ProcessingStatus::OK) {
                     $message = $result === null ? 'no file uploaded' : $result->getStatus()->getMessage();
                     throw new InternalError('Upload failed: ' . $message);
                 }
@@ -164,11 +150,8 @@ class Handler
         throw new Success('File uploaded');
     }
 
-    /**
-     * @param $DIC
-     * @return void
-     */
-    protected function checkAuth(string $file_drop_token): bool
+
+    protected function checkAuth(): bool
     {
         $origin = $this->getOriginByFileDropContainer($this->file_drop_container);
         $auth_token = $origin->config()->get(IOriginConfig::FILE_DROP_AUTH_TOKEN);
@@ -191,12 +174,12 @@ class Handler
     /**
      * @return never
      */
-    private function throwException(\Exception $e): void
+    private function throwException(Exception $e): void
     {
         throw $e;
     }
 
-    private function handleException(\Throwable $e): void
+    private function handleException(Throwable $e): void
     {
         switch (true) {
             case $e instanceof AccessDenied:
@@ -225,21 +208,21 @@ class Handler
     /**
      * @throws ShortlinkException
      */
-    public function process()
+    public function process(): void
     {
         try {
             global $DIC;
 
             if (!$this->init || !$DIC->isDependencyAvailable('database')) {
-                throw new InternalError("ILIAS not initialized, aborting...");
+                throw new InternalError('ILIAS not initialized, aborting...');
             }
 
             // BASIC CHECKS
             $this->file_drop_container = $this->http->request()->getQueryParams()[self::FD_CONTAINER] ?? '';
-            if ($this->checkAuth($this->file_drop_container)) {
+            if ($this->checkAuth()) {
                 $this->processFiles();
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->handleException($e);
         }
     }
@@ -248,7 +231,7 @@ class Handler
     {
         $this->prepareILIASInit();
         /** @noRector */
-        require_once("Services/Init/classes/class.ilInitialisation.php");
+        require_once 'Services/Init/classes/class.ilInitialisation.php';
         ilInitialisation::initILIAS();
 
         $this->init = true;
@@ -256,9 +239,6 @@ class Handler
         $this->http = $DIC->http();
     }
 
-    /**
-     *
-     */
     public function tryILIASInitPublic(): void
     {
         $this->prepareILIASInit();
@@ -268,24 +248,22 @@ class Handler
         require_once 'Services/Context/classes/class.ilContext.php';
         ilContext::init(ilContext::CONTEXT_WAC);
         /** @noRector */
-        require_once "Services/Init/classes/class.ilInitialisation.php";
+        require_once 'Services/Init/classes/class.ilInitialisation.php';
         ilInitialisation::initILIAS();
-        $ilAuthSession = $DIC["ilAuthSession"];
+        $ilAuthSession = $DIC['ilAuthSession'];
         //        $ilAuthSession->init();
         $ilAuthSession->regenerateId();
-        $a_id = (int) ANONYMOUS_USER_ID;
+        $a_id = ANONYMOUS_USER_ID;
         $ilAuthSession->setUserId($a_id);
         $ilAuthSession->setAuthenticated(false, $a_id);
         $DIC->user()->setId($a_id);
         $this->init = true;
     }
 
-    /**
-     *
-     */
-    protected function prepareILIASInit()
+
+    protected function prepareILIASInit(): void
     {
         $GLOBALS['COOKIE_PATH'] = '/';
-        $_GET["client_id"] = $_COOKIE['ilClientId'];
+        $_GET['client_id'] = $_COOKIE['ilClientId'];
     }
 }

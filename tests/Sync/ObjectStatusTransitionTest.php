@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . "/../AbstractHub2Tests.php";
+require_once __DIR__ . '/../AbstractHub2Tests.php';
 
 use Mockery\MockInterface;
 use srag\Plugins\Hub2\Object\IObject;

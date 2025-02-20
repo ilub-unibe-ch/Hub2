@@ -52,10 +52,10 @@ class demoSessionMembership extends AbstractOriginImplementation
      */
     public function parseData(): int
     {
-        $this->log()->write("This is a test-log entry");
+        $this->log()->write('This is a test-log entry');
 
         $this->data[] = $this->factory()->sessionMembership(
-            1,
+            '1',
             6
         )->setSessionIdType(ISessionMembershipDTO::PARENT_ID_TYPE_EXTERNAL_EXT_ID)
                              ->setSessionId((string)rand(1, 10))->setRole(ISessionMembershipDTO::ROLE_MEMBER);

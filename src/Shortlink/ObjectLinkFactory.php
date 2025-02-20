@@ -74,7 +74,7 @@ class ObjectLinkFactory
         foreach ($this->origin_factory->getAllActive() as $origin) {
             $l = $this->findByExtIdAndOrigin($ext_id, $origin);
 
-            if (!($l instanceof NullLink)) {
+            if (!$l instanceof NullLink) {
                 return $l;
             }
         }
@@ -104,25 +104,25 @@ class ObjectLinkFactory
     {
         if ($object->getILIASId()) {
             switch (true) {
-                case ($object instanceof ARCourseMembership):
+                case $object instanceof ARCourseMembership:
                     return new CourseMembershipLink($object);
-                case ($object instanceof ARGroupMembership):
+                case $object instanceof ARGroupMembership:
                     return new GroupMembershipLink($object);
-                case ($object instanceof ARSessionMembership):
+                case $object instanceof ARSessionMembership:
                     return new SessionMembershipLink($object);
-                case ($object instanceof ARSession):
+                case $object instanceof ARSession:
                     return new SessionLink($object);
-                case ($object instanceof ARCategory):
+                case $object instanceof ARCategory:
                     return new CategoryLink($object);
-                case ($object instanceof ARCourse):
+                case $object instanceof ARCourse:
                     return new CourseLink($object);
-                case ($object instanceof ARGroup):
+                case $object instanceof ARGroup:
                     return new GroupLink($object);
-                case ($object instanceof ARUser):
+                case $object instanceof ARUser:
                     return new UserLink($object);
-                case ($object instanceof IOrgUnit):
+                case $object instanceof IOrgUnit:
                     return new OrgUnitLink($object);
-                case ($object instanceof IOrgUnitMembership):
+                case $object instanceof IOrgUnitMembership:
                     return new OrgUnitMembershipLink($object);
                 default:
                     break;

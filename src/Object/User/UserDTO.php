@@ -431,11 +431,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
     public function __toString()
     {
         return implode(', ', [
-            "ext_id: " . $this->getExtId(),
-            "period: " . $this->getPeriod(),
-            "firstname: " . $this->getFirstname(),
-            "lastname: " . $this->getLastname(),
-            "email: " . $this->getEmail(),
+            'ext_id: ' . $this->getExtId(),
+            'period: ' . $this->getPeriod(),
+            'firstname: ' . $this->getFirstname(),
+            'lastname: ' . $this->getLastname(),
+            'email: ' . $this->getEmail(),
         ]);
     }
 }

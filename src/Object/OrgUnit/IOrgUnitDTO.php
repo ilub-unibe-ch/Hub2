@@ -71,13 +71,13 @@ interface IOrgUnitDTO extends IDataTransferObject
     /**
      * @return int|string|null
      */
-    public function getParentId();
+    public function getParentId(): int|string|null;
 
     /**
      * @param int|string|null $parent_id
      * @return IOrgUnitDTO
      */
-    public function setParentId($parent_id): IOrgUnitDTO;
+    public function setParentId(int|string|null $parent_id): IOrgUnitDTO;
 
     /**
      * @return int

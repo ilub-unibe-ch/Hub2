@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace srag\Plugins\Hub2\Config;
 
 use arConnector;
+use ilException;
 
 /**
  * Class ActiveRecordConfig
@@ -37,7 +38,7 @@ class ActiveRecordConfig extends Config
      *
      * @deprecated
      */
-    public const TABLE_NAME = "";
+    public const TABLE_NAME = '';
     /**
      * @var array
      *
@@ -55,10 +56,10 @@ class ActiveRecordConfig extends Config
         return ActiveRecordConfigRepository::getInstance(static::TABLE_NAME, static::$fields);
     }
 
-    final protected static function getDefaultValue(string $name, int $type, $default_value)
+    final protected static function getDefaultValue()
     {
-        throw new \ilException(
-            "getDefaultValue is not supported anymore - please try to use the second parameter in the fields array instead!"
+        throw new ilException(
+            'getDefaultValue is not supported anymore - please try to use the second parameter in the fields array instead!'
         );
     }
 
@@ -67,7 +68,7 @@ class ActiveRecordConfig extends Config
      * @return mixed
      * @deprecated
      */
-    public static function getField(string $name)
+    public static function getField(string $name): mixed
     {
         return self::config()->getValue($name);
     }
@@ -91,7 +92,7 @@ class ActiveRecordConfig extends Config
      *
      * @deprecated
      */
-    public static function removeField(string $name): void/*: void*/
+    public static function removeField(string $name): void
     {
         self::config()->removeValue($name);
     }
@@ -100,7 +101,7 @@ class ActiveRecordConfig extends Config
      * @param mixed $value
      * @deprecated
      */
-    public static function setField(string $name, $value): void/*: void*/
+    public static function setField(string $name, mixed $value): void/*: void*/
     {
         self::config()->setValue($name, $value);
     }
@@ -130,6 +131,6 @@ class ActiveRecordConfig extends Config
     {
         self::config();
 
-        parent::__construct($primary_name_value, $connector);
+        parent::__construct($primary_name_value);
     }
 }

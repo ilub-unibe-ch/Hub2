@@ -48,11 +48,11 @@ class OrgUnitSyncProcessor extends ObjectSyncProcessor implements IOrgUnitSyncPr
     /**
      * @var IOrgUnitProperties
      */
-    protected $props;
+    protected IOrgUnitProperties|\srag\Plugins\Hub2\Origin\Properties\IOriginProperties $props;
     /**
      * @var IOrgUnitOriginConfig
      */
-    protected $config;
+    protected IOrgUnitOriginConfig|\srag\Plugins\Hub2\Origin\Config\IOriginConfig $config;
     /**
      * @var array
      */
@@ -60,7 +60,7 @@ class OrgUnitSyncProcessor extends ObjectSyncProcessor implements IOrgUnitSyncPr
     /**
      * @var ilObjOrgUnit|null
      */
-    protected $current_ilias_object = null;
+    protected \ilObject|\srag\Plugins\Hub2\Sync\Processor\FakeIliasObject|null $current_ilias_object = null;
 
     /**
      * @param IOrgUnitOrigin          $origin
@@ -148,7 +148,7 @@ class OrgUnitSyncProcessor extends ObjectSyncProcessor implements IOrgUnitSyncPr
     {
         //$parent_id = $this->getParentId($dto);
 
-        return (empty($dto->getParentId()));
+        return empty($dto->getParentId());
         //	|| ($parent_id === $this->config->getRefIdIfNoParentId()
         //	|| $parent_id === ilObjOrgUnit::getRootOrgRefId()));
     }
@@ -157,7 +157,7 @@ class OrgUnitSyncProcessor extends ObjectSyncProcessor implements IOrgUnitSyncPr
      * @inheritdoc
      * @param IOrgUnitDTO $dto
      */
-    protected function handleCreate(IDataTransferObject $dto)/*: void*/
+    protected function handleCreate(IDataTransferObject $dto): void/*: void*/
     {
         $this->current_ilias_object = new ilObjOrgUnit();
 
@@ -184,7 +184,7 @@ class OrgUnitSyncProcessor extends ObjectSyncProcessor implements IOrgUnitSyncPr
      * @inheritdoc
      * @param IOrgUnitDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id): void/*: void*/
     {
         $this->current_ilias_object = $this->getOrgUnitObject((int)$ilias_id);
 
@@ -219,7 +219,7 @@ class OrgUnitSyncProcessor extends ObjectSyncProcessor implements IOrgUnitSyncPr
     /**
      * @inheritdoc
      */
-    protected function handleDelete(string $ilias_id)/*: void*/
+    protected function handleDelete(string $ilias_id): void/*: void*/
     {
         $this->current_ilias_object = $this->getOrgUnitObject((int)$ilias_id);
 
@@ -265,7 +265,7 @@ class OrgUnitSyncProcessor extends ObjectSyncProcessor implements IOrgUnitSyncPr
             if (ilOrgUnitTypeTranslation::getInstance(
                 $org_type->getId(),
                 $org_type->getDefaultLang()
-            )->getMember("title")
+            )->getMember('title')
                 === $dto->getOrgUnitType()) {
                 $orgu_type_id = (int) $org_type->getId();
                 break;
@@ -322,7 +322,7 @@ class OrgUnitSyncProcessor extends ObjectSyncProcessor implements IOrgUnitSyncPr
      * @param IOrgUnitDTO $dto
      * @throws HubException
      */
-    protected function moveOrgUnit(IOrgUnitDTO $dto)
+    protected function moveOrgUnit(IOrgUnitDTO $dto): void
     {
         $parent_ref_id = $this->getParentId($dto);
         if ($this->tree->isDeleted($this->current_ilias_object->getRefId())) {

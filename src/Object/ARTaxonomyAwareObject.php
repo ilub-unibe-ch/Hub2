@@ -44,7 +44,7 @@ trait ARTaxonomyAwareObject
     /**
      * @param ITaxonomy[] $taxonomies
      */
-    public function setTaxonomies(array $taxonomies)
+    public function setTaxonomies(array $taxonomies): void
     {
         $this->taxonomies = $taxonomies;
     }

@@ -46,13 +46,13 @@ interface IOrgUnitMembershipDTO extends IDataTransferObject
     /**
      * @return int|string
      */
-    public function getOrgUnitId();
+    public function getOrgUnitId(): int|string;
 
     /**
      * @param int|string $org_unit_id
      * @return IOrgUnitMembershipDTO
      */
-    public function setOrgUnitId($org_unit_id): IOrgUnitMembershipDTO;
+    public function setOrgUnitId(int|string $org_unit_id): IOrgUnitMembershipDTO;
 
     /**
      * @return int

@@ -45,7 +45,7 @@ class CategoryDTO extends DataTransferObject implements ICategoryDTO
         self::PARENT_ID_TYPE_EXTERNAL_EXT_ID,
     ];
     protected string $title;
-    protected ?string $description = "";
+    protected ?string $description = '';
     protected int $orderType = self::ORDER_TYPE_TITLE;
     protected int $owner = 6;
     protected string $parentId;

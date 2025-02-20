@@ -65,16 +65,16 @@ abstract class ARObject extends ActiveRecord implements IObject
      * @var array
      */
     public static array $available_status = [
-        IObject::STATUS_NEW => "new",
-        IObject::STATUS_TO_CREATE => "to_create",
-        IObject::STATUS_CREATED => "created",
-        IObject::STATUS_UPDATED => "updated",
-        IObject::STATUS_TO_UPDATE => "to_update",
-        IObject::STATUS_TO_OUTDATED => "to_outdated",
-        IObject::STATUS_OUTDATED => "outdated",
-        IObject::STATUS_TO_RESTORE => "to_restore",
-        IObject::STATUS_IGNORED => "ignored",
-        IObject::STATUS_FAILED => "failed"
+        IObject::STATUS_NEW => 'new',
+        IObject::STATUS_TO_CREATE => 'to_create',
+        IObject::STATUS_CREATED => 'created',
+        IObject::STATUS_UPDATED => 'updated',
+        IObject::STATUS_TO_UPDATE => 'to_update',
+        IObject::STATUS_TO_OUTDATED => 'to_outdated',
+        IObject::STATUS_OUTDATED => 'outdated',
+        IObject::STATUS_TO_RESTORE => 'to_restore',
+        IObject::STATUS_IGNORED => 'ignored',
+        IObject::STATUS_FAILED => 'failed'
     ];
     /**
      * The primary ID is a composition of the origin-ID and ext_id
@@ -153,12 +153,12 @@ abstract class ARObject extends ActiveRecord implements IObject
     /**
      * @inheritdoc
      */
-    public function sleep($field_name)
+    public function sleep($field_name): bool|string|null
     {
         switch ($field_name) {
             case 'data':
                 return json_encode($this->getData());
-            case "meta_data":
+            case 'meta_data':
                 /**
                  * @var IMetadataAwareObject $this
                  */
@@ -169,7 +169,7 @@ abstract class ARObject extends ActiveRecord implements IObject
                 }
 
                 return json_encode($metadataObjects);
-            case "taxonomies":
+            case 'taxonomies':
                 /**
                  * @var ITaxonomyAwareObject $this
                  */
@@ -244,10 +244,10 @@ abstract class ARObject extends ActiveRecord implements IObject
     public function create(): void
     {
         if (!$this->origin_id) {
-            throw new Exception("Origin-ID is missing, cannot construct the primary key");
+            throw new Exception('Origin-ID is missing, cannot construct the primary key');
         }
         if (!$this->ext_id) {
-            throw new Exception("External-ID is missing");
+            throw new Exception('External-ID is missing');
         }
         $this->id = $this->origin_id . $this->ext_id;
         $this->hash_code = $this->computeHashCode();
@@ -257,7 +257,7 @@ abstract class ARObject extends ActiveRecord implements IObject
     /**
      * @inheritdoc
      */
-    public function getId()
+    public function getId(): mixed
     {
         return $this->id;
     }
@@ -396,18 +396,18 @@ abstract class ARObject extends ActiveRecord implements IObject
     {
         $hash = '';
         foreach ($this->data as $property => $value) {
-            $hash .= (is_array($value)) ? implode('', $value) : (string) $value;
+            $hash .= is_array($value) ? implode('', $value) : (string) $value;
         }
 
         if (isset($this->meta_data)) {
             foreach ($this->meta_data as $property => $value) {
-                $hash .= (is_array($value)) ? implode('', $value) : (string) $value;
+                $hash .= is_array($value) ? implode('', $value) : (string) $value;
             }
         }
 
         if (isset($this->taxonomies)) {
             foreach ($this->taxonomies as $property => $value) {
-                $hash .= (is_array($value)) ? implode('', $value) : (string) $value;
+                $hash .= is_array($value) ? implode('', $value) : (string) $value;
             }
         }
 
@@ -448,11 +448,11 @@ abstract class ARObject extends ActiveRecord implements IObject
     public function __toString()
     {
         return implode(', ', [
-            "origin_id: " . $this->origin_id,
-            "type: " . get_class($this),
-            "ext_id: " . $this->getExtId(),
-            "ilias_id: " . $this->getILIASId(),
-            "status: " . $this->getStatus(),
+            'origin_id: ' . $this->origin_id,
+            'type: ' . $this::class,
+            'ext_id: ' . $this->getExtId(),
+            'ilias_id: ' . $this->getILIASId(),
+            'status: ' . $this->getStatus(),
         ]);
     }
 }

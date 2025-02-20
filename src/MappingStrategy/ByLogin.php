@@ -35,7 +35,7 @@ class ByLogin extends AMappingStrategy implements IMappingStrategy
     public function map(IDataTransferObject $dto): int
     {
         if (!$dto instanceof UserDTO) {
-            throw new HubException("Mapping using Login not supported for this type of DTO");
+            throw new HubException('Mapping using Login not supported for this type of DTO');
         }
 
         return ilObjUser::getUserIdByLogin($dto->getLogin());

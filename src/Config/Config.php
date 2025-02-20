@@ -33,7 +33,7 @@ class Config extends ActiveRecord
     /**
      * @var string
      */
-    public const SQL_DATE_FORMAT = "Y-m-d H:i:s";
+    public const SQL_DATE_FORMAT = 'Y-m-d H:i:s';
     /**
      * @var int
      */
@@ -74,7 +74,7 @@ class Config extends ActiveRecord
     public static function getTableName(): string
     {
         if (empty(self::$table_name)) {
-            throw new LogicException("table name is empty - please call repository earlier!");
+            throw new LogicException('table name is empty - please call repository earlier!');
         }
 
         return self::$table_name;
@@ -119,7 +119,7 @@ class Config extends ActiveRecord
      * @con_is_notnull  true
      * @con_is_primary  true
      */
-    protected ?string $name = "";
+    protected ?string $name = '';
     /**
      * @var mixed
      *
@@ -127,7 +127,7 @@ class Config extends ActiveRecord
      * @con_fieldtype   text
      * @con_is_notnull  false
      */
-    protected $value = null;
+    protected mixed $value = null;
 
 
     /**
@@ -138,7 +138,7 @@ class Config extends ActiveRecord
      */
     public function __construct(string $primary_name_value = null)
     {
-        if($primary_name_value === "0"){
+        if($primary_name_value === '0'){
             $primary_name_value = null;
         }
         parent::__construct($primary_name_value);
@@ -165,7 +165,7 @@ class Config extends ActiveRecord
     /**
      * @return mixed
      */
-    public function getValue()
+    public function getValue(): mixed
     {
         return $this->value;
     }
@@ -174,7 +174,7 @@ class Config extends ActiveRecord
     /**
      * @param mixed $value
      */
-    public function setValue($value): void
+    public function setValue(mixed $value): void
     {
         $this->value = $value;
     }

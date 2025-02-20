@@ -28,7 +28,7 @@ use srag\Plugins\Hub2\Origin\Category\ARCategoryOrigin;
 use srag\Plugins\Hub2\Origin\Config\Category\ICategoryOriginConfig;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
 use srag\Plugins\Hub2\Origin\Properties\Category\ICategoryProperties;
-use ilHub2Plugin;
+use srag\Plugins\Hub2\Origin\IOrigin;
 
 /**
  * Class CategoryOriginConfigFormGUI
@@ -41,12 +41,12 @@ class CategoryOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @var ARCategoryOrigin
      */
-    protected \srag\Plugins\Hub2\Origin\IOrigin $origin;
+    protected IOrigin $origin;
 
     /**
      * @inheritdoc
      */
-    protected function addSyncConfig()
+    protected function addSyncConfig(): void
     {
         parent::addSyncConfig();
 
@@ -70,7 +70,7 @@ class CategoryOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesNew()
+    protected function addPropertiesNew(): void
     {
         parent::addPropertiesNew();
 
@@ -92,7 +92,7 @@ class CategoryOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesUpdate()
+    protected function addPropertiesUpdate(): void
     {
         parent::addPropertiesUpdate();
 
@@ -107,7 +107,7 @@ class CategoryOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesDelete()
+    protected function addPropertiesDelete(): void
     {
         parent::addPropertiesDelete();
 

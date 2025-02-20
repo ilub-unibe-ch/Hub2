@@ -57,11 +57,11 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
     /**
      * @var GroupProperties
      */
-    protected $props;
+    protected \srag\Plugins\Hub2\Origin\Properties\IOriginProperties|GroupProperties $props;
     /**
      * @var GroupOriginConfig
      */
-    protected $config;
+    protected GroupOriginConfig|\srag\Plugins\Hub2\Origin\Config\IOriginConfig $config;
     /**
      * @var IGroupActivities
      */
@@ -70,39 +70,39 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
      * @var array
      */
     protected static array $properties = [
-        "title",
-        "description",
-        "information",
-        "groupType",
-        "owner",
-        "viewMode",
-        "numberOfPreviousSessions",
-        "numberOfNextSessions",
-        "registrationStart",
-        "registrationEnd",
-        "password",
-        "registrationType",
-        "minMembers",
-        "maxMembers",
-        "waitingListAutoFill",
-        "cancellationEnd",
-        "start",
-        "end",
-        "latitude",
-        "longitude",
-        "locationzoom",
-        "registrationAccessCode",
-        "enableGroupMap",
+        'title',
+        'description',
+        'information',
+        'groupType',
+        'owner',
+        'viewMode',
+        'numberOfPreviousSessions',
+        'numberOfNextSessions',
+        'registrationStart',
+        'registrationEnd',
+        'password',
+        'registrationType',
+        'minMembers',
+        'maxMembers',
+        'waitingListAutoFill',
+        'cancellationEnd',
+        'start',
+        'end',
+        'latitude',
+        'longitude',
+        'locationzoom',
+        'registrationAccessCode',
+        'enableGroupMap',
     ];
     /**
      * @var array
      */
     protected static array $ildate_fields = [
-        "cancellationEnd",
-        "start",
-        "end",
-        "registrationStart",
-        "registrationEnd",
+        'cancellationEnd',
+        'start',
+        'end',
+        'registrationStart',
+        'registrationEnd',
     ];
 
     /**
@@ -135,7 +135,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
      * @inheritdoc
      * @param GroupDTO $dto
      */
-    protected function handleCreate(IDataTransferObject $dto)/*: void*/
+    protected function handleCreate(IDataTransferObject $dto): void/*: void*/
     {
         $this->current_ilias_object = $ilObjGroup = new ilObjGroup();
         $ilObjGroup->setImportId($this->getImportId($dto));
@@ -147,8 +147,8 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
         $ilObjGroup->setRegistrationEnd(new ilDate(null, IL_CAL_UNIX));
 
         foreach (self::getProperties() as $property) {
-            $setter = "set" . ucfirst($property);
-            $getter = "get" . ucfirst($property);
+            $setter = 'set' . ucfirst($property);
+            $getter = 'get' . ucfirst($property);
 
             if ($dto->$getter() !== null) {
                 $var = $dto->$getter();
@@ -195,7 +195,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
      * @inheritdoc
      * @param GroupDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id): void/*: void*/
     {
         $this->current_ilias_object = $ilObjGroup = $this->findILIASGroup((int)$ilias_id);
         if ($ilObjGroup === null) {
@@ -206,8 +206,8 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
             if (!$this->props->updateDTOProperty($property)) {
                 continue;
             }
-            $setter = "set" . ucfirst($property);
-            $getter = "get" . ucfirst($property);
+            $setter = 'set' . ucfirst($property);
+            $getter = 'get' . ucfirst($property);
             if ($dto->$getter() !== null) {
                 $var = $dto->$getter();
                 if (in_array($property, self::$ildate_fields)) {
@@ -222,44 +222,44 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
             $ilObjGroup->enableSessionLimit($dto->getSessionLimit());
         }
 
-        if ($this->props->updateDTOProperty("registrationType")
+        if ($this->props->updateDTOProperty('registrationType')
             && $dto->getRegistrationType() !== null) {
             $ilObjGroup->setRegistrationType($dto->getRegistrationType());
         }
 
-        if ($this->props->updateDTOProperty("regUnlimited")
+        if ($this->props->updateDTOProperty('regUnlimited')
             && $dto->getRegUnlimited() !== null) {
             $ilObjGroup->enableUnlimitedRegistration($dto->getRegUnlimited());
         }
 
-        if ($this->props->updateDTOProperty("regMembershipLimitation")
+        if ($this->props->updateDTOProperty('regMembershipLimitation')
             && $dto->getRegMembershipLimitation() !== null) {
             $ilObjGroup->enableMembershipLimitation($dto->getRegMembershipLimitation());
         }
 
-        if ($this->props->updateDTOProperty("waitingList") && $dto->getWaitingList() !== null) {
+        if ($this->props->updateDTOProperty('waitingList') && $dto->getWaitingList() !== null) {
             $ilObjGroup->enableWaitingList($dto->getWaitingList());
         }
 
-        if ($this->props->updateDTOProperty("regAccessCodeEnabled")
+        if ($this->props->updateDTOProperty('regAccessCodeEnabled')
             && $dto->getRegAccessCodeEnabled() !== null) {
             $ilObjGroup->enableRegistrationAccessCode($dto->getRegAccessCodeEnabled());
         }
 
-        if ($this->props->updateDTOProperty("regUnlimited")
+        if ($this->props->updateDTOProperty('regUnlimited')
             && $dto->getRegUnlimited() !== null) {
             $ilObjGroup->enableUnlimitedRegistration($dto->getRegUnlimited());
         }
 
-        if ($this->props->updateDTOProperty("appointementsColor")) {
+        if ($this->props->updateDTOProperty('appointementsColor')) {
             $this->handleAppointementsColor($ilObjGroup, $dto);
         }
 
-        if ($this->props->updateDTOProperty("languageCode")) {
+        if ($this->props->updateDTOProperty('languageCode')) {
             $this->setLanguage($dto, $ilObjGroup);
         }
 
-        if ($this->props->updateDTOProperty("orderType")) {
+        if ($this->props->updateDTOProperty('orderType')) {
             $this->handleOrdering($dto, $ilObjGroup);
         }
 
@@ -274,7 +274,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
      * @param ilObjGroup $ilObjGroup
      * @param GroupDTO   $dto
      */
-    protected function handleAppointementsColor(ilObjGroup $ilObjGroup, GroupDTO $dto)
+    protected function handleAppointementsColor(ilObjGroup $ilObjGroup, GroupDTO $dto): void
     {
         if ($dto->getAppointementsColor()) {
             $this->object_data_cache->deleteCachedEntry($ilObjGroup->getId());
@@ -290,7 +290,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
     /**
      * @inheritdoc
      */
-    protected function handleDelete(string $ilias_id)/*: void*/
+    protected function handleDelete(string $ilias_id): void/*: void*/
     {
         $this->current_ilias_object = $ilObjGroup = $this->findILIASGroup((int)$ilias_id);
         if ($ilObjGroup === null) {
@@ -325,7 +325,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
      * @param GroupDTO   $dto
      * @param ilObjGroup $ilObjGroup
      */
-    protected function setLanguage(GroupDTO $dto, ilObjGroup $ilObjGroup)
+    protected function setLanguage(GroupDTO $dto, ilObjGroup $ilObjGroup): void
     {
         $md_general = (new ilMD($ilObjGroup->getId()))->getGeneral();
         $array = $md_general->getLanguageIds();
@@ -338,7 +338,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
      * @param GroupDTO   $dto
      * @param ilObjGroup $ilObjGroup
      */
-    protected function handleOrdering(GroupDTO $dto, ilObjGroup $ilObjGroup)
+    protected function handleOrdering(GroupDTO $dto, ilObjGroup $ilObjGroup): void
     {
         $settings = new ilContainerSortingSettings($ilObjGroup->getId());
         $settings->setSortMode($dto->getOrderType());
@@ -384,18 +384,22 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
             // --> Get an instance of the linked origin and lookup the category by the given external ID.
             $linkedOriginId = $this->config->getLinkedOriginId();
             if (!$linkedOriginId) {
-                throw new HubException("Unable to lookup external parent ref-ID because there is no origin linked");
+                throw new HubException('Unable to lookup external parent ref-ID because there is no origin linked');
             }
             $originRepository = new OriginRepository();
             $possible_parents = array_merge($originRepository->categories(), $originRepository->courses());
-            $array = array_filter($possible_parents, function ($origin) use ($linkedOriginId) {
-                /** @var IOrigin $origin */
-                return $origin->getId() == $linkedOriginId;
-            });
+            /** @var IOrigin $origin */
+            $array_filter = [];
+            foreach ($possible_parents as $key => $origin) {
+                if ($origin->getId() == $linkedOriginId) {
+                    $array_filter[$key] = $origin;
+                }
+            }
+            $array = $array_filter;
             $origin = array_pop($array);
             if ($origin === null) {
-                $msg = "The linked origin syncing categories or courses was not found,
-				please check that the correct origin is linked";
+                $msg = 'The linked origin syncing categories or courses was not found,
+				please check that the correct origin is linked';
                 throw new HubException($msg);
             }
 
@@ -408,7 +412,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
             }
 
             if (!$parent->getILIASId()) {
-                throw new HubException("The linked category or course does not (yet) exist in ILIAS");
+                throw new HubException('The linked category or course does not (yet) exist in ILIAS');
             }
             if (!$this->tree->isInTree((int)$parent->getILIASId())) {
                 throw new HubException("Could not find the ref-ID of the parent category or course in the tree: '{$parent->getILIASId()}'");
@@ -439,7 +443,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
      * @param ilObjGroup $ilObjGroup
      * @param GroupDTO   $group
      */
-    protected function moveGroup(ilObjGroup $ilObjGroup, GroupDTO $group)
+    protected function moveGroup(ilObjGroup $ilObjGroup, GroupDTO $group): void
     {
         $parentRefId = $this->determineParentRefId($group);
         if ($this->tree->isDeleted($ilObjGroup->getRefId())) {
@@ -458,7 +462,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
      * @param GroupDTO   $dto
      * @param ilObjGroup $ilObjGroup
      */
-    protected function setNewsSetting(GroupDTO $dto, ilObjGroup $ilObjGroup)
+    protected function setNewsSetting(GroupDTO $dto, ilObjGroup $ilObjGroup): void
     {
         $ilObjGroup->setUseNews($dto->getNewsSetting());
         $ilObjGroup->setNewsBlockActivated($dto->getNewsSetting());

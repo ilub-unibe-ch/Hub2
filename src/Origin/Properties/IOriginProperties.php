@@ -34,7 +34,7 @@ interface IOriginProperties
      * @param string $key
      * @return mixed
      */
-    public function get(string $key);
+    public function get(string $key): mixed;
 
     /**
      * Checks if the given property of a DTO object should be updated on the ILIAS object,

@@ -35,7 +35,7 @@ abstract class OriginProperties implements IOriginProperties
         $this->data = array_merge($this->data, $data);
     }
 
-    public function get(string $key)
+    public function get(string $key): mixed
     {
         return $this->data[$key] ?? null;
     }

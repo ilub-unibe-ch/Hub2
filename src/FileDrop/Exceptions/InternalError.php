@@ -2,12 +2,14 @@
 
 namespace srag\Plugins\Hub2\FileDrop\Exceptions;
 
+use Exception;
+
 /**
  * Class InternalError
  *
  * @author Fabian Schmid <fabian@sr.solutions>
  */
-class InternalError extends \Exception
+class InternalError extends Exception
 {
     protected $message = 'Internal Error';
 

@@ -32,6 +32,7 @@ use srag\Plugins\Hub2\Origin\Properties\Course\CourseProperties;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
 use srag\Plugins\Hub2\Origin\Properties\Course\ICourseProperties;
 use ilHub2Plugin;
+use srag\Plugins\Hub2\Origin\IOrigin;
 
 /**
  * Class CourseOriginConfigFormGUI
@@ -44,12 +45,12 @@ class CourseOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @var ARCourseOrigin
      */
-    protected \srag\Plugins\Hub2\Origin\IOrigin $origin;
+    protected IOrigin $origin;
 
     /**
      * @inheritdoc
      */
-    protected function addSyncConfig()
+    protected function addSyncConfig(): void
     {
         parent::addSyncConfig();
 
@@ -75,7 +76,7 @@ class CourseOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesNew()
+    protected function addPropertiesNew(): void
     {
         parent::addPropertiesNew();
 
@@ -123,7 +124,7 @@ class CourseOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesUpdate()
+    protected function addPropertiesUpdate(): void
     {
         parent::addPropertiesUpdate();
 
@@ -147,7 +148,7 @@ class CourseOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesDelete()
+    protected function addPropertiesDelete(): void
     {
         parent::addPropertiesDelete();
 

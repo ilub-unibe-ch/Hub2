@@ -22,7 +22,6 @@ namespace srag\Plugins\Hub2\Sync\Processor\User;
 
 use ilMimeMail;
 use ilObjUser;
-use ilUtil;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 use srag\Plugins\Hub2\Object\User\UserDTO;
 use srag\Plugins\Hub2\Origin\Config\User\IUserOriginConfig;
@@ -49,11 +48,11 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
     /**
      * @var UserProperties
      */
-    private $props;
+    private \srag\Plugins\Hub2\Origin\Properties\IOriginProperties|UserProperties $props;
     /**
      * @var UserOriginConfig
      */
-    private $config;
+    private UserOriginConfig|\srag\Plugins\Hub2\Origin\Config\IOriginConfig $config;
     /**
      * @var array
      */
@@ -110,7 +109,7 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
      * @inheritdoc
      * @param UserDTO $dto
      */
-    protected function handleCreate(IDataTransferObject $dto)/*: void*/
+    protected function handleCreate(IDataTransferObject $dto): void/*: void*/
     {
         $this->current_ilias_object = $ilObjUser = new ilObjUser();
         $ilObjUser->setTitle($dto->getFirstname() . ' ' . $dto->getLastname());
@@ -133,8 +132,8 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
             $ilObjUser->setPasswd($dto->getPasswd());
         }
         foreach (self::getProperties() as $property) {
-            $setter = "set" . ucfirst($property);
-            $getter = "get" . ucfirst($property);
+            $setter = 'set' . ucfirst($property);
+            $getter = 'get' . ucfirst($property);
             if ($dto->$getter() !== null) {
                 $ilObjUser->$setter($dto->$getter());
             }
@@ -148,7 +147,6 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
         } else {
             $ilObjUser->setPasswd($dto->getPasswd());
         }
-
         $ilObjUser->saveAsNew();
         $ilObjUser->writePrefs();
         $this->assignILIASRoles($dto, $ilObjUser);
@@ -187,8 +185,8 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
             if (!$this->props->updateDTOProperty($property)) {
                 continue;
             }
-            $setter = "set" . ucfirst($property);
-            $getter = "get" . ucfirst($property);
+            $setter = 'set' . ucfirst($property);
+            $getter = 'get' . ucfirst($property);
             if ($dto->$getter() !== null) {
                 $ilObjUser->$setter($dto->$getter());
             }
@@ -208,7 +206,7 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
         $ilObjUser->update();
     }
 
-    private function sendPasswordMail(IDataTransferObject $dto)
+    private function sendPasswordMail(IDataTransferObject $dto): void
     {
         /** @var UserDTO $dto */
 
@@ -256,7 +254,7 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
      * @param UserDTO   $user
      * @param ilObjUser $ilObjUser
      */
-    protected function assignILIASRoles(UserDTO $user, ilObjUser $ilObjUser)
+    protected function assignILIASRoles(UserDTO $user, ilObjUser $ilObjUser): void
     {
         foreach ($user->getIliasRoles() as $role_id) {
             $this->rbac_admin->assignUser($role_id, $ilObjUser->getId());

@@ -67,10 +67,14 @@ class OriginRepository implements IOriginRepository
      */
     public function allActive(): array
     {
-        return array_filter($this->all(), function ($origin) {
-            /** @var IOrigin $origin */
-            return $origin->isActive();
-        });
+        /** @var IOrigin $origin */
+        $array_filter = [];
+        foreach ($this->all() as $key => $origin) {
+            if ($origin->isActive()) {
+                $array_filter[$key] = $origin;
+            }
+        }
+        return $array_filter;
     }
 
     /**
@@ -142,7 +146,7 @@ class OriginRepository implements IOriginRepository
      */
     public function orgUnits(): array
     {
-        return AROrgUnitOrigin::where(["object_type" => IOrigin::OBJECT_TYPE_ORGNUNIT])->get();
+        return AROrgUnitOrigin::where(['object_type' => IOrigin::OBJECT_TYPE_ORGNUNIT])->get();
     }
 
     /**
@@ -150,6 +154,6 @@ class OriginRepository implements IOriginRepository
      */
     public function orgUnitMemberships(): array
     {
-        return AROrgUnitOrigin::where(["object_type" => IOrigin::OBJECT_TYPE_ORGNUNIT_MEMBERSHIP])->get();
+        return AROrgUnitOrigin::where(['object_type' => IOrigin::OBJECT_TYPE_ORGNUNIT_MEMBERSHIP])->get();
     }
 }

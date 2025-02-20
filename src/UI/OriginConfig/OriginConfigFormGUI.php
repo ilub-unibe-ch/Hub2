@@ -51,6 +51,7 @@ use ilRadioGroupInputGUI;
 use ilRadioOption;
 use ilSelectInputGUI;
 use ilFileInputGUI;
+use srag\Plugins\Hub2\FileDrop\ResourceStorage\ResourceStorage;
 
 /**
  * Class OriginConfigFormGUI
@@ -61,13 +62,13 @@ use ilFileInputGUI;
 class OriginConfigFormGUI extends ilPropertyFormGUI
 {
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
-    public const POST_VAR_ADHOC = "adhoc";
-    public const POST_VAR_SORT = "sort";
+    public const POST_VAR_ADHOC = 'adhoc';
+    public const POST_VAR_SORT = 'sort';
     public const PLUGIN_BASE = 'Customizing/global/plugins/Services/Cron/CronHook/Hub2';
 
     private Token $token;
     protected ilHub2Plugin $plugin;
-    protected \srag\Plugins\Hub2\FileDrop\ResourceStorage\ResourceStorage $file_storage;
+    protected ResourceStorage $file_storage;
     protected hub2ConfigOriginsGUI $parent_gui;
     protected IOrigin $origin;
     protected IOriginRepository $originRepository;
@@ -101,7 +102,7 @@ class OriginConfigFormGUI extends ilPropertyFormGUI
     /**
      *
      */
-    protected function initForm()
+    protected function initForm(): void
     {
         $this->addGeneral();
         if ($this->origin->getId() !== 0) {
@@ -156,7 +157,7 @@ class OriginConfigFormGUI extends ilPropertyFormGUI
      * Subclasses using static properties should overwrite this method, add the static properties
      * and call parent::addPropertiesUpdate() at the very end
      */
-    protected function addPropertiesUpdate()
+    protected function addPropertiesUpdate(): void
     {
         $ucfirst = ucfirst($this->origin->getObjectType());
         $parser = new DTOPropertyParser("srag\\Plugins\\Hub2\\Object\\$ucfirst\\{$ucfirst}DTO");
@@ -182,7 +183,7 @@ class OriginConfigFormGUI extends ilPropertyFormGUI
     /**
      *
      */
-    protected function addNotificationConfig()
+    protected function addNotificationConfig(): void
     {
         $h = new ilFormSectionHeaderGUI();
         $h->setTitle($this->translate('origin_form_header_notification'));
@@ -206,7 +207,7 @@ class OriginConfigFormGUI extends ilPropertyFormGUI
     /**
      *
      */
-    protected function addConnectionConfig()
+    protected function addConnectionConfig(): void
     {
         $header = new ilFormSectionHeaderGUI();
         $header->setTitle($this->translate('origin_form_header_connection'));
@@ -365,11 +366,11 @@ class OriginConfigFormGUI extends ilPropertyFormGUI
         );
 
         $ilias_file_selector = new ilRepositorySelector2InputGUI(
-            $this->translate("origin_form_field_conf_type_ilias_file"),
+            $this->translate('origin_form_field_conf_type_ilias_file'),
             $this->conf(IOriginConfig::ILIAS_FILE_REF_ID)
         );
 
-        $ilias_file_selector->getExplorerGUI()->setSelectableTypes(["file"]);
+        $ilias_file_selector->getExplorerGUI()->setSelectableTypes(['file']);
 
         $ilias_file_selector->setValue($this->origin->config()->get(IOriginConfig::ILIAS_FILE_REF_ID));
 
@@ -379,7 +380,7 @@ class OriginConfigFormGUI extends ilPropertyFormGUI
     /**
      *
      */
-    protected function addSyncConfig()
+    protected function addSyncConfig(): void
     {
         $h = new ilFormSectionHeaderGUI();
         $h->setTitle($this->translate('origin_form_header_sync'));
@@ -472,18 +473,18 @@ class OriginConfigFormGUI extends ilPropertyFormGUI
     /**
      *
      */
-    protected function addGeneral()
+    protected function addGeneral(): void
     {
         if ($this->origin->getId() !== 0) {
             $item = new ilNonEditableValueGUI();
-            $item->setTitle($this->translate("origin_id"));
+            $item->setTitle($this->translate('origin_id'));
             $item->setValue($this->origin->getId());
             $this->addItem($item);
             $item = new ilHiddenInputGUI('origin_id');
             $item->setValue((string) $this->origin->getId());
             $this->addItem($item);
 
-            $item = new ilNumberInputGUI($this->translate("origin_sort"), self::POST_VAR_SORT);
+            $item = new ilNumberInputGUI($this->translate('origin_sort'), self::POST_VAR_SORT);
             $item->setValue((string)$this->origin->getSort());
             $this->addItem($item);
         }
@@ -498,19 +499,19 @@ class OriginConfigFormGUI extends ilPropertyFormGUI
         if ($this->origin->getId() !== 0) {
             $item = new ilNonEditableValueGUI();
             $item->setTitle($this->translate('origin_form_field_usage_type'));
-            $item->setValue($this->translate("origin_object_type_" . $this->origin->getObjectType()));
+            $item->setValue($this->translate('origin_object_type_' . $this->origin->getObjectType()));
             $this->addItem($item);
-            $item = new ilCheckboxInputGUI($this->translate("origin_form_field_adhoc"), self::POST_VAR_ADHOC);
+            $item = new ilCheckboxInputGUI($this->translate('origin_form_field_adhoc'), self::POST_VAR_ADHOC);
             $item->setChecked($this->origin->isAdHoc());
-            $item->setInfo($this->translate("origin_form_field_adhoc_info"));
+            $item->setInfo($this->translate('origin_form_field_adhoc_info'));
 
             if ($this->hasOriginAdHocParentScope()) {
                 $subitem = new ilCheckboxInputGUI(
-                    $this->translate("origin_form_field_adhoc_parent_scope"),
-                    "adhoc_parent_scope"
+                    $this->translate('origin_form_field_adhoc_parent_scope'),
+                    'adhoc_parent_scope'
                 );
                 $subitem->setChecked($this->origin->isAdhocParentScope());
-                $subitem->setInfo($this->translate("origin_form_field_adhoc_parent_scope_info"));
+                $subitem->setInfo($this->translate('origin_form_field_adhoc_parent_scope_info'));
                 $item->addSubItem($subitem);
             }
 
@@ -574,7 +575,7 @@ class OriginConfigFormGUI extends ilPropertyFormGUI
     {
         $rid = new ilNonEditableValueGUI(
             $this->translate('origin_form_field_conf_type_filedrop_rid'),
-            "",
+            '',
             true
         );
         $resource_identification = $this->origin->config()->get(IOriginConfig::FILE_DROP_RID);
@@ -589,7 +590,7 @@ class OriginConfigFormGUI extends ilPropertyFormGUI
         if ($resource_identification !== null) {
             $latest_file = new ilNonEditableValueGUI(
                 $this->translate('origin_form_field_conf_type_filedrop_latest'),
-                "",
+                '',
                 true
             );
             $resource_info = $this->file_storage->getRevisionInfo($resource_identification);

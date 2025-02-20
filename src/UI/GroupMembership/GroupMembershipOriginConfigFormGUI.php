@@ -22,6 +22,7 @@ namespace srag\Plugins\Hub2\UI\GroupMembership;
 
 use srag\Plugins\Hub2\Origin\GroupMembership\ARGroupMembershipOrigin;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
+use srag\Plugins\Hub2\Origin\IOrigin;
 
 /**
  * Class GroupMembershipOriginConfigFormGUI
@@ -34,12 +35,12 @@ class GroupMembershipOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @var ARGroupMembershipOrigin
      */
-    protected \srag\Plugins\Hub2\Origin\IOrigin $origin;
+    protected IOrigin $origin;
 
     /**
      * @inheritdoc
      */
-    protected function addSyncConfig()
+    protected function addSyncConfig(): void
     {
         parent::addSyncConfig();
     }
@@ -47,7 +48,7 @@ class GroupMembershipOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesNew()
+    protected function addPropertiesNew(): void
     {
         parent::addPropertiesNew();
     }
@@ -55,7 +56,7 @@ class GroupMembershipOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesUpdate()
+    protected function addPropertiesUpdate(): void
     {
         parent::addPropertiesUpdate();
     }
@@ -63,7 +64,7 @@ class GroupMembershipOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesDelete()
+    protected function addPropertiesDelete(): void
     {
         parent::addPropertiesDelete();
     }

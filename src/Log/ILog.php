@@ -78,7 +78,7 @@ interface ILog
     /**
      * @param mixed $value
      */
-    public function addAdditionalData(string $key, $value): self;
+    public function addAdditionalData(string $key, mixed $value): self;
 
     public function getOriginId(): ?int;
 

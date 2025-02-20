@@ -31,7 +31,7 @@ class hub2DataGUI extends hub2MainGUI
     /**
      *
      */
-    public function executeCommand()
+    public function executeCommand(): void
     {
         $this->initTabs();
         $cmd = $this->ctrl->getCmd(self::CMD_INDEX);
@@ -41,7 +41,7 @@ class hub2DataGUI extends hub2MainGUI
     /**
      *
      */
-    protected function index()
+    protected function index(): void
     {
         $table = new DataTableGUI($this, self::CMD_INDEX);
         $this->ui->mainTemplate()->setContent($table->getHTML());
@@ -50,7 +50,7 @@ class hub2DataGUI extends hub2MainGUI
     /**
      *
      */
-    protected function applyFilter()
+    protected function applyFilter(): void
     {
         $table = new DataTableGUI($this, self::CMD_INDEX);
         $table->writeFilterToSession();
@@ -60,7 +60,7 @@ class hub2DataGUI extends hub2MainGUI
     /**
      *
      */
-    protected function resetFilter()
+    protected function resetFilter(): void
     {
         $table = new DataTableGUI($this, self::CMD_INDEX);
         $table->resetFilter();
@@ -72,7 +72,7 @@ class hub2DataGUI extends hub2MainGUI
     /**
      *
      */
-    protected function initTabs()
+    protected function initTabs(): void
     {
         $this->tabs->activateSubTab(hub2ConfigOriginsGUI::SUBTAB_DATA);
     }
@@ -80,7 +80,7 @@ class hub2DataGUI extends hub2MainGUI
     /**
      *
      */
-    protected function renderData()
+    protected function renderData(): void
     {
         $ext_id = $this->request->getQueryParams()[DataTableGUI::F_EXT_ID];
         $origin_id = $this->request->getQueryParams()[DataTableGUI::F_ORIGIN_ID];
@@ -103,13 +103,13 @@ class hub2DataGUI extends hub2MainGUI
 
         if ($object instanceof IMetadataAwareObject) {
             foreach ($object->getMetaData() as $metadata) {
-                $properties["metadata." . $metadata->getIdentifier()] = $metadata->getValue();
+                $properties['metadata.' . $metadata->getIdentifier()] = $metadata->getValue();
             }
         }
 
         if ($object instanceof ITaxonomyAwareObject) {
             foreach ($object->getTaxonomies() as $taxonomy) {
-                $properties["taxonomy." . $taxonomy->getTitle()] = $taxonomy->getNodeTitlesAsArray();
+                $properties['taxonomy.' . $taxonomy->getTitle()] = $taxonomy->getNodeTitlesAsArray();
             }
         }
 
@@ -123,7 +123,7 @@ class hub2DataGUI extends hub2MainGUI
                 }
             }
             if ($property === '') {
-                $filtered[$key] = "&nbsp;";
+                $filtered[$key] = '&nbsp;';
             }
         }
 
@@ -136,9 +136,9 @@ class hub2DataGUI extends hub2MainGUI
         $data_table = $factory->listing()->descriptive($filtered);
 
         $modal = $factory->modal()->roundtrip(
-            ilHub2Plugin::getInstance()->txt("data_table_header_data"),
+            ilHub2Plugin::getInstance()->txt('data_table_header_data'),
             $data_table
-        )->withCancelButtonLabel("close");
+        )->withCancelButtonLabel('close');
 
         echo $this->ui->renderer()->renderAsync($modal);
         exit;

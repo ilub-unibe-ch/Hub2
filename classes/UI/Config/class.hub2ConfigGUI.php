@@ -38,7 +38,7 @@ class hub2ConfigGUI extends hub2MainGUI
     /**
      *
      */
-    protected function index()/*: void*/
+    protected function index(): void
     {
         $form = $this->getConfigForm();
         $this->ui->mainTemplate()->setContent($form->getHTML());
@@ -47,7 +47,7 @@ class hub2ConfigGUI extends hub2MainGUI
     /**
      *
      */
-    protected function saveConfig()/*: void*/
+    protected function saveConfig(): void
     {
         $form = $this->getConfigForm();
 
@@ -64,7 +64,7 @@ class hub2ConfigGUI extends hub2MainGUI
     /**
      *
      */
-    protected function initTabs()/*: void*/
+    protected function initTabs(): void
     {
         $this->tabs->activateTab(self::TAB_PLUGIN_CONFIG);
     }

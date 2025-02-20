@@ -74,7 +74,7 @@ class OriginImplementationTemplateGenerator
         $content = str_replace('[[NAMESPACE]]', $namespace, $content);
         $result = file_put_contents($classFile, $content);
         if ($result === false) {
-            throw new HubException("Unable to create template for origin implementation");
+            throw new HubException('Unable to create template for origin implementation');
         }
 
         return true;

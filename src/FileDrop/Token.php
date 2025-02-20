@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace srag\Plugins\Hub2\FileDrop;
 
 use Psr\Http\Message\RequestInterface;
+use Throwable;
 
 /**
  * Class Token
@@ -37,7 +38,7 @@ class Token
     {
         try {
             $token = bin2hex(random_bytes(self::LENGTH));
-        } catch (\Throwable $t) {
+        } catch (Throwable $t) {
             $token = hash('sha256', uniqid((string) time(), true));
         }
 

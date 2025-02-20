@@ -53,13 +53,13 @@ final class ActiveRecordConfigRepository extends AbstractRepository
      *
      * @deprecated
      */
-    protected $table_name;
+    protected string $table_name;
     /**
      * @var array
      *
      * @deprecated
      */
-    protected $fields;
+    protected array $fields;
 
     /**
      * ActiveRecordConfigRepository constructor

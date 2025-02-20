@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . "/../../AbstractSyncProcessorTests.php";
+require_once __DIR__ . '/../../AbstractSyncProcessorTests.php';
 
 use Mockery\MockInterface;
 use srag\Plugins\Hub2\Object\Course\CourseDTO;
@@ -12,6 +12,7 @@ use srag\Plugins\Hub2\Origin\Properties\Course\CourseProperties;
 use srag\Plugins\Hub2\Sync\Processor\Course\CourseSyncProcessor;
 use srag\Plugins\Hub2\Sync\Processor\Course\ICourseActivities;
 use srag\Plugins\Hub2\Object\Course\ICourseDTO;
+use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 
 /**
  * Class CourseSyncProcessorTest
@@ -30,32 +31,38 @@ class CourseSyncProcessorTest extends AbstractSyncProcessorTests
     /**
      * @var MockInterface|ICourseActivities
      */
-    protected $activities;
+    protected ICourseActivities|\Mockery\LegacyMockInterface|MockInterface|object $activities;
     /**
      * @var MockInterface|ICourse
      */
-    protected $iobject;
+    protected ICourse|MockInterface $iobject;
     /**
      * @var CourseDTO
      */
-    protected \srag\Plugins\Hub2\Object\DTO\IDataTransferObject $dto;
+    protected IDataTransferObject $dto;
     /**
      * @var MockInterface|ilObjCourse
      * @see http://docs.mockery.io/en/latest/cookbook/mocking_hard_dependencies.html
      */
     protected MockInterface $ilObject;
 
-    protected function initDTO()
+    protected function initDTO(): void
     {
         $this->dto = new CourseDTO('extIdOfCourse');
-        $this->dto->setParentIdType(ICourseDTO::PARENT_ID_TYPE_REF_ID)->setParentId("1")->setDescription("Description")->setTitle("Title")
-                  ->setContactEmail("contact@email.com")->setContactResponsibility("Responsibility")->setImportantInformation("Important Information")
-                  ->setNotificationEmails(["notification@email.com"])->setOwner(6)->setSubscriptionLimitationType(ICourseDTO::SUBSCRIPTION_TYPE_PASSWORD)
-                  ->setViewMode(ICourseDTO::VIEW_MODE_BY_TYPE)->setContactName("Contact Name")->setSyllabus('Syllabus')
+        $this->dto->setParentIdType(ICourseDTO::PARENT_ID_TYPE_REF_ID)->setParentId('1')->setDescription(
+            'Description'
+        )->setTitle(
+            'Title'
+        )
+                  ->setContactEmail('contact@email.com')->setContactResponsibility('Responsibility')->setImportantInformation(
+                'Important Information'
+            )
+                  ->setNotificationEmails(['notification@email.com'])->setOwner(6)->setSubscriptionLimitationType(ICourseDTO::SUBSCRIPTION_TYPE_PASSWORD)
+                  ->setViewMode(ICourseDTO::VIEW_MODE_BY_TYPE)->setContactName('Contact Name')->setSyllabus('Syllabus')
                   ->setContactConsultation('1 2 3 4 5 6')->setContactPhone('+41 123 456 789');
     }
 
-    protected function initHubObject()
+    protected function initHubObject(): void
     {
         $this->iobject = Mockery::mock(ICourse::class);
         $this->iobject->shouldReceive('setProcessedDate')->once();
@@ -64,7 +71,7 @@ class CourseSyncProcessorTest extends AbstractSyncProcessorTests
         $this->iobject->shouldReceive('save')->once();
     }
 
-    protected function initILIASObject()
+    protected function initILIASObject(): void
     {
         $this->ilObject = Mockery::mock('overload:' . ilObjCourse::class, ilObject::class);
         $this->ilObject->shouldReceive('getId')->andReturn(self::ILIAS_USER_ID);
@@ -157,7 +164,7 @@ class CourseSyncProcessorTest extends AbstractSyncProcessorTests
         $processor->process($this->iobject, $this->dto);
     }
 
-    protected function initDataExpectations()
+    protected function initDataExpectations(): void
     {
         $this->ilObject->shouldReceive('setTitle')->once()->with($this->dto->getTitle());
         $this->ilObject->shouldReceive('setDescription')->once()->with($this->dto->getDescription());

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . "/../../AbstractSyncProcessorTests.php";
+require_once __DIR__ . '/../../AbstractSyncProcessorTests.php';
 
 use Mockery\MockInterface;
 use srag\Plugins\Hub2\Object\CourseMembership\CourseMembershipDTO;
@@ -12,6 +12,7 @@ use srag\Plugins\Hub2\Origin\Properties\CourseMembership\CourseMembershipPropert
 use srag\Plugins\Hub2\Sync\Processor\CourseMembership\CourseMembershipSyncProcessor;
 use srag\Plugins\Hub2\Sync\Processor\FakeIliasMembershipObject;
 use srag\Plugins\Hub2\Sync\Processor\FakeIliasObject;
+use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 
 /**
  * Class CourseMembershipSyncProcessorTest
@@ -31,32 +32,32 @@ class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
     /**
      * @var MockInterface|ilCourseParticipants
      */
-    protected $ilCourseParticipants;
+    protected MockInterface|ilCourseParticipants $ilCourseParticipants;
     /**
      * @var MockInterface|ilObjCourse
      */
-    protected $ilObjCourse;
+    protected ilObjCourse|MockInterface $ilObjCourse;
     /**
      * @var MockInterface|ICourseMembership
      */
-    protected $iobject;
+    protected ICourseMembership|MockInterface $iobject;
     /**
      * @var CourseMembershipDTO
      */
-    protected \srag\Plugins\Hub2\Object\DTO\IDataTransferObject $dto;
+    protected IDataTransferObject $dto;
     /**
      * @var MockInterface|FakeIliasObject
      * @see http://docs.mockery.io/en/latest/cookbook/mocking_hard_dependencies.html
      */
     protected MockInterface $ilObject;
 
-    protected function initDTO()
+    protected function initDTO(): void
     {
         $this->dto = new CourseMembershipDTO('extIdOfCourse', 'extIdOfUser');
-        $this->dto->setRole(CourseMembershipDTO::ROLE_TUTOR)->setUserId(self::USER_ID)->setCourseId(self::COURSE_REF_ID);
+        $this->dto->setRole(CourseMembershipDTO::ROLE_TUTOR)->setUserId(self::USER_ID)->setCourseId('self::COURSE_REF_ID');
     }
 
-    protected function initHubObject()
+    protected function initHubObject(): void
     {
         $this->iobject = Mockery::mock(ICourseMembership::class);
         $this->iobject->shouldReceive('setProcessedDate')->once();
@@ -65,20 +66,20 @@ class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
         $this->iobject->shouldReceive('save')->once();
     }
 
-    protected function initILIASObject()
+    protected function initILIASObject(): void
     {
         $this->ilObject = Mockery::mock(FakeIliasObject::class);
         $this->ilObject->shouldReceive('getId')->andReturn(self::COURSE_REF_ID . FakeIliasMembershipObject::GLUE . self::USER_ID);
 
-        Mockery::mock('alias:' . ilObject2::class)->shouldReceive("_exists")->withArgs([
+        Mockery::mock('alias:' . ilObject2::class)->shouldReceive('_exists')->withArgs([
             self::COURSE_REF_ID,
             true,
         ])->andReturn(true);
 
-        $this->ilObjCourse = Mockery::mock("overload:" . ilObjCourse::class, ilObject::class);
+        $this->ilObjCourse = Mockery::mock('overload:' . ilObjCourse::class, ilObject::class);
 
-        $this->ilCourseParticipants = Mockery::mock("overload:" . ilCourseParticipants::class, ilParticipants::class);
-        $this->ilObjCourse->shouldReceive("getMembersObject")->once()->andReturn($this->ilCourseParticipants);
+        $this->ilCourseParticipants = Mockery::mock('overload:' . ilCourseParticipants::class, ilParticipants::class);
+        $this->ilObjCourse->shouldReceive('getMembersObject')->once()->andReturn($this->ilCourseParticipants);
 
         //define(IL_CRS_TUTOR, 3);
     }
@@ -136,8 +137,8 @@ class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
 
         $this->iobject->shouldReceive('getStatus')->andReturn(IObject::STATUS_TO_UPDATE);
         $this->iobject->shouldReceive('setData')->once()->with($this->dto->getData());
-        $this->iobject->shouldReceive('computeHashCode')->once()->andReturn("newHash");
-        $this->iobject->shouldReceive('getHashCode')->once()->andReturn("oldHash");
+        $this->iobject->shouldReceive('computeHashCode')->once()->andReturn('newHash');
+        $this->iobject->shouldReceive('getHashCode')->once()->andReturn('oldHash');
         $this->iobject->shouldReceive('setILIASId')->once()->with(self::COURSE_REF_ID . FakeIliasMembershipObject::GLUE . self::USER_ID);
         $this->iobject->shouldReceive('getILIASId')->once()->andReturn(self::COURSE_REF_ID . FakeIliasMembershipObject::GLUE . self::USER_ID);
 
@@ -146,7 +147,7 @@ class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
 
         $this->ilObjCourse->shouldReceive('getDefaultTutorRole')->once()->andReturn(self::IL_CRS_TUTOR_123);
 
-        $this->ilObjCourse->shouldReceive("getRefId")->once()->andReturn(self::COURSE_REF_ID);
+        $this->ilObjCourse->shouldReceive('getRefId')->once()->andReturn(self::COURSE_REF_ID);
 
         $this->ilCourseParticipants->shouldReceive('updateRoleAssignments')->once()->withArgs([
             $this->dto->getUserId(),

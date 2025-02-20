@@ -48,7 +48,7 @@ class NullLink implements IObjectLink
      */
     public function getAccessGrantedExternalLink(): string
     {
-        return "index.php";
+        return 'index.php';
     }
 
     /**
@@ -56,7 +56,7 @@ class NullLink implements IObjectLink
      */
     public function getAccessDeniedLink(): string
     {
-        return "index.php";
+        return 'index.php';
     }
 
     /**
@@ -64,7 +64,7 @@ class NullLink implements IObjectLink
      */
     public function getNonExistingLink(): string
     {
-        return "index.php";
+        return 'index.php';
     }
 
     /**
@@ -72,6 +72,6 @@ class NullLink implements IObjectLink
      */
     public function getAccessGrantedInternalLink(): string
     {
-        return "index.php";
+        return 'index.php';
     }
 }

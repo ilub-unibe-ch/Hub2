@@ -32,6 +32,7 @@ use srag\Plugins\Hub2\Origin\User\ARUserOrigin;
 use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
 use srag\Plugins\Hub2\Origin\Properties\User\IUserProperties;
 use ilHub2Plugin;
+use srag\Plugins\Hub2\Origin\IOrigin;
 
 /**
  * Class UserOriginConfigFormGUI
@@ -44,12 +45,12 @@ class UserOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @var ARUserOrigin
      */
-    protected \srag\Plugins\Hub2\Origin\IOrigin $origin;
+    protected IOrigin $origin;
 
     /**
      * @inheritdoc
      */
-    protected function addSyncConfig()
+    protected function addSyncConfig(): void
     {
         parent::addSyncConfig();
 
@@ -71,7 +72,7 @@ class UserOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesNew()
+    protected function addPropertiesNew(): void
     {
         parent::addPropertiesNew();
 
@@ -123,7 +124,7 @@ class UserOriginConfigFormGUI extends OriginConfigFormGUI
             ilHub2Plugin::getInstance()->txt('usr_prop_password_mail_date_format'),
             $this->prop(IUserProperties::PASSWORD_MAIL_DATE_FORMAT)
         );
-        $mail_date_format->setInfo('<a target=\'_blank\' href=\'http://php.net/manual/de/function.date.php\'>' . htmlspecialchars(ilHub2Plugin::getInstance()->txt('usr_prop_password_mail_date_format_info')) . '</a>');
+        $mail_date_format->setInfo('<a target=\'_blank\' href=\'https://php.net/manual/de/function.date.php\'>' . htmlspecialchars(ilHub2Plugin::getInstance()->txt('usr_prop_password_mail_date_format_info')) . '</a>');
         $mail_date_format->setValue($this->origin->properties()->get(IUserProperties::PASSWORD_MAIL_DATE_FORMAT));
         $send_password->addSubItem($mail_date_format);
         $this->addItem($send_password);
@@ -132,7 +133,7 @@ class UserOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesUpdate()
+    protected function addPropertiesUpdate(): void
     {
         parent::addPropertiesUpdate();
 
@@ -156,7 +157,7 @@ class UserOriginConfigFormGUI extends OriginConfigFormGUI
     /**
      * @inheritdoc
      */
-    protected function addPropertiesDelete()
+    protected function addPropertiesDelete(): void
     {
         parent::addPropertiesDelete();
 

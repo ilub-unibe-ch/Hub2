@@ -26,5 +26,5 @@ use srag\Plugins\Hub2\Object\ARObject;
  */
 class AROrgUnit extends ARObject implements IOrgUnit
 {
-    public const TABLE_NAME = "sr_hub2_org_unit";
+    public const TABLE_NAME = 'sr_hub2_org_unit';
 }

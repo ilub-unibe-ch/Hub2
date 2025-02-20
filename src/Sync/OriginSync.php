@@ -84,7 +84,7 @@ class OriginSync implements IOriginSync
     /**
      * @inheritdoc
      */
-    public function execute()
+    public function execute(): void
     {
         // Any exception during the three stages (connect/parse/build hub objects) is forwarded to the global sync
         // as the sync of this origin cannot continue.
@@ -102,8 +102,8 @@ class OriginSync implements IOriginSync
         if ($this->origin->config()->getCheckAmountData()) {
             $threshold = $this->origin->config()->getCheckAmountDataPercentage();
             $total = $this->repository->count();
-            $percentage = ($total > 0 && $count > 0) ? (100 / $total * $count) : 0;
-            if ($total > 0 && ($percentage < $threshold)) {
+            $percentage = $total > 0 && $count > 0 ? 100 / $total * $count : 0;
+            if ($total > 0 && $percentage < $threshold) {
                 $msg = "Amount of delivered data not sufficient: Got $count datasets, 
 					which is " . number_format($percentage, 2) . "% of the existing data in hub, 
 					need at least $threshold% according to origin config";
@@ -152,8 +152,7 @@ class OriginSync implements IOriginSync
                 $objects_to_outdated,
                 $this->repository->getToDelete($ext_ids_delivered)
             ));
-        } else {
-            if ($this->origin->isAdHoc() && $this->origin->isAdhocParentScope()) {
+        } elseif ($this->origin->isAdHoc() && $this->origin->isAdhocParentScope()) {
                 $adhoc_parent_ids = $this->implementation->getAdHocParentScopesAsExtIds();
                 $objects_in_parent_scope_not_delivered = $this->repository->getToDeleteByParentScope(
                     $ext_ids_delivered,
@@ -163,7 +162,6 @@ class OriginSync implements IOriginSync
                     $objects_to_outdated,
                     $objects_in_parent_scope_not_delivered
                 ));
-            }
         }
 
         foreach ($objects_to_outdated as $object) {
@@ -194,7 +192,7 @@ class OriginSync implements IOriginSync
         if ($this->processor->handleSort($sort_dtos)) {
             // Sort by level
             usort($sort_dtos, function (IDataTransferObjectSort $sort_dto1, IDataTransferObjectSort $sort_dto2): int {
-                return ($sort_dto1->getLevel() - $sort_dto2->getLevel());
+                return $sort_dto1->getLevel() - $sort_dto2->getLevel();
             });
 
             // Back to IDataTransferObject objects
@@ -235,7 +233,7 @@ class OriginSync implements IOriginSync
      * @param IDataTransferObject $dto
      * @throws Throwable
      */
-    protected function processObject(IObject $object, IDataTransferObject $dto)
+    protected function processObject(IObject $object, IDataTransferObject $dto): void
     {
         try {
             $this->processor->process($object, $dto, $this->origin->isUpdateForced());
@@ -266,7 +264,7 @@ class OriginSync implements IOriginSync
     /**
      * @param int $status
      */
-    protected function incrementProcessed(int $status)
+    protected function incrementProcessed(int $status): void
     {
         $this->countProcessed[$status]++;
     }
@@ -282,7 +280,7 @@ class OriginSync implements IOriginSync
     /**
      * @param IOrigin $origin
      */
-    public function setOrigin(IOrigin $origin)
+    public function setOrigin(IOrigin $origin): void
     {
         $this->origin = $origin;
     }
@@ -298,7 +296,7 @@ class OriginSync implements IOriginSync
     /**
      * @param IObjectRepository $repository
      */
-    public function setRepository(IObjectRepository $repository)
+    public function setRepository(IObjectRepository $repository): void
     {
         $this->repository = $repository;
     }
@@ -314,7 +312,7 @@ class OriginSync implements IOriginSync
     /**
      * @param IObjectFactory $factory
      */
-    public function setFactory(IObjectFactory $factory)
+    public function setFactory(IObjectFactory $factory): void
     {
         $this->factory = $factory;
     }
@@ -330,7 +328,7 @@ class OriginSync implements IOriginSync
     /**
      * @param IObjectSyncProcessor $processor
      */
-    public function setProcessor(IObjectSyncProcessor $processor)
+    public function setProcessor(IObjectSyncProcessor $processor): void
     {
         $this->processor = $processor;
     }
@@ -348,7 +346,7 @@ class OriginSync implements IOriginSync
      * @param IObjectStatusTransition $statusTransition
      * @deprecated
      */
-    public function setStatusTransition(IObjectStatusTransition $statusTransition)
+    public function setStatusTransition(IObjectStatusTransition $statusTransition): void
     {
         $this->statusTransition = $statusTransition;
     }
@@ -364,7 +362,7 @@ class OriginSync implements IOriginSync
     /**
      * @param IOriginImplementation $implementation
      */
-    public function setImplementation(IOriginImplementation $implementation)
+    public function setImplementation(IOriginImplementation $implementation): void
     {
         $this->implementation = $implementation;
     }

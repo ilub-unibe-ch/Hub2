@@ -43,7 +43,8 @@ use srag\Plugins\Hub2\Sync\Processor\ObjectSyncProcessor;
 use srag\Plugins\Hub2\Sync\Processor\TaxonomySyncProcessor;
 use srag\Plugins\Hub2\Object\Session\ISessionDTO;
 use srag\Plugins\Hub2\Origin\Properties\Session\ISessionProperties;
-use ILIAS\DI\Exceptions\Exception;
+use ilRepositoryException;
+use Throwable;
 
 /**
  * Class SessionSyncProcessor
@@ -58,27 +59,27 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
     /**
      * @var SessionProperties
      */
-    private $props;
+    private \srag\Plugins\Hub2\Origin\Properties\IOriginProperties|SessionProperties $props;
     /**
      * @var SessionOriginConfig
      */
-    private $config;
+    private \srag\Plugins\Hub2\Origin\Config\IOriginConfig|SessionOriginConfig $config;
     /**
      * @var array
      */
     protected static array $properties = [
-        "title",
-        "description",
-        "location",
-        "details",
-        "name",
-        "phone",
-        "email",
-        "registrationType",
-        "registrationMinUsers",
-        "registrationMaxUsers",
-        "registrationWaitingList",
-        "waitingListAutoFill",
+        'title',
+        'description',
+        'location',
+        'details',
+        'name',
+        'phone',
+        'email',
+        'registrationType',
+        'registrationMinUsers',
+        'registrationMaxUsers',
+        'registrationWaitingList',
+        'waitingListAutoFill',
         'showMembers'
     ];
 
@@ -109,19 +110,19 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
      * @inheritdoc
      * @param SessionDTO $dto
      */
-    protected function handleCreate(IDataTransferObject $dto)/*: void*/
+    protected function handleCreate(IDataTransferObject $dto): void/*: void*/
     {
         $this->current_ilias_object = $ilObjSession = new ilObjSession();
         $ilObjSession->setImportId($this->getImportId($dto));
 
         // Properties
         foreach (self::getProperties() as $property) {
-            if($property == "registrationWaitingList") {
-                $getter = "is" . ucfirst($property);
-                $setter = "enable" . ucfirst($property);
+            if($property == 'registrationWaitingList') {
+                $getter = 'is' . ucfirst($property);
+                $setter = 'enable' . ucfirst($property);
             } else {
-                $getter = "get" . ucfirst($property);
-                $setter = "set" . ucfirst($property);
+                $getter = 'get' . ucfirst($property);
+                $setter = 'set' . ucfirst($property);
             }
 
             if ($dto->$getter() !== null) {
@@ -157,7 +158,7 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
      * @inheritdoc
      * @param SessionDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id): void/*: void*/
     {
         $this->current_ilias_object = $ilObjSession = $this->findILIASObject((int)$ilias_id);
         if ($ilObjSession === null) {
@@ -168,12 +169,12 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
             if (!$this->props->updateDTOProperty($property)) {
                 continue;
             }
-            if($property == "registrationWaitingList") {
-                $getter = "is" . ucfirst($property);
-                $setter = "enable" . ucfirst($property);
+            if($property == 'registrationWaitingList') {
+                $getter = 'is' . ucfirst($property);
+                $setter = 'enable' . ucfirst($property);
             } else {
-                $getter = "get" . ucfirst($property);
-                $setter = "set" . ucfirst($property);
+                $getter = 'get' . ucfirst($property);
+                $setter = 'set' . ucfirst($property);
             }
             if ($dto->$getter() !== null) {
                 $ilObjSession->$setter($dto->$getter());
@@ -187,15 +188,16 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
             $ilObjSession = $this->setDataForFirstAppointment($dto, $ilObjSession, true);
             $ilObjSession->update();
             $ilObjSession->getFirstAppointment()->update();
-        } catch(\Throwable $e) {
-            $this->log->error("Hub2, SessionSyncProcesser, ilObjSession could  not be moved. Session ID :".$ilObjSession->getRefId());
+        } catch(Throwable $e) {
+            $this->log->error(
+                'Hub2, SessionSyncProcesser, ilObjSession could  not be moved. Session ID :' .$ilObjSession->getRefId());
         }
     }
 
     /**
      * @inheritdoc
      */
-    protected function handleDelete(string $ilias_id)/*: void*/
+    protected function handleDelete(string $ilias_id): void/*: void*/
     {
         $this->current_ilias_object = $ilObjSession = $this->findILIASObject((int)$ilias_id);
         if ($ilObjSession === null) {
@@ -246,17 +248,21 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
             // --> Get an instance of the linked origin and lookup the category by the given external ID.
             $linkedOriginId = $this->config->getLinkedOriginId();
             if (!$linkedOriginId) {
-                throw new HubException("Unable to lookup external parent ref-ID because there is no origin linked");
+                throw new HubException('Unable to lookup external parent ref-ID because there is no origin linked');
             }
             $originRepository = new OriginRepository();
             $possible_parents = array_merge($originRepository->groups(), $originRepository->courses());
-            $array = array_filter($possible_parents, function ($origin) use ($linkedOriginId) {
-                /** @var IOrigin $origin */
-                return $origin->getId() == $linkedOriginId;
-            });
+            /** @var IOrigin $origin */
+            $array_filter = [];
+            foreach ($possible_parents as $key => $origin) {
+                if ($origin->getId() == $linkedOriginId) {
+                    $array_filter[$key] = $origin;
+                }
+            }
+            $array = $array_filter;
             $origin = array_pop($array);
             if ($origin === null) {
-                $msg = "The linked origin syncing courses or groups was not found, please check that the correct origin is linked";
+                $msg = 'The linked origin syncing courses or groups was not found, please check that the correct origin is linked';
                 throw new HubException($msg);
             }
             $objectFactory = new ObjectFactory($origin);
@@ -268,7 +274,7 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
             }
 
             if (!$parent->getILIASId()) {
-                throw new HubException("The linked course or group does not (yet) exist in ILIAS");
+                throw new HubException('The linked course or group does not (yet) exist in ILIAS');
             }
             if (!$this->tree->isInTree((int)$parent->getILIASId())) {
                 throw new HubException("Could not find the ref-ID of the parent course or group in the tree: '{$parent->getILIASId()}'");
@@ -317,9 +323,9 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
      * @param ilObjSession $ilObjSession
      * @param SessionDTO   $session
      * @throws HubException
-     * @throws \ilRepositoryException
+     * @throws ilRepositoryException
      */
-    protected function moveSession(ilObjSession $ilObjSession, SessionDTO $session)
+    protected function moveSession(ilObjSession $ilObjSession, SessionDTO $session): void
     {
         $parentRefId = $this->buildParentRefId($session);
 
@@ -339,7 +345,7 @@ class SessionSyncProcessor extends ObjectSyncProcessor implements ISessionSyncPr
      * @param SessionDTO   $dto
      * @param ilObjSession $ilObjSession
      */
-    protected function setLanguage(SessionDTO $dto, ilObjSession $ilObjSession)
+    protected function setLanguage(SessionDTO $dto, ilObjSession $ilObjSession): void
     {
         $md_general = (new ilMD($ilObjSession->getId()))->getGeneral();
         //Note: this is terribly stupid, but the best (only) way if found to get to the

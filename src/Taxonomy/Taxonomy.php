@@ -48,7 +48,7 @@ class Taxonomy implements ITaxonomy
     /**
      * @var string
      */
-    protected string $description = "";
+    protected string $description = '';
 
     /**
      * Taxonomy constructor
@@ -132,6 +132,6 @@ class Taxonomy implements ITaxonomy
      */
     public function __toString(): string
     {
-        return ""; // Is this needed?
+        return ''; // Is this needed?
     }
 }

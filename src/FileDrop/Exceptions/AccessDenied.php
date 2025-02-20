@@ -2,12 +2,14 @@
 
 namespace srag\Plugins\Hub2\FileDrop\Exceptions;
 
+use Exception;
+
 /**
  * Class AccessDenied
  *
  * @author Fabian Schmid <fabian@sr.solutions>
  */
-class AccessDenied extends \Exception
+class AccessDenied extends Exception
 {
     protected $message = 'Access Denied';
 

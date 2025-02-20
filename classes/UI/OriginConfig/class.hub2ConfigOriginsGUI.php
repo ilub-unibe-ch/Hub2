@@ -75,7 +75,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      *
      */
-    public function executeCommand()
+    public function executeCommand(): void
     {
         $this->checkAccess();
         parent::executeCommand();
@@ -88,7 +88,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      *
      */
-    protected function initTabs()
+    protected function initTabs(): void
     {
         $this->tabs->addSubTab(
             self::SUBTAB_ORIGINS,
@@ -111,7 +111,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      *
      */
-    protected function index()
+    protected function index(): void
     {
         $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
 
@@ -140,7 +140,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      *
      */
-    protected function cancel()
+    protected function cancel(): void
     {
         $this->index();
     }
@@ -148,18 +148,18 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      *
      */
-    protected function addOrigin()
+    protected function addOrigin(): void
     {
-        $form = new OriginConfigFormGUI($this, new OriginRepository(), new ARUserOrigin(), $this->plugin);
+        $form = new OriginConfigFormGUI($this, new OriginRepository(), new ARUserOrigin());
         $this->ui->mainTemplate()->setContent($form->getHTML());
     }
 
     /**
      *
      */
-    protected function createOrigin()
+    protected function createOrigin(): void
     {
-        $form = new OriginConfigFormGUI($this, new OriginRepository(), new ARUserOrigin(), $this->plugin);
+        $form = new OriginConfigFormGUI($this, new OriginRepository(), new ARUserOrigin());
         if ($form->checkInput()) {
             $origin = $this->originFactory->createByType($form->getInput('object_type'));
             $origin->setTitle($form->getInput('title'));
@@ -176,7 +176,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      *
      */
-    protected function saveOrigin()
+    protected function saveOrigin(): void
     {
         /** @var AROrigin $origin */
         $origin = $this->getOrigin((int) $_POST[self::ORIGIN_ID]);
@@ -187,7 +187,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
             $origin->setSort((int)$form->getInput(OriginConfigFormGUI::POST_VAR_SORT));
             $origin->setDescription($form->getInput('description'));
             $origin->setAdHoc((bool)$form->getInput(OriginConfigFormGUI::POST_VAR_ADHOC));
-            $origin->setAdhocParentScope((bool) $form->getInput("adhoc_parent_scope"));
+            $origin->setAdhocParentScope((bool) $form->getInput('adhoc_parent_scope'));
             $origin->setActive((bool)$form->getInput('active'));
             $origin->setImplementationClassName($form->getInput('implementation_class_name'));
             $origin->setImplementationNamespace($form->getInput('implementation_namespace'));
@@ -212,10 +212,14 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
             try {
                 $result = $generator->create($origin);
                 if ($result) {
-                    $this->ui->mainTemplate()->setOnScreenMessage('info', $this->plugin->txt("msg_created_class_implementation_file"), true);
+                    $this->ui->mainTemplate()->setOnScreenMessage('info', $this->plugin->txt(
+                        'msg_created_class_implementation_file'
+                    ), true);
                 }
             } catch (HubException $e) {
-                $this->ui->mainTemplate()->setOnScreenMessage('info', $this->plugin->txt("msg_created_class_implementation_file_failed"), true);
+                $this->ui->mainTemplate()->setOnScreenMessage('info', $this->plugin->txt(
+                    'msg_created_class_implementation_file_failed'
+                ), true);
             }
             $this->ctrl->saveParameter($this, self::ORIGIN_ID);
             $this->ctrl->redirect($this, self::CMD_EDIT_ORGIN);
@@ -227,7 +231,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      *
      */
-    protected function editOrigin()
+    protected function editOrigin(): void
     {
         $origin = $this->getOrigin((int) $_GET[self::ORIGIN_ID]);
         $this->ui->mainTemplate()->setTitle($origin->getTitle());
@@ -238,7 +242,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      *
      */
-    protected function activateAll()
+    protected function activateAll(): void
     {
         foreach ($this->originRepository->all() as $repository) {
             $repository->setActive(true);
@@ -251,7 +255,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      *
      */
-    protected function deactivateAll()
+    protected function deactivateAll(): void
     {
         foreach ($this->originRepository->all() as $repository) {
             $repository->setActive(false);
@@ -265,7 +269,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
      * @param IOrigin $origins
      * @param bool    $force_update
      */
-    protected function execute(array $origins, bool $force_update = false)
+    protected function execute(array $origins, bool $force_update = false): void
     {
         $summary = $this->summaryFactory->web();
 
@@ -286,7 +290,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
             } else {
                 $this->ui->mainTemplate()->setOnScreenMessage(
                     'info',
-                    "No data has been processed. Note that one reason could be, that some other chunk of data is still being processed.",
+                    'No data has been processed. Note that one reason could be, that some other chunk of data is still being processed.',
                     true
                 );
             }
@@ -300,7 +304,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      * @param bool $force_update
      */
-    protected function run(bool $force_update = false)/*: void*/
+    protected function run(bool $force_update = false): void/*: void*/
     {
         $this->execute($this->originFactory->getAllActive(), $force_update);
     }
@@ -308,7 +312,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      *
      */
-    protected function runForceUpdate()/*: void*/
+    protected function runForceUpdate(): void/*: void*/
     {
         $this->run(true);
     }
@@ -316,7 +320,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      * @param bool $force_update
      */
-    protected function runOriginSync(bool $force_update = false)/*: void*/
+    protected function runOriginSync(bool $force_update = false): void/*: void*/
     {
         $origin = $this->getOrigin(intval(filter_input(INPUT_GET, self::ORIGIN_ID)));
 
@@ -326,7 +330,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      *
      */
-    protected function runOriginSyncForceUpdate()/*: void*/
+    protected function runOriginSyncForceUpdate(): void/*: void*/
     {
         $this->runOriginSync(true);
     }
@@ -334,7 +338,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      *
      */
-    protected function confirmDelete()
+    protected function confirmDelete(): void
     {
         $f = new OriginFactory();
         $o = $f->getById($this->request->getQueryParams()[self::ORIGIN_ID]);
@@ -350,7 +354,7 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     /**
      *
      */
-    protected function delete()
+    protected function delete(): void
     {
         $origin_id = intval($this->request->getParsedBody()[self::ORIGIN_ID]);
 
@@ -364,11 +368,11 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
      * Check access based on plugin configuration.
      * Returns to personal desktop if a user does not have permission to administrate hub.
      */
-    protected function checkAccess()
+    protected function checkAccess(): void
     {
         $roles = array_unique(array_merge(ArConfig::getField(ArConfig::KEY_ADMINISTRATE_HUB_ROLE_IDS), [2]));
         if (!$this->rbac_review->isAssignedToAtLeastOneGivenRole($this->user->getId(), $roles)) {
-            $this->ui->mainTemplate()->setOnScreenMessage('failure', $this->plugin->txt('permission_denied', "", [], false), true);
+            $this->ui->mainTemplate()->setOnScreenMessage('failure', $this->plugin->txt('permission_denied'), true);
             $this->ctrl->redirectByClass(ilDashboardGUI::class);
         }
     }

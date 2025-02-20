@@ -48,11 +48,11 @@ class CourseMembershipSyncProcessor extends ObjectSyncProcessor implements ICour
     /**
      * @var CourseProperties
      */
-    protected $props;
+    protected \srag\Plugins\Hub2\Origin\Properties\IOriginProperties|CourseProperties $props;
     /**
      * @var CourseOriginConfig
      */
-    protected $config;
+    protected CourseOriginConfig|\srag\Plugins\Hub2\Origin\Config\IOriginConfig $config;
 
     /**
      * @param IOrigin                 $origin
@@ -73,7 +73,7 @@ class CourseMembershipSyncProcessor extends ObjectSyncProcessor implements ICour
      * @inheritdoc
      * @param CourseMembershipDTO $dto
      */
-    protected function handleCreate(IDataTransferObject $dto)/*: void*/
+    protected function handleCreate(IDataTransferObject $dto): void/*: void*/
     {
         $ilias_course_ref_id = $this->determineCourseRefId($dto);
         $course = $this->findILIASCourse($ilias_course_ref_id);
@@ -93,7 +93,7 @@ class CourseMembershipSyncProcessor extends ObjectSyncProcessor implements ICour
      * @inheritdoc
      * @param CourseMembershipDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id): void/*: void*/
     {
         $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
         $ilias_course_ref_id = $obj->getContainerIdIlias();
@@ -113,7 +113,7 @@ class CourseMembershipSyncProcessor extends ObjectSyncProcessor implements ICour
         $membership_obj->add($user_id, $this->mapRole($dto));
         $membership_obj->updateRoleAssignments($user_id, [$this->getILIASRole($dto, $course)]);
 
-        if ($this->props->updateDTOProperty("isContact")) {
+        if ($this->props->updateDTOProperty('isContact')) {
             $membership_obj->updateContact($user_id, $dto->isContact());
         }
 
@@ -125,7 +125,7 @@ class CourseMembershipSyncProcessor extends ObjectSyncProcessor implements ICour
     /**
      * @inheritdoc
      */
-    protected function handleDelete(string $ilias_id)/*: void*/
+    protected function handleDelete(string $ilias_id): void/*: void*/
     {
         $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
 
@@ -202,22 +202,27 @@ class CourseMembershipSyncProcessor extends ObjectSyncProcessor implements ICour
             // category by the given external ID.
             $linkedOriginId = $this->config->getLinkedOriginId();
             if (!$linkedOriginId) {
-                throw new HubException("Unable to lookup external parent ref-ID because there is no origin linked");
+                throw new HubException('Unable to lookup external parent ref-ID because there is no origin linked');
             }
             $originRepository = new OriginRepository();
-            $array = array_filter($originRepository->courses(), function ($origin) use ($linkedOriginId) {
-                /** @var IOrigin $origin */
-                return $origin->getId() == $linkedOriginId;
-            });
+            /** @var IOrigin $origin */
+            $array_filter = [];
+            foreach ($originRepository->courses() as $key => $origin) {
+                if ($origin->getId() == $linkedOriginId) {
+                    $array_filter[$key] = $origin;
+                }
+            }
+            $array = $array_filter;
             $origin = array_pop($array);
             if ($origin === null) {
-                $msg = "The linked origin syncing courses was not found, please check that the correct origin is linked";
+                $msg = 'The linked origin syncing courses was not found, please check that the correct origin is linked';
                 throw new HubException($msg);
             }
             $objectFactory = new ObjectFactory($origin);
             $course = $objectFactory->course((string)$course_membership->getCourseId());
             if (!$course->getILIASId()) {
-                throw new HubException("The linked course does not (yet) exist in ILIAS. Membership Ext-Id: " . $course_membership->getExtId());
+                throw new HubException(
+                    'The linked course does not (yet) exist in ILIAS. Membership Ext-Id: ' . $course_membership->getExtId());
             }
 
             return (int)$course->getILIASId();

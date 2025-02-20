@@ -29,9 +29,13 @@ use ILIAS\ResourceStorage\Stakeholder\AbstractResourceStakeholder;
  */
 class Stakeholder7 extends AbstractResourceStakeholder
 {
+    public function __construct()
+    {
+    }
+
     public function getId(): string
     {
-        return "hub2";
+        return 'hub2';
     }
 
     public function getOwnerOfNewResources(): int

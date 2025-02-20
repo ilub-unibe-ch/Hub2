@@ -74,7 +74,7 @@ final class Factory implements IFactory
     public function originLog(IOrigin $origin = null, IObject $object = null, IDataTransferObject $dto = null): ILog
     {
         $log = $this->log()->withOriginId(
-            (int)$origin->getId()
+            $origin->getId()
         )->withOriginObjectType($origin->getObjectType());
 
         if ($object instanceof IObject) {
@@ -89,7 +89,7 @@ final class Factory implements IFactory
                 $log->withObjectExtId($dto->getExtId());
             }
 
-            if (method_exists($dto, "getTitle") && !empty($dto->getTitle())) {
+            if (method_exists($dto, 'getTitle') && !empty($dto->getTitle())) {
                 return $log->withTitle($dto->getTitle());
             }
             if ($dto instanceof IUserDTO) {
@@ -120,15 +120,21 @@ final class Factory implements IFactory
         $log->withMessage($ex->getMessage());
         $relevant = true;
         $filter = static function (array $stack) use (&$relevant): bool {
-            $relevant = strpos($stack["file"], 'OriginSync.php') === false && $relevant;
+            $relevant = strpos($stack['file'], 'OriginSync.php') === false && $relevant;
             return $relevant;
         };
-        $stack = array_filter($ex->getTrace(), $filter);
+        $array_filter = [];
+        foreach ($ex->getTrace() as $key => $item) {
+            if ($filter($item)) {
+                $array_filter[$key] = $item;
+            }
+        }
+        $stack = $array_filter;
 
         $closure = static function (array $stack) {
             // $file = str_replace(getcwd(), "", $stack["file"]);
-            $file = basename($stack["file"]);
-            return "$file({$stack["line"] })->{$stack["function"]}()";
+            $file = basename($stack['file']);
+            return "$file({$stack['line'] })->{$stack['function']}()";
         };
         $small_stack = array_map($closure, $stack);
         $additional = (object) $small_stack;

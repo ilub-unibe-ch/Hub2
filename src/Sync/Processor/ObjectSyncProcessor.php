@@ -40,6 +40,15 @@ use srag\Plugins\Hub2\Origin\IOriginImplementation;
 use srag\Plugins\Hub2\Sync\IObjectStatusTransition;
 use Throwable;
 use ilMailMimeSenderFactory;
+use ilRbacAdmin;
+use ilTree;
+use ilDBInterface;
+use ilObjectDefinition;
+use ilSetting;
+use ilObjectDataCache;
+use ilLanguage;
+use ilLogger;
+use ILIAS\Mail\Service\MailService;
 
 /**
  * Class ObjectProcessor
@@ -52,16 +61,17 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
     use Helper;
 
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
-    protected \ilLogger $log;
-    protected \ilLanguage $lng;
+    protected ilLogger $log;
+    protected ilLanguage $lng;
     protected ilMailMimeSenderFactory $sender_factory;
-    protected \ilObjectDataCache $object_data_cache;
-    protected \ilSetting $settings;
+    protected \ilMustacheFactory $mustache_factory;
+    protected ilObjectDataCache $object_data_cache;
+    protected ilSetting $settings;
     protected ilObjUser $user;
-    protected \ilObjectDefinition $object_definition;
-    protected \ilDBInterface $database;
-    protected \ilTree $tree;
-    protected \ilRbacAdmin $rbac_admin;
+    protected ilObjectDefinition $object_definition;
+    protected ilDBInterface $database;
+    protected ilTree $tree;
+    protected ilRbacAdmin $rbac_admin;
 
     /**
      * @var IOrigin
@@ -78,7 +88,7 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
     /**
      * @var ilObject|FakeIliasObject|null
      */
-    protected $current_ilias_object = null;
+    protected ilObject|FakeIliasObject|null $current_ilias_object = null;
 
     /**
      * @param IOrigin                 $origin
@@ -98,7 +108,8 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
         $this->user = $DIC->user();
         $this->settings = $DIC->settings();
         $this->object_data_cache = $DIC['ilObjDataCache'];
-        $this->sender_factory = $DIC['mail.mime.sender.factory'];
+        $this->sender_factory = $DIC->mail()->mime()->senderFactory();
+        $this->mustache_factory = $DIC->mail()->mustacheFactory();
         $this->lng = $DIC->language();
         $this->log = $DIC->logger()->root();
 
@@ -110,7 +121,7 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
     /**
      * @inheritdoc
      */
-    final public function process(IObject $object, IDataTransferObject $dto, bool $force = false)
+    final public function process(IObject $object, IDataTransferObject $dto, bool $force = false): void
     {
         // The HookObject is filled with the object (known Data in HUB) and the DTO delivered with
         // your origin. Additionally, if available, the HookObject is filled with the given
@@ -131,7 +142,7 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
                 $object->setStatus(IObject::STATUS_TO_UPDATE);
                 $object->setILIASId((string)$ilias_id);
             } elseif ($ilias_id < 0) {
-                throw new HubException("Mapping strategy " . get_class($m) . " returns negative value");
+                throw new HubException('Mapping strategy ' . $m::class . ' returns negative value');
             }
             $object->store();
         }
@@ -184,7 +195,7 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
             case IObject::STATUS_TO_UPDATE:
             case IObject::STATUS_TO_RESTORE:
                 // Updating the ILIAS object is only needed if some properties were changed
-                if (($object->computeHashCode() != $object->getHashCode()) || $force || $object->getStatus() === IObject::STATUS_TO_RESTORE) {
+                if ($object->computeHashCode() != $object->getHashCode() || $force || $object->getStatus() === IObject::STATUS_TO_RESTORE) {
                     $this->implementation->beforeUpdateILIASObject($hook);
 
                     try {
@@ -250,7 +261,7 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
      * @param ilObject|FakeIliasObject|null $object
      * @return int|null
      */
-    protected function getILIASId($object): ?string
+    protected function getILIASId(FakeIliasObject|ilObject|null $object): ?string
     {
         if ($object === null) {
             return null;
@@ -288,7 +299,7 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
      * @return void
      * @throws HubException
      */
-    abstract protected function handleCreate(IDataTransferObject $dto)/*: void*/
+    abstract protected function handleCreate(IDataTransferObject $dto): void/*: void*/
     ;
 
     /**
@@ -300,7 +311,7 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
      * @return void
      * @throws HubException
      */
-    abstract protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
+    abstract protected function handleUpdate(IDataTransferObject $dto, string $ilias_id): void/*: void*/
     ;
 
     /**
@@ -310,6 +321,6 @@ abstract class ObjectSyncProcessor implements IObjectSyncProcessor
      * @return void
      * @throws HubException
      */
-    abstract protected function handleDelete(string $ilias_id)/*: void*/
+    abstract protected function handleDelete(string $ilias_id): void/*: void*/
     ;
 }

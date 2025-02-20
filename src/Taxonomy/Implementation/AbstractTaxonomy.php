@@ -82,8 +82,8 @@ abstract class AbstractTaxonomy implements ITaxonomyImplementation
             return false;
         }
         foreach ($childsByType as $value) {
-            if ($value["title"] === $this->getTaxonomy()->getTitle()) {
-                $this->ilObjTaxonomy = new ilObjTaxonomy($value["obj_id"]);
+            if ($value['title'] === $this->getTaxonomy()->getTitle()) {
+                $this->ilObjTaxonomy = new ilObjTaxonomy($value['obj_id']);
 
                 return true;
             }
@@ -95,7 +95,7 @@ abstract class AbstractTaxonomy implements ITaxonomyImplementation
     /**
      *
      */
-    protected function initTaxTree()
+    protected function initTaxTree(): void
     {
         $this->tree = $this->ilObjTaxonomy->getTree();
         $this->tree_root_id = $this->tree->readRootId();
@@ -105,9 +105,9 @@ abstract class AbstractTaxonomy implements ITaxonomyImplementation
     /**
      * @param int $parent_id
      */
-    protected function setChildrenByParentId(int $parent_id)
+    protected function setChildrenByParentId(int $parent_id): void
     {
-        foreach ($this->tree->getChildsByTypeFilter($parent_id, ["taxn"]) as $item) {
+        foreach ($this->tree->getChildsByTypeFilter($parent_id, ['taxn']) as $item) {
             $this->childs[$item['obj_id']] = $item['title'];
             $this->setChildrenByParentId($item['obj_id']);
         }
@@ -125,7 +125,7 @@ abstract class AbstractTaxonomy implements ITaxonomyImplementation
     /**
      * @inheritdoc
      */
-    abstract public function write();
+    abstract public function write(): void;
 
     /**
      * @inheritdoc

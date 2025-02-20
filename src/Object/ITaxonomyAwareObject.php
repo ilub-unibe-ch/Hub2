@@ -35,5 +35,5 @@ interface ITaxonomyAwareObject extends IObject
      * @param ITaxonomy[] $taxonomies
      * @return void
      */
-    public function setTaxonomies(array $taxonomies);
+    public function setTaxonomies(array $taxonomies): void;
 }

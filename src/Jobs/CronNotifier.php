@@ -17,17 +17,19 @@ declare(strict_types=1);
 
 namespace srag\Plugins\Hub2\Jobs;
 
+use ilLogger;
+
 class CronNotifier implements Notifier
 {
     public const NOTIFY_MODULO = 500;
     public const PING_MODULO = 500;
     private int $ping_counter = 0;
     private int $notify_counter = 0;
-    protected \ilLogger $logger;
+    protected ilLogger $logger;
 
     public function __construct()
     {
-        ini_set('zend.enable_gc', "1");
+        ini_set('zend.enable_gc', '1');
         gc_enable();
         global $DIC;
         $this->logger = $DIC->logger()->root();

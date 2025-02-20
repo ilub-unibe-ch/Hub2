@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . "/../../AbstractSyncProcessorTests.php";
+require_once __DIR__ . '/../../AbstractSyncProcessorTests.php';
 
 use Mockery\MockInterface;
 use srag\Plugins\Hub2\Object\Category\CategoryDTO;
@@ -12,6 +12,7 @@ use srag\Plugins\Hub2\Origin\Properties\Category\CategoryProperties;
 use srag\Plugins\Hub2\Sync\Processor\Category\CategorySyncProcessor;
 use srag\Plugins\Hub2\Sync\Processor\Category\ICategorySyncProcessor;
 use srag\Plugins\Hub2\Object\Category\ICategoryDTO;
+use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 
 /**
  * Class CategorySyncProcessorTest
@@ -29,15 +30,15 @@ class CategorySyncProcessorTest extends AbstractSyncProcessorTests
     /**
      * @var MockInterface|ICategorySyncProcessor
      */
-    protected $activities;
+    protected MockInterface|ICategorySyncProcessor $activities;
     /**
      * @var MockInterface|ICategory
      */
-    protected $iobject;
+    protected ICategory|MockInterface $iobject;
     /**
      * @var CategoryDTO
      */
-    protected \srag\Plugins\Hub2\Object\DTO\IDataTransferObject $dto;
+    protected IDataTransferObject $dto;
     /**
      * @var MockInterface
      * @see http://docs.mockery.io/en/latest/cookbook/mocking_hard_dependencies.html
@@ -126,7 +127,7 @@ class CategorySyncProcessorTest extends AbstractSyncProcessorTests
     //		$processor->process($this->iobject, $this->dto);
     //	}
 
-    protected function initDataExpectations()
+    protected function initDataExpectations(): void
     {
         $this->ilObject->shouldReceive('setTitle')->once()->with($this->dto->getTitle());
         $this->ilObject->shouldReceive('setDescription')->once()->with($this->dto->getDescription());
@@ -135,7 +136,7 @@ class CategorySyncProcessorTest extends AbstractSyncProcessorTests
         $this->ilObject->shouldReceive('removeTranslations')->once();
     }
 
-    protected function initHubObject()
+    protected function initHubObject(): void
     {
         $this->iobject = Mockery::mock(ICategory::class);
         $this->iobject->shouldReceive('setProcessedDate')->once();
@@ -146,18 +147,18 @@ class CategorySyncProcessorTest extends AbstractSyncProcessorTests
         $this->iobject->shouldReceive('setTaxonomies')->once();
     }
 
-    protected function initILIASObject()
+    protected function initILIASObject(): void
     {
         $this->ilObject = Mockery::mock('overload:' . ilObjCategory::class, ilObject::class);
         $this->ilObject->shouldReceive('getId')->andReturn(self::REF_ID);
         $this->ilObject->shouldReceive('addTranslation');
     }
 
-    protected function initDTO()
+    protected function initDTO(): void
     {
         $this->dto = new CategoryDTO('extIdOfCategory');
         $this->dto->setParentIdType(ICategoryDTO::PARENT_ID_TYPE_REF_ID);
-        $this->dto->setParentId(1);
+        $this->dto->setParentId('1');
         $this->dto->setTitle('Title');
         $this->dto->setDescription('Description');
     }

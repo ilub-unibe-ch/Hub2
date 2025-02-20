@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . "/../../AbstractSyncProcessorTests.php";
+require_once __DIR__ . '/../../AbstractSyncProcessorTests.php';
 
 use Mockery\MockInterface;
 use srag\Plugins\Hub2\Object\IObject;
@@ -11,6 +11,7 @@ use srag\Plugins\Hub2\Origin\Config\Session\SessionOriginConfig;
 use srag\Plugins\Hub2\Origin\Properties\Session\SessionProperties;
 use srag\Plugins\Hub2\Sync\Processor\Session\SessionSyncProcessor;
 use srag\Plugins\Hub2\Object\Session\ISessionDTO;
+use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 
 /**
  * Class SessionSyncProcessorTest
@@ -29,19 +30,19 @@ class SessionSyncProcessorTest extends AbstractSyncProcessorTests
     /**
      * @var MockInterface|ilSessionParticipants
      */
-    protected $participants;
+    protected ilSessionParticipants|MockInterface $participants;
     /**
      * @var MockInterface|ilSessionAppointment
      */
-    protected $appointments;
+    protected MockInterface|ilSessionAppointment $appointments;
     /**
      * @var MockInterface|ISession
      */
-    protected $iobject;
+    protected ISession|MockInterface $iobject;
     /**
      * @var SessionDTO
      */
-    protected \srag\Plugins\Hub2\Object\DTO\IDataTransferObject $dto;
+    protected IDataTransferObject $dto;
     /**
      * @var MockInterface
      * @see http://docs.mockery.io/en/latest/cookbook/mocking_hard_dependencies.html
@@ -70,32 +71,32 @@ class SessionSyncProcessorTest extends AbstractSyncProcessorTests
         Mockery::close();
     }
 
-    protected function initDataExpectations()
+    protected function initDataExpectations(): void
     {
         $session_appointment_mock = Mockery::mock('overload:' . ilSessionAppointment::class, ilDatePeriod::class);
-        $session_appointment_mock->shouldReceive("setStart");
-        $session_appointment_mock->shouldReceive("setStartingTime");
-        $session_appointment_mock->shouldReceive("setEnd");
-        $session_appointment_mock->shouldReceive("setEndingTime");
-        $session_appointment_mock->shouldReceive("toggleFullTime");
-        $session_appointment_mock->shouldReceive("setSessionId")->with(self::REF_ID);
-        $session_appointment_mock->shouldReceive("create");
-        $session_appointment_mock->shouldReceive("update");
+        $session_appointment_mock->shouldReceive('setStart');
+        $session_appointment_mock->shouldReceive('setStartingTime');
+        $session_appointment_mock->shouldReceive('setEnd');
+        $session_appointment_mock->shouldReceive('setEndingTime');
+        $session_appointment_mock->shouldReceive('toggleFullTime');
+        $session_appointment_mock->shouldReceive('setSessionId')->with(self::REF_ID);
+        $session_appointment_mock->shouldReceive('create');
+        $session_appointment_mock->shouldReceive('update');
         $this->appointments = [$session_appointment_mock];
 
         $this->ilObject->shouldReceive('setTitle')->once()->with($this->dto->getTitle());
         $this->ilObject->shouldReceive('setDescription')->once()->with($this->dto->getDescription());
-        $this->ilObject->shouldReceive("setLocation")->once()->with($this->dto->getLocation());
-        $this->ilObject->shouldReceive("getAppointments")->andReturn($this->appointments);
-        $this->ilObject->shouldReceive("getFirstAppointment")->andReturn($this->appointments[0]);
-        $this->ilObject->shouldReceive("setAppointments")->with($this->appointments);
+        $this->ilObject->shouldReceive('setLocation')->once()->with($this->dto->getLocation());
+        $this->ilObject->shouldReceive('getAppointments')->andReturn($this->appointments);
+        $this->ilObject->shouldReceive('getFirstAppointment')->andReturn($this->appointments[0]);
+        $this->ilObject->shouldReceive('setAppointments')->with($this->appointments);
 
         $this->participants = Mockery::mock('overload:' . ilSessionParticipants::class, ilParticipants::class);
 
-        $this->ilObject->shouldReceive("getMembersObject")->andReturn($this->participants);
+        $this->ilObject->shouldReceive('getMembersObject')->andReturn($this->participants);
     }
 
-    protected function initHubObject()
+    protected function initHubObject(): void
     {
         $this->iobject = Mockery::mock(ISession::class);
         $this->iobject->shouldReceive('setProcessedDate')->once();
@@ -106,9 +107,9 @@ class SessionSyncProcessorTest extends AbstractSyncProcessorTests
         $this->iobject->shouldReceive('setTaxonomies')->once();
     }
 
-    protected function initILIASObject()
+    protected function initILIASObject(): void
     {
-        Mockery::mock('alias:' . ilObject2::class)->shouldReceive("_exists")->withArgs([
+        Mockery::mock('alias:' . ilObject2::class)->shouldReceive('_exists')->withArgs([
             self::REF_ID,
             true,
         ])->andReturn(true);
@@ -118,10 +119,10 @@ class SessionSyncProcessorTest extends AbstractSyncProcessorTests
         $this->ilObject->shouldReceive('addTranslation');
     }
 
-    protected function initDTO()
+    protected function initDTO(): void
     {
         $this->dto = new SessionDTO('extIdOfSession');
-        $this->dto->setParentId("1")->setParentIdType(ISessionDTO::PARENT_ID_TYPE_REF_ID)->setTitle('Title')->setDescription('Description')
+        $this->dto->setParentId('1')->setParentIdType(ISessionDTO::PARENT_ID_TYPE_REF_ID)->setTitle('Title')->setDescription('Description')
                   ->setLocation('Location');
     }
 
@@ -158,12 +159,12 @@ class SessionSyncProcessorTest extends AbstractSyncProcessorTests
     {
         $processor = new SessionSyncProcessor($this->origin, $this->originImplementation, $this->statusTransition);
 
-        $this->dto->setTitle("Changed Title");
+        $this->dto->setTitle('Changed Title');
 
         $this->iobject->shouldReceive('getStatus')->andReturn(IObject::STATUS_TO_UPDATE);
         $this->iobject->shouldReceive('setData')->once()->with($this->dto->getData());
-        $this->iobject->shouldReceive('computeHashCode')->once()->andReturn("myHashChanged");
-        $this->iobject->shouldReceive('getHashCode')->once()->andReturn("myHash");
+        $this->iobject->shouldReceive('computeHashCode')->once()->andReturn('myHashChanged');
+        $this->iobject->shouldReceive('getHashCode')->once()->andReturn('myHash');
         //$this->iobject->shouldReceive('updateStatus')->with(IObject::STATUS_NOTHING_TO_UPDATE);
         $this->iobject->shouldReceive('getILIASId')->andReturn(self::REF_ID);
         $this->iobject->shouldReceive('setILIASId')->with(self::REF_ID);

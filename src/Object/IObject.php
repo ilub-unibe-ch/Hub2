@@ -73,7 +73,7 @@ interface IObject
      * Get a unique ID of this object.
      * @return mixed
      */
-    public function getId();
+    public function getId(): mixed;
 
     /**
      * Get the external ID of this object. This ID serves as primary key to identify an object

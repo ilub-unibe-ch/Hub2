@@ -47,7 +47,7 @@ abstract class AbstractRepositoryLink extends AbstractBaseLink implements IObjec
      */
     public function isAccessGranted(): bool
     {
-        return $this->access->checkAccess("read", '', (int)$this->getILIASId());
+        return $this->access->checkAccess('read', '', (int)$this->getILIASId());
     }
 
     /**
@@ -78,7 +78,7 @@ abstract class AbstractRepositoryLink extends AbstractBaseLink implements IObjec
     {
         $ref_id = $this->findReadableParent();
         if ($ref_id === 0) {
-            return "index.php";
+            return 'index.php';
         }
 
         return $this->generateLink($ref_id);
@@ -116,9 +116,9 @@ abstract class AbstractRepositoryLink extends AbstractBaseLink implements IObjec
      * @param int $ref_id
      * @return array|string|string[]
      */
-    private function generateLink(int $ref_id)
+    private function generateLink(int $ref_id): array|string
     {
         $link = ilLink::_getLink($ref_id);
-        return str_replace(ILIAS_HTTP_PATH, "", $link);
+        return str_replace(ILIAS_HTTP_PATH, '', $link);
     }
 }

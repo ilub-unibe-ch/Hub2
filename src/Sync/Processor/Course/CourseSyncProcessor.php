@@ -65,11 +65,11 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
     /**
      * @var CourseProperties
      */
-    protected $props;
+    protected \srag\Plugins\Hub2\Origin\Properties\IOriginProperties|CourseProperties $props;
     /**
      * @var CourseOriginConfig
      */
-    protected $config;
+    protected CourseOriginConfig|\srag\Plugins\Hub2\Origin\Config\IOriginConfig $config;
     /**
      * @var ICourseActivities
      */
@@ -128,7 +128,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
      * @inheritdoc
      * @param CourseDTO $dto
      */
-    protected function handleCreate(IDataTransferObject $dto)/*: void*/
+    protected function handleCreate(IDataTransferObject $dto): void/*: void*/
     {
         // Find the refId under which this course should be created
         $parentRefId = $this->determineParentRefId($dto);
@@ -155,9 +155,9 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
 
         // Pass properties from DTO to ilObjUser
         foreach (self::getProperties() as $property) {
-            $setter = "set" . ucfirst($property);
-            $getter = "get" . ucfirst($property);
-            if ($dto->$getter() !== null && $setter !== "setActivationType") {
+            $setter = 'set' . ucfirst($property);
+            $getter = 'get' . ucfirst($property);
+            if ($dto->$getter() !== null && $setter !== 'setActivationType') {
                 $ilObjCourse->$setter($dto->$getter());
             }
         }
@@ -183,7 +183,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
         $this->handleAppointementsColor($ilObjCourse, $dto);
     }
 
-    protected function handleOrdering(IDataTransferObject $dto, ilObjCourse $ilObjCourse)
+    protected function handleOrdering(IDataTransferObject $dto, ilObjCourse $ilObjCourse): void
     {
         $settings = new ilContainerSortingSettings($ilObjCourse->getId());
         $settings->setSortMode($dto->getOrderType());
@@ -267,7 +267,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
      * @param CourseDTO   $dto
      * @param ilObjCourse $ilObjCourse
      */
-    protected function setLanguage(CourseDTO $dto, ilObjCourse $ilObjCourse)
+    protected function setLanguage(CourseDTO $dto, ilObjCourse $ilObjCourse): void
     {
         $md_general = (new ilMD($ilObjCourse->getId()))->getGeneral();
         $lng_ids = $md_general->getLanguageIds();
@@ -284,7 +284,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
      * @param CourseDTO   $dto
      * @param ilObjCourse $ilObjCourse
      */
-    protected function setSubscriptionType(CourseDTO $dto, ilObjCourse $ilObjCourse)
+    protected function setSubscriptionType(CourseDTO $dto, ilObjCourse $ilObjCourse): void
     {
         //There is some weird connection between subscription limitation type ond subscription type, see e.g. ilObjCourseGUI
         $ilObjCourse->setSubscriptionType($dto->getSubscriptionLimitationType());
@@ -299,16 +299,19 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
      * @param CourseDTO   $dto
      * @param ilObjCourse $ilObjCourse
      */
-    protected function setNewsSetting(CourseDTO $dto, ilObjCourse $ilObjCourse)
+    protected function setNewsSetting(CourseDTO $dto, ilObjCourse $ilObjCourse): void
     {
         $ilObjCourse->setUseNews($dto->getNewsSetting());
         $ilObjCourse->setNewsBlockActivated($dto->getNewsSetting());
     }
 
-    protected function sendMailNotifications(CourseDTO $dto, ilObjCourse $ilObjCourse)
+    /**
+     * @throws \Exception
+     */
+    protected function sendMailNotifications(CourseDTO $dto, ilObjCourse $ilObjCourse): void
     {
         $mail = new ilMimeMail();
-        $sender_factory = new ilMailMimeSenderFactory($this->settings);
+        $sender_factory = new ilMailMimeSenderFactory($this->settings, $this->mustache_factory);
         if ($this->props->get(ICourseProperties::CREATE_NOTIFICATION_FROM)) {
             $sender = $sender_factory->userByEmailAddress($this->props->get(ICourseProperties::CREATE_NOTIFICATION_FROM));
         } else {
@@ -321,7 +324,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
             $this->props->get(ICourseProperties::CREATE_NOTIFICATION_BODY),
             $ilObjCourse
         ));
-        $mail = $this->implementation->beforeSendMail($dto, $ilObjCourse, $mail);
+
         $mail->Send();
     }
 
@@ -357,7 +360,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
      * @inheritdoc
      * @param CourseDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id): void/*: void*/
     {
         $this->current_ilias_object = $ilObjCourse = $this->findILIASCourse($ilias_id);
         if ($ilObjCourse === null) {
@@ -368,22 +371,22 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
             if (!$this->props->updateDTOProperty($property)) {
                 continue;
             }
-            $setter = "set" . ucfirst($property);
-            $getter = "get" . ucfirst($property);
-            if ($dto->$getter() !== null && $setter !== "setActivationType") {
+            $setter = 'set' . ucfirst($property);
+            $getter = 'get' . ucfirst($property);
+            if ($dto->$getter() !== null && $setter !== 'setActivationType') {
                 $ilObjCourse->$setter($dto->$getter());
             }
         }
-        if ($this->props->updateDTOProperty("didacticTemplate") && $dto->getDidacticTemplate() > 0) {
+        if ($this->props->updateDTOProperty('didacticTemplate') && $dto->getDidacticTemplate() > 0) {
             $ilObjCourse->applyDidacticTemplate($dto->getDidacticTemplate());
         }
-        if ($this->props->updateDTOProperty("enableSessionLimit")) {
+        if ($this->props->updateDTOProperty('enableSessionLimit')) {
             $ilObjCourse->enableSessionLimit((int) $dto->isSessionLimitEnabled());
         }
-        if ($this->props->updateDTOProperty("subscriptionLimitationType")) {
+        if ($this->props->updateDTOProperty('subscriptionLimitationType')) {
             $this->setSubscriptionType($dto, $ilObjCourse);
         }
-        if ($this->props->updateDTOProperty("languageCode")) {
+        if ($this->props->updateDTOProperty('languageCode')) {
             $this->setLanguage($dto, $ilObjCourse);
         }
         if ($this->props->get(ICourseProperties::SET_ONLINE_AGAIN)) {
@@ -392,7 +395,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
             //$ilObjCourse->setActivationType(IL_CRS_ACTIVATION_UNLIMITED);
         }
 
-        if ($this->props->updateDTOProperty("enableSessionLimit")) {
+        if ($this->props->updateDTOProperty('enableSessionLimit')) {
             $ilObjCourse->enableSessionLimit((int) $dto->isSessionLimitEnabled());
         }
 
@@ -400,11 +403,11 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
             $this->moveCourse($ilObjCourse, $dto);
         }
 
-        if ($this->props->updateDTOProperty("appointementsColor")) {
+        if ($this->props->updateDTOProperty('appointementsColor')) {
             $this->handleAppointementsColor($ilObjCourse, $dto);
         }
 
-        if ($this->props->updateDTOProperty("orderType")) {
+        if ($this->props->updateDTOProperty('orderType')) {
             $this->handleOrdering($dto, $ilObjCourse);
         }
         $this->setNewsSetting($dto, $ilObjCourse);
@@ -416,7 +419,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
      * @param ilObjCourse $ilObjCourse
      * @param CourseDTO   $dto
      */
-    protected function handleAppointementsColor(ilObjCourse $ilObjCourse, CourseDTO $dto)
+    protected function handleAppointementsColor(ilObjCourse $ilObjCourse, CourseDTO $dto): void
     {
         if (!empty($dto->getAppointementsColor())) {
             $this->object_data_cache->deleteCachedEntry($ilObjCourse->getId());
@@ -432,7 +435,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
     /**
      * @inheritdoc
      */
-    protected function handleDelete(string $ilias_id)/*: void*/
+    protected function handleDelete(string $ilias_id): void/*: void*/
     {
         $this->current_ilias_object = $ilObjCourse = $this->findILIASCourse($ilias_id);
         if ($ilObjCourse === null) {
@@ -488,22 +491,27 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
             // --> Get an instance of the linked origin and lookup the category by the given external ID.
             $linkedOriginId = $this->config->getLinkedOriginId();
             if (!$linkedOriginId) {
-                throw new HubException("Unable to lookup external parent ref-ID because there is no origin linked");
+                throw new HubException('Unable to lookup external parent ref-ID because there is no origin linked');
             }
             $originRepository = new OriginRepository();
-            $array = array_filter($originRepository->categories(), function ($origin) use ($linkedOriginId) {
-                /** @var IOrigin $origin */
-                return $origin->getId() == $linkedOriginId;
-            });
+            /** @var IOrigin $origin */
+            $array_filter = [];
+            foreach ($originRepository->categories() as $key => $origin) {
+                if ($origin->getId() == $linkedOriginId) {
+                    $array_filter[$key] = $origin;
+                }
+            }
+            $array = $array_filter;
             $origin = array_pop($array);
             if ($origin === null) {
-                $msg = "The linked origin syncing categories was not found, please check that the correct origin is linked";
+                $msg = 'The linked origin syncing categories was not found, please check that the correct origin is linked';
                 throw new HubException($msg);
             }
             $objectFactory = new ObjectFactory($origin);
             $category = $objectFactory->category($course->getParentId());
             if (!$category->getILIASId()) {
-                throw new HubException("The linked category (" . $category->getExtId() . ") does not (yet) exist in ILIAS for course: "
+                throw new HubException(
+                    'The linked category (' . $category->getExtId() . ') does not (yet) exist in ILIAS for course: '
                     . $course->getExtId());
             }
             if (!$this->tree->isInTree((int)$category->getILIASId())) {
@@ -560,14 +568,18 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
     {
         static $cache = [];
         // We use a cache for created dependence categories to save some SQL queries
-        $cacheKey = hash("sha256", $title . $parentRefId . $level);
+        $cacheKey = hash('sha256', $title . $parentRefId . $level);
         if (isset($cache[$cacheKey])) {
             return (int)$cache[$cacheKey];
         }
         $categories = $this->tree->getChildsByType($parentRefId, 'cat');
-        $matches = array_filter($categories, function ($category) use ($title) {
-            return $category['title'] == $title;
-        });
+        $array_filter = [];
+        foreach ($categories as $key => $category) {
+            if ($category['title'] == $title) {
+                $array_filter[$key] = $category;
+            }
+        }
+        $matches = $array_filter;
         if (count($matches) > 0) {
             $category = array_pop($matches);
             return (int)$category['ref_id'];
@@ -609,7 +621,7 @@ class CourseSyncProcessor extends ObjectSyncProcessor implements ICourseSyncProc
      * @param ilObjCourse $ilObjCourse
      * @param CourseDTO   $course
      */
-    protected function moveCourse(ilObjCourse $ilObjCourse, CourseDTO $course)
+    protected function moveCourse(ilObjCourse $ilObjCourse, CourseDTO $course): void
     {
         $parentRefId = $this->determineParentRefId($course);
         $parentRefId = $this->buildDependenceCategories($course, $parentRefId);

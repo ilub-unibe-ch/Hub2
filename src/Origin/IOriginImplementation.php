@@ -141,7 +141,7 @@ interface IOriginImplementation
      * @throws HubException if overriding Status for NullDTOs (deleted objects)
      * @throws InvalidArgumentException if passing not supported Status
      */
-    public function overrideStatus(HookObject $hook);
+    public function overrideStatus(HookObject $hook): void;
 
     /**
      * Returns an array of ext ids of parent containers to

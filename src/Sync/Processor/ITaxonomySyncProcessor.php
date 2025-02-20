@@ -36,5 +36,5 @@ interface ITaxonomySyncProcessor
      * @param ilObject                         $object
      * @return mixed
      */
-    public function handleTaxonomies(ITaxonomyAwareDataTransferObject $dto, ilObject $object);
+    public function handleTaxonomies(ITaxonomyAwareDataTransferObject $dto, ilObject $object): mixed;
 }

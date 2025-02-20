@@ -55,7 +55,7 @@ interface IOriginConfig
     public const FILE_DROP_RID = 'fd_rid';
     // Prefix for keys that storing custom config values
     public const CUSTOM_PREFIX = 'custom_';
-    public const ILIAS_FILE_REF_ID = "ilias_file_ref_id";
+    public const ILIAS_FILE_REF_ID = 'ilias_file_ref_id';
 
     /**
      * Returns all the config data as associative array
@@ -73,14 +73,14 @@ interface IOriginConfig
      * @param string $key
      * @return mixed
      */
-    public function get(string $key);
+    public function get(string $key): mixed;
 
     /**
      * Get the value of a custom config entry or NULL if no config value is found.
      * @param string $key
      * @return mixed
      */
-    public function getCustom(string $key);
+    public function getCustom(string $key): mixed;
 
     /**
      * @return int

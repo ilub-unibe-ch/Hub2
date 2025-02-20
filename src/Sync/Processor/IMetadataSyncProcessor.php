@@ -36,5 +36,5 @@ interface IMetadataSyncProcessor
      * @param ilObject                         $object
      * @return mixed
      */
-    public function handleMetadata(IMetadataAwareDataTransferObject $dto, ilObject $object);
+    public function handleMetadata(IMetadataAwareDataTransferObject $dto, ilObject $object): mixed;
 }

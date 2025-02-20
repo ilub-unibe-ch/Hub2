@@ -53,11 +53,11 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
     /**
      * @var CategoryProperties
      */
-    protected $props;
+    protected \srag\Plugins\Hub2\Origin\Properties\IOriginProperties|CategoryProperties $props;
     /**
      * @var CategoryOriginConfig
      */
-    protected $config;
+    protected CategoryOriginConfig|\srag\Plugins\Hub2\Origin\Config\IOriginConfig $config;
     /**
      * @var array
      */
@@ -95,7 +95,7 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
      * @inheritdoc
      * @param CategoryDTO $dto
      */
-    protected function handleCreate(IDataTransferObject $dto)/*: void*/
+    protected function handleCreate(IDataTransferObject $dto): void/*: void*/
     {
         $this->current_ilias_object = $ilObjCategory = new ilObjCategory();
         $ilObjCategory->setImportId($this->getImportId($dto));
@@ -107,8 +107,8 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
         $ilObjCategory->putInTree((int) $parentRefId);
         $ilObjCategory->setPermissions((int) $parentRefId);
         foreach (self::getProperties() as $property) {
-            $setter = "set" . ucfirst($property);
-            $getter = "get" . ucfirst($property);
+            $setter = 'set' . ucfirst($property);
+            $getter = 'get' . ucfirst($property);
             if ($dto->$getter() !== null) {
                 $ilObjCategory->$setter($dto->$getter());
             }
@@ -134,7 +134,7 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
             $dto->getTitle(),
             $dto->getDescription(),
             $this->lng->getDefaultLanguage(),
-            "1"
+            '1'
         );
     }
 
@@ -142,7 +142,7 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
      * @inheritdoc
      * @param CategoryDTO $dto
      */
-    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id)/*: void*/
+    protected function handleUpdate(IDataTransferObject $dto, string $ilias_id): void/*: void*/
     {
         $this->current_ilias_object = $ilObjCategory = $this->findILIASCategory($ilias_id);
         if ($ilObjCategory === null) {
@@ -153,8 +153,8 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
             if (!$this->props->updateDTOProperty($property)) {
                 continue;
             }
-            $setter = "set" . ucfirst($property);
-            $getter = "get" . ucfirst($property);
+            $setter = 'set' . ucfirst($property);
+            $getter = 'get' . ucfirst($property);
             if ($dto->$getter() !== null) {
                 $ilObjCategory->$setter($dto->$getter());
             }
@@ -165,7 +165,7 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
                 $dto->getTitle(),
                 $dto->getDescription(),
                 $this->lng->getDefaultLanguage(),
-                "1"
+                '1'
             );
         }
         if ($this->props->updateDTOProperty('showNews')) {
@@ -190,7 +190,7 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
     /**
      * @inheritdoc
      */
-    protected function handleDelete(string $ilias_id)/*: void*/
+    protected function handleDelete(string $ilias_id): void/*: void*/
     {
         $this->current_ilias_object = $ilObjCategory = $this->findILIASCategory($ilias_id);
         if ($ilObjCategory === null) {
@@ -239,7 +239,7 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
                 $fallbackExtId = $this->config->getExternalParentIdIfNoParentIdFound();
                 $parentCategory = $objectFactory->category((string) $fallbackExtId);
                 if (!$parentCategory->getILIASId()) {
-                    throw new HubException("The linked category does not (yet) exist in ILIAS");
+                    throw new HubException('The linked category does not (yet) exist in ILIAS');
                 }
             }
 
@@ -267,7 +267,7 @@ class CategorySyncProcessor extends ObjectSyncProcessor implements ICategorySync
      * @param ilObjCategory $ilObjCategory
      * @param CategoryDTO   $category
      */
-    protected function moveCategory(ilObjCategory $ilObjCategory, CategoryDTO $category)
+    protected function moveCategory(ilObjCategory $ilObjCategory, CategoryDTO $category): void
     {
         $parentRefId = $this->determineParentRefId($category);
         if ($this->tree->isDeleted($ilObjCategory->getRefId())) {

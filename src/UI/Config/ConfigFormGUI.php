@@ -46,7 +46,7 @@ class ConfigFormGUI extends ilPropertyFormGUI
     /**
      * @var ilHub2ConfigGUI
      */
-    protected $parent_gui;
+    protected hub2ConfigGUI|ilHub2ConfigGUI $parent_gui;
 
     /**
      * ConfigFormGUI constructor
@@ -107,15 +107,15 @@ class ConfigFormGUI extends ilPropertyFormGUI
         $this->addItem($cb);
 
         $item = new ilFormSectionHeaderGUI();
-        $item->setTitle(ilHub2Plugin::getInstance()->txt("logs"));
+        $item->setTitle(ilHub2Plugin::getInstance()->txt('logs_logs'));
         $this->addItem($item);
 
         $item = new ilNumberInputGUI(
-            ilHub2Plugin::getInstance()->txt(ArConfig::KEY_KEEP_OLD_LOGS_TIME),
+            ilHub2Plugin::getInstance()->txt('logs_'.ArConfig::KEY_KEEP_OLD_LOGS_TIME),
             ArConfig::KEY_KEEP_OLD_LOGS_TIME
         );
-        $item->setSuffix(ilHub2Plugin::getInstance()->txt("days"));
-        $item->setInfo(ilHub2Plugin::getInstance()->txt(ArConfig::KEY_KEEP_OLD_LOGS_TIME . "_info"));
+        $item->setSuffix(ilHub2Plugin::getInstance()->txt('logs_days'));
+        $item->setInfo(ilHub2Plugin::getInstance()->txt('logs_'.ArConfig::KEY_KEEP_OLD_LOGS_TIME . '_info'));
         $item->setMinValue(0);
         $item->setValue((string)ArConfig::getField(ArConfig::KEY_KEEP_OLD_LOGS_TIME));
         $this->addItem($item);
@@ -231,7 +231,7 @@ class ConfigFormGUI extends ilPropertyFormGUI
     /**
      *
      */
-    public function updateConfig()/*: void*/
+    public function updateConfig(): void/*: void*/
     {
         foreach ($this->getInputItemsRecursive() as $item) {
             /** @var ilFormPropertyGUI $item */

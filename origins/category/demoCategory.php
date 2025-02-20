@@ -57,9 +57,9 @@ class demoCategory extends AbstractOriginImplementation
      */
     public function parseData(): int
     {
-        $this->log()->write("This is a test-log entry");
+        $this->log()->write('This is a test-log entry');
 
-        $time = time();
+        //$time = time();
         for ($x = 1; $x <= 10; $x++) {
             if (rand(1, 10) === $x) {
                 // continue; // Simulate some random deletions
@@ -80,7 +80,9 @@ class demoCategory extends AbstractOriginImplementation
             // 	);
         }
 
-        $this->data[] = $this->factory()->category('ext_001')->setTitle("Manuell")->setDescription("Mapped by Strategy")->setParentId(1)
+        $this->data[] = $this->factory()->category('ext_001')->setTitle('Manuell')->setDescription(
+            'Mapped by Strategy'
+        )->setParentId('1')
                              ->setParentIdType(ICategoryDTO::PARENT_ID_TYPE_REF_ID)->overrideMappingStrategy($this->mapping()->byTitle());
 
         return count($this->data);

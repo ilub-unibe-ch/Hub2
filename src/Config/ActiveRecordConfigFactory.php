@@ -40,7 +40,7 @@ final class ActiveRecordConfigFactory extends AbstractFactory
      */
     public static function getInstance(): self
     {
-        if (!isset(self::$instance) ||  !(self::$instance instanceof ActiveRecordConfigFactory)) {
+        if (!isset(self::$instance) ||  !self::$instance instanceof ActiveRecordConfigFactory) {
             self::$instance = new self();
         }
 

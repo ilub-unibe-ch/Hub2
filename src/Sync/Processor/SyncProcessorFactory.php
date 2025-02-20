@@ -39,6 +39,7 @@ use srag\Plugins\Hub2\Sync\Processor\OrgUnitMembership\OrgUnitMembershipSyncProc
 use srag\Plugins\Hub2\Sync\Processor\Session\SessionSyncProcessor;
 use srag\Plugins\Hub2\Sync\Processor\SessionMembership\SessionMembershipSyncProcessor;
 use srag\Plugins\Hub2\Sync\Processor\User\UserSyncProcessor;
+use ilDBInterface;
 
 /**
  * Class SyncProcessorFactory
@@ -49,7 +50,7 @@ use srag\Plugins\Hub2\Sync\Processor\User\UserSyncProcessor;
 class SyncProcessorFactory implements ISyncProcessorFactory
 {
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
-    protected \ilDBInterface $database;
+    protected ilDBInterface $database;
 
     /**
      * @var IOrigin

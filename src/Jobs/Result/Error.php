@@ -34,12 +34,12 @@ class Error extends AbstractResult
     /**
      * @inheritdoc
      */
-    protected function initStatus()
+    protected function initStatus(): void
     {
         $this->setStatus(self::STATUS_CRASHED);
     }
 
-    public function setError(Throwable $e)
+    public function setError(Throwable $e): void
     {
         $this->error = $e;
     }

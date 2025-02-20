@@ -30,13 +30,13 @@ interface IMetadataImplementation
      * Reads the Value from the ILIAS representative (UDF od Custom MD)
      * @return void
      */
-    public function read();
+    public function read(): void;
 
     /**
      * Writes the Value in the ILIAS representative (UDF od Custom MD)
      * @return void
      */
-    public function write();
+    public function write(): void;
 
     /**
      * @return IMetadata

@@ -35,5 +35,5 @@ interface IMetadataAwareObject extends IObject
      * @param IMetadata[] $metadata
      * @return void
      */
-    public function setMetaData(array $metadata);
+    public function setMetaData(array $metadata): void;
 }

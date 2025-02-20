@@ -54,7 +54,7 @@ class ilHub2Plugin extends ilCronHookPlugin
 
     public static function getInstance(): self
     {
-        if (!self::$instance instanceof \ilHub2Plugin) {
+        if (!self::$instance instanceof ilHub2Plugin) {
             global $DIC;
             $component_factory = $DIC['component.factory'];
             self::$instance = $component_factory->getPlugin(self::PLUGIN_ID);
@@ -72,9 +72,9 @@ class ilHub2Plugin extends ilCronHookPlugin
     }
 
     public function getCronJobInstance(
-        string $a_job_id
+        string $jobId
     ): ilCronJob {
-        switch ($a_job_id) {
+        switch ($jobId) {
             case RunSync::CRON_JOB_ID:
                 return new RunSync(new CronNotifier());
 
@@ -82,7 +82,7 @@ class ilHub2Plugin extends ilCronHookPlugin
                 return new DeleteOldLogsJob();
 
             default:
-                throw new InvalidArgumentException("Unknown cron job id: " . $a_job_id);
+                throw new InvalidArgumentException('Unknown cron job id: ' . $jobId);
         }
     }
 
@@ -106,7 +106,7 @@ class ilHub2Plugin extends ilCronHookPlugin
         $this->getDBInstance()->dropTable(AROrgUnitMembership::TABLE_NAME, false);
         $this->getDBInstance()->dropTable(Log::TABLE_NAME, false);
 
-        ilUtil::delDir(ILIAS_DATA_DIR . "/hub/");
+        //ilUtil::delDir(ILIAS_DATA_DIR . "/hub/");
     }
 
     protected function getDBInstance(): ilDBInterface

@@ -62,6 +62,6 @@ class GroupActivities implements IGroupActivities
 				    wre.obj_id = " . $this->db->quote(ilObject2::_lookupObjId($ilObjGroup->getRefId()), 'integer');
         $query = $this->db->query($sql);
 
-        return ($this->db->numRows($query) > 0);
+        return $this->db->numRows($query) > 0;
     }
 }

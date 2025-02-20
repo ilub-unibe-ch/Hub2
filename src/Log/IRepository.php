@@ -83,7 +83,7 @@ interface IRepository
     /**
      * @return ILog|null
      */
-    public function getLogById(int $log_id)/*: ?ILog*/ ;
+    public function getLogById(int $log_id): ?ILog/*: ?ILog*/ ;
 
     public function getGlobalAdditionalData(): stdClass;
 

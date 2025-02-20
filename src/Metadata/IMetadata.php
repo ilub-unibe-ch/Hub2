@@ -30,7 +30,7 @@ interface IMetadata
      * @param mixed $value
      * @return IMetadata
      */
-    public function setValue($value): IMetadata;
+    public function setValue(mixed $value): IMetadata;
 
     /**
      * @param int $identifier
@@ -41,7 +41,7 @@ interface IMetadata
     /**
      * @return mixed
      */
-    public function getValue();
+    public function getValue(): mixed;
 
     /**
      * @return mixed

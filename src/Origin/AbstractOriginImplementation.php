@@ -150,7 +150,7 @@ abstract class AbstractOriginImplementation implements IOriginImplementation
     /**
      * @inheritdoc
      */
-    public function overrideStatus(HookObject $hook)
+    public function overrideStatus(HookObject $hook): void
     {
         // TODO: Implement overrideStatus() method.
     }

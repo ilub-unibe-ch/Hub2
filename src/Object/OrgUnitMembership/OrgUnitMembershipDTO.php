@@ -30,7 +30,7 @@ class OrgUnitMembershipDTO extends DataTransferObject implements IOrgUnitMembers
     /**
      * @var int|string
      */
-    protected $org_unit_id;
+    protected string|int $org_unit_id;
     /**
      * @var int
      */
@@ -60,7 +60,7 @@ class OrgUnitMembershipDTO extends DataTransferObject implements IOrgUnitMembers
     /**
      * @inheritdoc
      */
-    public function getOrgUnitId()
+    public function getOrgUnitId(): int|string
     {
         return $this->org_unit_id;
     }
@@ -68,7 +68,7 @@ class OrgUnitMembershipDTO extends DataTransferObject implements IOrgUnitMembers
     /**
      * @inheritdoc
      */
-    public function setOrgUnitId($org_unit_id): IOrgUnitMembershipDTO
+    public function setOrgUnitId(int|string $org_unit_id): IOrgUnitMembershipDTO
     {
         $this->org_unit_id = $org_unit_id;
 

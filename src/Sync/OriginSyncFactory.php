@@ -74,7 +74,7 @@ class OriginSyncFactory
      * @param OriginSync $originSync
      * @throws HubException
      */
-    public function initImplementation(OriginSync $originSync)
+    public function initImplementation(OriginSync $originSync): void
     {
         $implementationFactory = new OriginImplementationFactory($this->origin);
 

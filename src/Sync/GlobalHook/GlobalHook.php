@@ -72,18 +72,20 @@ final class GlobalHook implements IGlobalHook
     {
         $class_path = ArConfig::getField(ArConfig::KEY_GLOBAL_HOCK_PATH);
         if (!file_exists($class_path)) {
-            throw new HubException("File " . $class_path . " doest not Exist");
+            throw new HubException('File ' . $class_path . ' doest not Exist');
         }
         require_once $class_path;
 
         $class_name = ArConfig::getField(ArConfig::KEY_GLOBAL_HOCK_CLASS);
         if (!class_exists($class_name)) {
-            throw new HubException("Class " . $class_name . " not found. Note that namespaces need to be entered completely");
+            throw new HubException(
+                'Class ' . $class_name . ' not found. Note that namespaces need to be entered completely'
+            );
         }
 
         $global_hook = new $class_name();
-        if (!($global_hook instanceof IGlobalHook)) {
-            throw new HubException("Class " . $class_name . " is not an instance of BaseCustomViewGUI");
+        if (!$global_hook instanceof IGlobalHook) {
+            throw new HubException('Class ' . $class_name . ' is not an instance of BaseCustomViewGUI');
         }
 
         return $global_hook;
@@ -108,7 +110,7 @@ final class GlobalHook implements IGlobalHook
     /**
      * @inheritdoc
      */
-    public function handleLog(ILog $log)
+    public function handleLog(ILog $log): void
     {
         $this->global_hook->handleLog($log);
     }
@@ -116,7 +118,7 @@ final class GlobalHook implements IGlobalHook
     /**
      * @inheritdoc
      */
-    public function handleThrowable(Throwable $throwable)
+    public function handleThrowable(Throwable $throwable): void
     {
         $this->global_hook->handleThrowable($throwable);
     }

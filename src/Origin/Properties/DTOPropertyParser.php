@@ -55,7 +55,7 @@ class DTOPropertyParser
         foreach ($reflectionProperties as $reflectionProperty) {
             // Look for a @description php doc block
             $out = [];
-            $subject = $reflectionProperty->getDocComment() ? $reflectionProperty->getDocComment() : "";
+            $subject = $reflectionProperty->getDocComment() ? $reflectionProperty->getDocComment() : '';
             preg_match('/@description\s(\w+)/', $subject, $out);
             $description = count($out) ? $out[1] : '';
             $properties[] = new DTOProperty($reflectionProperty->name, $description);

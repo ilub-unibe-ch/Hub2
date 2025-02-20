@@ -2,12 +2,14 @@
 
 namespace srag\Plugins\Hub2\FileDrop\Exceptions;
 
+use Exception;
+
 /**
  * Class Success
  *
  * @author Fabian Schmid <fabian@sr.solutions>
  */
-class Success extends \Exception
+class Success extends Exception
 {
     protected $message = 'Success';
 

@@ -41,7 +41,7 @@ class OriginsTableGUI extends ilTable2GUI
     /**
      * @var int
      */
-    protected $a_parent_obj;
+    protected int|hub2ConfigOriginsGUI $a_parent_obj;
     /**
      * @var IOriginRepository
      */
@@ -78,7 +78,7 @@ class OriginsTableGUI extends ilTable2GUI
     /**
      *
      */
-    protected function initColumns()
+    protected function initColumns(): void
     {
         $this->addColumn(ilHub2Plugin::getInstance()->txt('origin_table_header_id'), 'id');
         $this->addColumn(ilHub2Plugin::getInstance()->txt('origin_table_header_sort'), 'sort');
@@ -93,7 +93,7 @@ class OriginsTableGUI extends ilTable2GUI
     /**
      *
      */
-    protected function initTableData()
+    protected function initTableData(): void
     {
         $data = [];
         foreach ($this->originRepository->all() as $origin) {
@@ -101,16 +101,16 @@ class OriginsTableGUI extends ilTable2GUI
             $row = [];
             $row['id'] = $origin->getId();
             $row['sort'] = $origin->getSort();
-            $row['active'] = ilHub2Plugin::getInstance()->txt("common_" . ($origin->isActive() ? "yes" : "no"));
+            $row['active'] = ilHub2Plugin::getInstance()->txt('common_' . ($origin->isActive() ? 'yes' : 'no'));
             $row['title'] = $origin->getTitle();
             $row['description'] = $origin->getDescription();
-            $row['object_type'] = ilHub2Plugin::getInstance()->txt("origin_object_type_" . $origin->getObjectType());
+            $row['object_type'] = ilHub2Plugin::getInstance()->txt('origin_object_type_' . $origin->getObjectType());
             $row['last_sync'] = $origin->getLastRun();
             $data[] = $row;
         }
         $this->setData($data);
-        $this->setDefaultOrderField("sort");
-        $this->setDefaultOrderDirection("asc");
+        $this->setDefaultOrderField('sort');
+        $this->setDefaultOrderDirection('asc');
     }
 
     /**
@@ -120,7 +120,7 @@ class OriginsTableGUI extends ilTable2GUI
     {
         foreach ($a_set as $value) {
             $this->tpl->setCurrentBlock('cell');
-            $this->tpl->setVariable('VALUE', !is_null($value) ? $value : "&nbsp;");
+            $this->tpl->setVariable('VALUE', !is_null($value) ? $value : '&nbsp;');
             $this->tpl->parseCurrentBlock();
         }
         $actions = new ilAdvancedSelectionListGUI();

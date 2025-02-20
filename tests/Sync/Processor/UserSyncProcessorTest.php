@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . "/../../AbstractSyncProcessorTests.php";
+require_once __DIR__ . '/../../AbstractSyncProcessorTests.php';
 
 use Mockery\MockInterface;
 use srag\Plugins\Hub2\Object\IObject;
@@ -15,6 +15,7 @@ use srag\Plugins\Hub2\Sync\Processor\User\IUserSyncProcessor;
 use srag\Plugins\Hub2\Sync\Processor\User\UserSyncProcessor;
 use srag\Plugins\Hub2\Origin\Properties\User\IUserProperties;
 use srag\Plugins\Hub2\Object\User\IUserDTO;
+use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 
 /**
  * Class UserSyncProcessorTest
@@ -31,15 +32,15 @@ class UserSyncProcessorTest extends AbstractSyncProcessorTests
     /**
      * @var MockInterface|IUserSyncProcessor
      */
-    protected $activities;
+    protected IUserSyncProcessor|MockInterface $activities;
     /**
      * @var MockInterface|IUser
      */
-    protected $iobject;
+    protected IUser|MockInterface $iobject;
     /**
      * @var UserDTO
      */
-    protected \srag\Plugins\Hub2\Object\DTO\IDataTransferObject $dto;
+    protected IDataTransferObject $dto;
     /**
      * @var MockInterface|ilObjUser
      * @see http://docs.mockery.io/en/latest/cookbook/mocking_hard_dependencies.html
@@ -63,7 +64,7 @@ class UserSyncProcessorTest extends AbstractSyncProcessorTests
         Mockery::close();
     }
 
-    protected function initDTO()
+    protected function initDTO(): void
     {
         $this->dto = new UserDTO('extIdOfJohnDoe');
         $this->dto->setFirstname('John');
@@ -78,13 +79,13 @@ class UserSyncProcessorTest extends AbstractSyncProcessorTests
         $this->dto->setGender(IUserDTO::GENDER_MALE);
         $this->dto->setCity('NYC');
         $this->dto->setInstitution('FBI');
-        $this->dto->setDepartment("");
-        $this->dto->setPhoneHome("123");
-        $this->dto->setPhoneMobile("");
-        $this->dto->setPhoneOffice("789");
+        $this->dto->setDepartment('');
+        $this->dto->setPhoneHome('123');
+        $this->dto->setPhoneMobile('');
+        $this->dto->setPhoneOffice('789');
     }
 
-    protected function initHubObject()
+    protected function initHubObject(): void
     {
         $this->iobject = Mockery::mock(IUser::class);
         $this->iobject->shouldReceive('setProcessedDate')->once();
@@ -93,7 +94,7 @@ class UserSyncProcessorTest extends AbstractSyncProcessorTests
         $this->iobject->shouldReceive('save')->once();
     }
 
-    protected function initILIASObject()
+    protected function initILIASObject(): void
     {
         $this->ilObject = Mockery::mock('overload:' . ilObjUser::class, ilObject::class);
         $this->ilObject->shouldReceive('getId')->andReturn(self::ILIAS_ID);
@@ -229,7 +230,7 @@ class UserSyncProcessorTest extends AbstractSyncProcessorTests
     /**
      * Set some default expectations on the mock objects when updating ILIAS users
      */
-    protected function setDefaultExpectationsForUpdateOfILIASUser()
+    protected function setDefaultExpectationsForUpdateOfILIASUser(): void
     {
         $this->ilObject->shouldReceive('_exists')->with(self::ILIAS_ID)->andReturn(true);
         $this->iobject->shouldReceive('getStatus')->andReturn(IObject::STATUS_TO_UPDATE);
@@ -240,7 +241,7 @@ class UserSyncProcessorTest extends AbstractSyncProcessorTests
     /**
      * Set some default expectations on the mock objects when deleting ILIAS users
      */
-    protected function setDefaultExpectationsForDeletionOfILIASUser()
+    protected function setDefaultExpectationsForDeletionOfILIASUser(): void
     {
         $this->ilObject->shouldReceive('_exists')->with(self::ILIAS_ID)->andReturn(true);
         $this->iobject->shouldReceive('getStatus')->andReturn(IObject::STATUS_TO_OUTDATED);
@@ -250,14 +251,14 @@ class UserSyncProcessorTest extends AbstractSyncProcessorTests
     /**
      * Set some default expectations on the mock objects when creating ILIAS users
      */
-    protected function initDataExpectations()
+    protected function initDataExpectations(): void
     {
         $this->originImplementation->shouldReceive('beforeCreateILIASObject')->once();
         $this->originImplementation->shouldReceive('afterCreateILIASObject')->once();
         $this->iobject->shouldReceive('getStatus')->andReturn(IObject::STATUS_TO_CREATE);
         $this->iobject->shouldReceive('setILIASId')->once()->with(self::ILIAS_ID);
         $this->iobject->shouldReceive('setData')->once()->with($this->dto->getData());
-        $this->iobject->shouldReceive('setMetaData')->once($this->dto->getMetaData());
+        $this->iobject->shouldReceive('setMetaData')->once();
         $this->ilObject->shouldReceive('setTitle')->once();
         $this->ilObject->shouldReceive('setDescription')->once()->with($this->dto->getEmail());
         $this->ilObject->shouldReceive('setImportId')->once();
@@ -271,8 +272,8 @@ class UserSyncProcessorTest extends AbstractSyncProcessorTests
         $this->ilObject->shouldReceive('writePrefs')->once();
         $this->ilObject->shouldReceive('_loginExists')->zeroOrMoreTimes()->andReturn(false);
         foreach (UserSyncProcessor::getProperties() as $property) {
-            $setter = "set" . ucfirst($property);
-            $getter = "get" . ucfirst($property);
+            $setter = 'set' . ucfirst($property);
+            $getter = 'get' . ucfirst($property);
             // null values are NOT forwarded to the ilObjUser since they could overwrite existing values
             if ($this->dto->$getter() === null) {
                 $this->ilObject->shouldNotReceive($setter);

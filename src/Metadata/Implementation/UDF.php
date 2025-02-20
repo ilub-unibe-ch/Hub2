@@ -31,7 +31,7 @@ class UDF extends AbstractImplementation implements IMetadataImplementation
     /**
      * @inheritdoc
      */
-    public function write()
+    public function write(): void
     {
         $user_id = $this->getIliasId();
         $ilUserDefinedData = new ilUserDefinedData((int)$user_id);

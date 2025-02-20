@@ -24,6 +24,7 @@ use srag\DIC\Hub2\Exception\DICException;
 use srag\Plugins\Hub2\Origin\IOrigin;
 use srag\Plugins\Hub2\Sync\GlobalHook\GlobalHook;
 use stdClass;
+use ilDBInterface;
 
 /**
  * Class Repository
@@ -34,25 +35,18 @@ use stdClass;
 final class Repository implements IRepository
 {
     public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
-    /**
-     * @var IRepository
-     */
-    protected static $instance;
-    /**
-     * @var \ilDBInterface
-     */
-    protected $db;
+    protected static ?IRepository $instance = null;
+    protected ilDBInterface $db;
 
     public static function getInstance(): IRepository
     {
         if (self::$instance === null) {
             self::setInstance(new self());
         }
-
         return self::$instance;
     }
 
-    public static function setInstance(IRepository $instance): void/*: void*/
+    public static function setInstance(IRepository $instance): void
     {
         self::$instance = $instance;
     }
@@ -86,7 +80,7 @@ final class Repository implements IRepository
     {
         $this->db->manipulateF(
             'DELETE FROM ' . $this->db->quoteIdentifier(Log::TABLE_NAME)
-            . " WHERE log_id=%s",
+            . ' WHERE log_id=%s',
             [ilDBConstants::T_INTEGER],
             [$log->getLogId()]
         );
@@ -98,7 +92,7 @@ final class Repository implements IRepository
     public function deleteOldLogs(int $keep_old_logs_time): int
     {
         $time = time();
-        $keep_old_logs_time_timestamp = ($time - ($keep_old_logs_time * 24 * 60 * 60));
+        $keep_old_logs_time_timestamp = $time - $keep_old_logs_time * 24 * 60 * 60;
         $keep_old_logs_time_date = new ilDateTime($keep_old_logs_time_timestamp, IL_CAL_UNIX);
 
         $keep_log_ids = [];
@@ -109,7 +103,7 @@ final class Repository implements IRepository
         );
 
         while ($row = $this->db->fetchAssoc($result)) {
-            $keep_log_ids[] = (int) $row["log_id"];
+            $keep_log_ids[] = (int) $row['log_id'];
         }
         // $keep_log_ids = [];
         $count = $this->db->manipulateF(
@@ -117,7 +111,7 @@ final class Repository implements IRepository
             . $this->db->quoteIdentifier(Log::TABLE_NAME)
             . ' WHERE date<%s AND '
             . $this->db->in(
-                "log_id",
+                'log_id',
                 $keep_log_ids,
                 true,
                 ilDBConstants::T_INTEGER
@@ -187,7 +181,7 @@ final class Repository implements IRepository
             $logs[] = $d;
         }
 
-        return array_map(function (\stdClass $data): \srag\Plugins\Hub2\Log\ILog {
+        return array_map(function (stdClass $data): ILog {
             return $this->factory()->fromDB($data);
         }, $logs);
     }
@@ -231,7 +225,7 @@ final class Repository implements IRepository
         $result = $this->db->query($sql);
 
         if ($row = $result->fetchAssoc()) {
-            return (int) $row["count"];
+            return (int) $row['count'];
         }
 
         return 0;
@@ -276,21 +270,21 @@ final class Repository implements IRepository
         $wheres = [];
 
         if (!empty($title)) {
-            $wheres[] = $this->db->like("title", ilDBConstants::T_TEXT, '%' . $title . '%');
+            $wheres[] = $this->db->like('title', ilDBConstants::T_TEXT, '%' . $title . '%');
         }
 
         if (!empty($message)) {
-            $wheres[] = $this->db->like("message", ilDBConstants::T_TEXT, '%' . $message . '%');
+            $wheres[] = $this->db->like('message', ilDBConstants::T_TEXT, '%' . $message . '%');
         }
 
-        if ($date_start instanceof \ilDateTime) {
+        if ($date_start instanceof ilDateTime) {
             $wheres[] = 'date>=' . $this->db->quote(
                 $date_start->get(IL_CAL_DATETIME),
                 ilDBConstants::T_TEXT
             );
         }
 
-        if ($date_end instanceof \ilDateTime) {
+        if ($date_end instanceof ilDateTime) {
             $wheres[] = 'date<=' . $this->db->quote(
                 $date_end->get(IL_CAL_DATETIME),
                 ilDBConstants::T_TEXT
@@ -322,7 +316,7 @@ final class Repository implements IRepository
 
         if (!empty($additional_data)) {
             $wheres[] = $this->db->like(
-                "additional_data",
+                'additional_data',
                 ilDBConstants::T_TEXT,
                 '%' . $additional_data . '%'
             );
@@ -333,7 +327,7 @@ final class Repository implements IRepository
         }
 
         if ($wheres !== []) {
-            $sql .= ' WHERE ' . implode(" AND ", $wheres);
+            $sql .= ' WHERE ' . implode(' AND ', $wheres);
         }
 
         if ($sort_by !== null && $sort_by_direction !== null) {
@@ -356,7 +350,7 @@ final class Repository implements IRepository
     /**
      * @inheritdoc
      */
-    public function getLogById(int $log_id)/*: ?ILog*/
+    public function getLogById(int $log_id): Log|ILog|null/*: ?ILog*/
     {
         /**
          * @var Log|null $log
@@ -368,7 +362,7 @@ final class Repository implements IRepository
                 [ilDBConstants::T_INTEGER],
                 [$log_id]
             ),
-            function (\stdClass $data): \srag\Plugins\Hub2\Log\ILog {
+            function (stdClass $data): ILog {
                 return $this->factory()->fromDB($data);
             }
         );
@@ -454,18 +448,18 @@ final class Repository implements IRepository
             $this->store(
                 Log::TABLE_NAME,
                 [
-                    "title" => [ilDBConstants::T_TEXT, $log->getTitle()],
-                    "message" => [ilDBConstants::T_TEXT, $log->getMessage()],
-                    "date" => [ilDBConstants::T_TEXT, $log->getDate()->get(IL_CAL_DATETIME)],
-                    "level" => [ilDBConstants::T_INTEGER, $log->getLevel()],
-                    "additional_data" => [ilDBConstants::T_TEXT, $json_encode],
-                    "origin_id" => [ilDBConstants::T_INTEGER, $log->getOriginId()],
-                    "origin_object_type" => [ilDBConstants::T_TEXT, $log->getOriginObjectType()],
-                    "object_ext_id" => [ilDBConstants::T_TEXT, $log->getObjectExtId()],
-                    "object_ilias_id" => [ilDBConstants::T_INTEGER, $log->getObjectIliasId()],
-                    "status" => [ilDBConstants::T_INTEGER, $log->getStatus()],
+                    'title' => [ilDBConstants::T_TEXT, $log->getTitle()],
+                    'message' => [ilDBConstants::T_TEXT, $log->getMessage()],
+                    'date' => [ilDBConstants::T_TEXT, $log->getDate()->get(IL_CAL_DATETIME)],
+                    'level' => [ilDBConstants::T_INTEGER, $log->getLevel()],
+                    'additional_data' => [ilDBConstants::T_TEXT, $json_encode],
+                    'origin_id' => [ilDBConstants::T_INTEGER, $log->getOriginId()],
+                    'origin_object_type' => [ilDBConstants::T_TEXT, $log->getOriginObjectType()],
+                    'object_ext_id' => [ilDBConstants::T_TEXT, $log->getObjectExtId()],
+                    'object_ilias_id' => [ilDBConstants::T_INTEGER, $log->getObjectIliasId()],
+                    'status' => [ilDBConstants::T_INTEGER, $log->getStatus()],
                 ],
-                "log_id",
+                'log_id',
                 $new ? null : $log->getLogId()
             )
         );

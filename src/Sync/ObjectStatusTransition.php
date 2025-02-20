@@ -66,7 +66,7 @@ class ObjectStatusTransition implements IObjectStatusTransition
         // If at any time there is no active period defined OR the object matches the period again,
         // the status will be set to TO_UPDATE or TO_CREATE again.
         $active_period = $this->config->getActivePeriod();
-        if ($active_period && ($object->getPeriod() != $active_period)) {
+        if ($active_period && $object->getPeriod() != $active_period) {
             return IObject::STATUS_IGNORED;
         }
 
@@ -85,7 +85,7 @@ class ObjectStatusTransition implements IObjectStatusTransition
             case IObject::STATUS_IGNORED:
             case IObject::STATUS_FAILED:
                 // Either create or update the ILIAS object
-                return ((int)$object->getILIASId()) ? IObject::STATUS_TO_UPDATE : IObject::STATUS_TO_CREATE;
+                return (int)$object->getILIASId() ? IObject::STATUS_TO_UPDATE : IObject::STATUS_TO_CREATE;
 
             default:
                 return $object->getStatus();

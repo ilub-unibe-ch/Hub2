@@ -96,7 +96,7 @@ class CourseMembershipDTO extends DataTransferObject implements ICourseMembershi
      * @param mixed $role
      * @return CourseMembershipDTO
      */
-    public function setRole($role): CourseMembershipDTO
+    public function setRole(mixed $role): CourseMembershipDTO
     {
         $this->role = $role;
 

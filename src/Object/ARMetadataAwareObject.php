@@ -44,7 +44,7 @@ trait ARMetadataAwareObject
     /**
      * @param array $meta_data
      */
-    public function setMetaData(array $meta_data)
+    public function setMetaData(array $meta_data): void
     {
         $this->meta_data = $meta_data;
     }
