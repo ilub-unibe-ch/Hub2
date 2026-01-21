@@ -1,7 +1,7 @@
 <#1>
 <?php
 
-use srag\Plugins\Hub2\Log\Log;
+
 use srag\Plugins\Hub2\Origin\IOrigin;
 use srag\Plugins\Hub2\Origin\OriginFactory;
 use srag\Plugins\Hub2\Origin\User\ARUserOrigin;
@@ -28,22 +28,26 @@ ARSession::updateDB();
 ARGroup::updateDB();
 ARGroupMembership::updateDB();
 ARSessionMembership::updateDB();
+
 ?>
 <#2>
 <?php
-global $DIC;
-$database = $DIC->database();
-$database->modifyTableColumn(ARCourseMembership::TABLE_NAME, 'ilias_id', ['type' => 'text', 'length' => 256]);
-$database->modifyTableColumn(ARSessionMembership::TABLE_NAME, 'ilias_id', ['type' => 'text', 'length' => 256]);
-$database->modifyTableColumn(ARGroupMembership::TABLE_NAME, 'ilias_id', ['type' => 'text', 'length' => 256]);
+global $ilDB;
+$ilDB->modifyTableColumn(\srag\Plugins\Hub2\Object\CourseMembership\ARCourseMembership::TABLE_NAME, 'ilias_id', ["type" => "text", "length" => 256]);
+$ilDB->modifyTableColumn(\srag\Plugins\Hub2\Object\SessionMembership\ARSessionMembership::TABLE_NAME, 'ilias_id', ["type" => "text", "length" => 256]);
+$ilDB->modifyTableColumn(\srag\Plugins\Hub2\Object\GroupMembership\ARGroupMembership::TABLE_NAME, 'ilias_id', ["type" => "text", "length" => 256]);
+?>
 ?>
 <#3>
 <?php
-AROrgUnit::updateDB();
-AROrgUnitMembership::updateDB();
+\srag\Plugins\Hub2\Object\OrgUnit\AROrgUnit::updateDB();
+\srag\Plugins\Hub2\Object\OrgUnitMembership\AROrgUnitMembership::updateDB();
 ?>
 <#4>
 <?php
+use srag\Plugins\Hub2\Config\ArConfig;
+use srag\Plugins\Hub2\Config\ArConfigOld;
+
 ArConfig::updateDB();
 
 global $DIC;
@@ -71,6 +75,7 @@ if ($database->tableExists(ArConfigOld::TABLE_NAME)) {
 ?>
 <#5>
 <?php
+use srag\Plugins\Hub2\Config\ArConfig;
 $administration_role_ids = json_encode(ArConfig::getField(ArConfig::KEY_ADMINISTRATE_HUB_ROLE_IDS));
 if (strpos($administration_role_ids, '[') === false) {
     $administration_role_ids = preg_split('/, */', $administration_role_ids);
@@ -95,43 +100,43 @@ if (strpos($administration_role_ids, '[') === false) {
 ?>
 <#8>
 <?php
-Log::updateDB();
+srag\Plugins\Hub2\Log\Log::updateDB();
 ?>
 <#9>
 <?php
-ARUserOrigin::updateDB();
-ARUser::updateDB();
-ARCourse::updateDB();
-ARCourseMembership::updateDB();
-ARCategory::updateDB();
-ARSession::updateDB();
-ARGroup::updateDB();
-ARGroupMembership::updateDB();
-ARSessionMembership::updateDB();
-AROrgUnit::updateDB();
-AROrgUnitMembership::updateDB();
+srag\Plugins\Hub2\Origin\User\ARUserOrigin::updateDB();
+srag\Plugins\Hub2\Object\User\ARUser::updateDB();
+srag\Plugins\Hub2\Object\Course\ARCourse::updateDB();
+srag\Plugins\Hub2\Object\CourseMembership\ARCourseMembership::updateDB();
+srag\Plugins\Hub2\Object\Category\ARCategory::updateDB();
+srag\Plugins\Hub2\Object\Session\ARSession::updateDB();
+srag\Plugins\Hub2\Object\Group\ARGroup::updateDB();
+srag\Plugins\Hub2\Object\GroupMembership\ARGroupMembership::updateDB();
+srag\Plugins\Hub2\Object\SessionMembership\ARSessionMembership::updateDB();
+srag\Plugins\Hub2\Object\OrgUnit\AROrgUnit::updateDB();
+srag\Plugins\Hub2\Object\OrgUnitMembership\AROrgUnitMembership::updateDB();
 ?>
 <#10>
 <?php
-Log::updateDB();
+srag\Plugins\Hub2\Log\Log::updateDB();
 ?>
 <#11>
 <?php
-ARCourseMembershipOrigin::updateDB();
+srag\Plugins\Hub2\Origin\CourseMembership\ARCourseMembershipOrigin::updateDB();
 ?>
 <#12>
 <?php
-Log::updateDB();
+srag\Plugins\Hub2\Log\Log::updateDB();
 ?>
 <#13>
 <?php
-ARUserOrigin::updateDB();
+srag\Plugins\Hub2\Origin\User\ARUserOrigin::updateDB();
 ?>
 <#14>
 <?php
 
 $i = 1;
-foreach ((new OriginFactory())->getAllActive() as $origin) {
+foreach ((new srag\Plugins\Hub2\Origin\OriginFactory())->getAllActive() as $origin) {
     /**
      * @var IOrigin $origin
      */
@@ -148,7 +153,7 @@ global $DIC;
 $database = $DIC->database();
 
 $database->modifyTableColumn(
-    Log::TABLE_NAME,
+    srag\Plugins\Hub2\Log\Log::TABLE_NAME,
     'object_ext_id',
     [
         'type' => 'text',
@@ -158,5 +163,5 @@ $database->modifyTableColumn(
 ?>
 <#16>
 <?php
-Log::updateDB();
+srag\Plugins\Hub2\Log\Log::updateDB();
 ?>
