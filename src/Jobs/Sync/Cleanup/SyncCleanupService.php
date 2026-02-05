@@ -8,26 +8,21 @@ use srag\Plugins\Hub2\Jobs\Sync\Persistence\AdHocDataRepository;
 
 final class SyncCleanupService
 {
-    public function __construct(
-        private readonly AdHocDataRepository $repo
-    ) {
+    public function __construct(private readonly AdHocDataRepository $repo)
+    {
     }
 
-    /**
-     * @return CleanupSummary of deleted records
-     */
     public function cleanupProcessedBefore(
-        string    $cutoffUtc,
-        int       $batchSize,
-        int       $maxBatches = 200,
+        string $cutoffUtc,
+        int $batchSize,
+        int $maxBatches,
         ?callable $ping = null
-    ): CleanupSummary
-    {
+    ): CleanupSummary {
         $total = 0;
         $batches = 0;
 
         while ($batches < $maxBatches) {
-            $deleted = $this->repo->deleteProcessedBefore($cutoffUtc, $batchSize);
+            $deleted = $this->repo->archiveAndDeleteProcessedBefore($cutoffUtc, $batchSize);
 
             if ($deleted === 0) {
                 return new CleanupSummary($total, $batches, false);

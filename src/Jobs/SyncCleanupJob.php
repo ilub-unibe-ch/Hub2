@@ -14,6 +14,7 @@ class SyncCleanupJob extends \ilCronJob
     public const CRON_JOB_ID = "Sync-Cleanup-Job";
     private const RETENTION_DAYS = 7;
     private const BATCH_SIZE = 10;
+    private const MAX_BATCHES = 200;
 
 
     public function getId(): string
@@ -67,33 +68,38 @@ class SyncCleanupJob extends \ilCronJob
         $runId = bin2hex(random_bytes(4));
         $startedAt = microtime(true);
 
-        $maxBatches = 10;
-
         $cutoff = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))
-            ->modify("-" . self::RETENTION_DAYS . "days")
+            ->modify("-" . self::RETENTION_DAYS . " days")
             ->format('Y-m-d H:i:s');
 
         try {
             $repo = new DbAdHocDataRepository($DIC->database());
             $service = new SyncCleanupService($repo);
+
             $summary = $service->cleanupProcessedBefore(
                 $cutoff,
                 self::BATCH_SIZE,
-                $maxBatches,
+                self::MAX_BATCHES,
                 null
             );
+
             $durationMs = (int) round((microtime(true) - $startedAt) * 1000);
 
-            $msg = "Cleanup OK: {$summary->deleted} records deleted in {$summary->batches} Batch(es) (cutoff {$cutoff} UTC).";
-            if ($summary->stoppedByLimit) {
-                $msg .= " Warning: Stopped due to maxBatches limit – the next cron will continue.";
-            }
+            $msg = sprintf(
+                "Archive+Cleanup OK: %d records in %d batch(es) (cutoff %s UTC)%s",
+                $summary->deleted,
+                $summary->batches,
+                $cutoff,
+                $summary->stoppedByLimit ? " [limit reached]" : ""
+            );
 
             $result->setStatus(ilCronJobResult::STATUS_OK);
-            $result->setMessage($msg);
+            $result->setMessage($this->truncate($msg, 380));
 
             $level = $summary->stoppedByLimit ? ILog::LEVEL_WARNING : ILog::LEVEL_INFO;
-            $logMessage = $summary->stoppedByLimit ? 'Cleanup finished (limit reached)' : 'Cleanup finished';
+            $logMessage = $summary->stoppedByLimit
+                ? 'Archive+Cleanup finished (limit reached)'
+                : 'Archive+Cleanup finished';
 
             $log = LogRepo::getInstance()->factory()->log()
                 ->withTitle('Cron: SyncCleanup')
@@ -101,7 +107,7 @@ class SyncCleanupJob extends \ilCronJob
                 ->addAdditionalData('cutoffUtc', $cutoff)
                 ->addAdditionalData('retentionDays', self::RETENTION_DAYS)
                 ->addAdditionalData('batchSize', self::BATCH_SIZE)
-                ->addAdditionalData('maxBatches', $maxBatches)
+                ->addAdditionalData('maxBatches', self::MAX_BATCHES)
                 ->addAdditionalData('deleted', $summary->deleted)
                 ->addAdditionalData('batches', $summary->batches)
                 ->addAdditionalData('stoppedByLimit', $summary->stoppedByLimit)
@@ -110,26 +116,40 @@ class SyncCleanupJob extends \ilCronJob
             $log->write($logMessage, $level);
 
             return $result;
-        } catch (\Throwable $e) {
 
+        } catch (\Throwable $e) {
             $durationMs = (int) round((microtime(true) - $startedAt) * 1000);
 
             $result->setStatus(ilCronJobResult::STATUS_FAIL);
-            $result->setMessage("Cleanup FAIL: " . $e->getMessage());
+            $result->setMessage("Archive+Cleanup FAIL: " . $this->truncate($e->getMessage(), 320));
 
-            $log = LogRepo::getInstance()->factory()->exceptionLog($e)
+            $log = LogRepo::getInstance()->factory()->log()
                 ->withTitle('Cron: SyncCleanup')
-                ->withMessage('Cleanup failed: ' . $e->getMessage())
+                ->withLevel(ILog::LEVEL_EXCEPTION)
+                ->withMessage('Archive+Cleanup failed: ' . $this->truncate($e->getMessage(), 800))
                 ->addAdditionalData('runId', $runId)
                 ->addAdditionalData('cutoffUtc', $cutoff)
                 ->addAdditionalData('durationMs', $durationMs)
-                ->addAdditionalData('retentionDays', defined('self::RETENTION_DAYS') ? self::RETENTION_DAYS : null)
-                ->addAdditionalData('batchSize', defined('self::BATCH_SIZE') ? self::BATCH_SIZE : null)
-                ->addAdditionalData('maxBatches', $maxBatches);
+                ->addAdditionalData('retentionDays', self::RETENTION_DAYS)
+                ->addAdditionalData('batchSize', self::BATCH_SIZE)
+                ->addAdditionalData('maxBatches', self::MAX_BATCHES)
+                ->addAdditionalData('exception', get_class($e))
+                ->addAdditionalData('file', $e->getFile())
+                ->addAdditionalData('line', $e->getLine())
+                ->addAdditionalData('trace', array_slice($e->getTrace(), 0, 20));
 
             LogRepo::getInstance()->storeLog($log, true);
+
             return $result;
         }
+    }
+
+    private function truncate(string $s, int $max): string
+    {
+        if ($max < 4) {
+            return '';
+        }
+        return (mb_strlen($s) <= $max) ? $s : (mb_substr($s, 0, $max - 3) . '...');
     }
 
 }

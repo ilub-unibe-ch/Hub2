@@ -7,9 +7,11 @@ interface AdHocDataRepository
 {
     /**
      * @description
-     * Deletes records whose processed_date is less than or equal to cutoff.
+     * Archie and delete records whose processed_date is less than or equal to cutoff.
      * Return the number of records deleted.
      * @author Bahwar Adi <bahwar.adi@unibe.ch>
      */
-    public function deleteProcessedBefore(string $cutoffUtc, int $limit): int;
+
+    public function archiveAndDeleteProcessedBefore(string $cutoffUtc, int $limit): int;
+
 }
