@@ -443,3 +443,10 @@ removeplugindataconfirm_keep_data#:#%1$s-Daten behalten
 removeplugindataconfirm_msg_kept_data#:#Die %1$s-Daten wurden behalten
 removeplugindataconfirm_msg_removed_data#:#Die %1$s-Daten wurden auch entfernt
 removeplugindataconfirm_remove_data#:#Entferne %1$s-Daten
+cleanup_settings#:#Cleanup
+cleanup_retention_days#:#Aufbewahrungsdauer (Tage)
+cleanup_batch_size#:#Batch-Grösse
+cleanup_max_batches#:#Max. Batches pro Cron-Lauf
+cleanup_batch_size_info#:#Max. Datensätze pro Lauf = Batch-Grösse × Max. Batches.
+cleanup_max_batches_info#:#Begrenzt Laufzeit; der nächste Cronlauf macht weiter.
+settings_saved#:#Einstellungen gespeichert.
