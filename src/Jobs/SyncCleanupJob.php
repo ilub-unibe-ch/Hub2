@@ -13,6 +13,14 @@ use srag\Plugins\Hub2\Log\Repository as LogRepo;
 class SyncCleanupJob extends \ilCronJob
 {
     public const CRON_JOB_ID = "Sync-Cleanup-Job";
+    private const CRON_JOB_TITLE = "Cleanup_Job_Title";
+    private const CRON_JOB_DESCRIPTION = "Cleanup_Job_Description";
+
+    private \ilHub2Plugin $plugin;
+
+    public function __construct(){
+        $this->plugin = \ilHub2Plugin::getInstance();
+    }
 
 
     public function getId(): string
@@ -23,12 +31,12 @@ class SyncCleanupJob extends \ilCronJob
 
     public function getTitle(): string
     {
-        return "Sync Cleanup Job";
+        return $this->plugin->txt(self::CRON_JOB_TITLE);
     }
 
     public function getDescription(): string
     {
-        return "Deletes all sync jobs exceeding a specified retention period";
+        return $this->plugin->txt(self::CRON_JOB_DESCRIPTION);
     }
 
     /**

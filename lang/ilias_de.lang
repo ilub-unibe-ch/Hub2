@@ -450,3 +450,5 @@ cleanup_max_batches#:#Max. Batches pro Cron-Lauf
 cleanup_batch_size_info#:#Max. Datensätze pro Lauf = Batch-Grösse × Max. Batches.
 cleanup_max_batches_info#:#Begrenzt Laufzeit; der nächste Cronlauf macht weiter.
 settings_saved#:#Einstellungen gespeichert.
+Cleanup_Job_Title#:#Hub2 Sync Cleanup Job
+Cleanup_Job_Description#:#Löscht alle Sync-Jobs, die älter als die definierte Aufbewahrungszeit sind

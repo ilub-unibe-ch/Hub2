@@ -451,3 +451,5 @@ cleanup_max_batches#:#Max batches per cron run
 cleanup_batch_size_info#:#Max records per run = batch size × max batches.
 cleanup_max_batches_info#:#Limits runtime; next cron run will continue.
 settings_saved#:#Settings saved.
+Cleanup_Job_Title#:#Hub2 Sync Cleanup Job
+Cleanup_Job_Description#:#Deletes all sync jobs exceeding a specified retention period
