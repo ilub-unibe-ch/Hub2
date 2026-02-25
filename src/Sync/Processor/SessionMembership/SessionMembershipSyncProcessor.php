@@ -90,7 +90,7 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
         $session_ref_id = $this->buildParentRefId($dto);
         $ilObjSession = $this->findILIASObject((string) $session_ref_id);
         $this->handleMembership($ilObjSession, $dto);
-        $this->handleContact($ilObjSession, $dto);
+        $this->handleContact($ilObjSession,$dto->getUserId(), $dto->isContact());
 
         $this->current_ilias_object = new FakeIliasMembershipObject($session_ref_id, $dto->getUserId());
     }
@@ -111,7 +111,7 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
         $obj->initId();
 
         if ($this->props->updateDTOProperty('isContact')) {
-            $this->handleContact($ilObjSession, $dto);
+            $this->handleContact($ilObjSession, $dto->getUserId(), $dto->isContact());
         }
     }
 
@@ -123,6 +123,10 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
         $this->current_ilias_object = $obj = FakeIliasMembershipObject::loadInstanceWithConcatenatedId($ilias_id);
         $ilObjSession = $this->findILIASObject((string)$obj->getContainerIdIlias());
         $this->removeMembership($ilObjSession, $obj->getUserIdIlias());
+        $user_id =  $obj->getUserIdIlias();
+        if ($this->props->updateDTOProperty('isContact')) {
+            $this->handleContact($ilObjSession, $user_id, false);
+        }
     }
 
     /**
@@ -215,14 +219,13 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
      * @param SessionMembershipDTO $dto
      * @throws HubException
      */
-    protected function handleContact(ilObjSession $ilObjSession, SessionMembershipDTO $dto): void
+    protected function handleContact(ilObjSession $ilObjSession, int $user_id, bool $contact): void
     {
         /**
          * @var ilSessionParticipants $ilSessionParticipants
          */
         $ilSessionParticipants = $ilObjSession->getMembersObject();
 
-        $user_id = $dto->getUserId();
         if (!ilObjUser::_exists($user_id)) {
             throw new HubException("user with id {$user_id} does not exist");
         }
@@ -240,7 +243,7 @@ class SessionMembershipSyncProcessor extends ObjectSyncProcessor implements ISes
          */
         $event_id = $ilSessionParticipants->getEventParticipants()->getEventId();
         $query = 'UPDATE event_participants ' . 'SET contact = ' . $this->database->quote(
-            $dto->isContact(),
+            $contact,
             'integer'
         ) . ' '
             . 'WHERE event_id = ' . $this->database->quote(
