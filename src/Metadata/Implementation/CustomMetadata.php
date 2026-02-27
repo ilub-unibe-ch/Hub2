@@ -70,9 +70,47 @@ class CustomMetadata extends AbstractImplementation implements IMetadataImplemen
                 $ilADT->setTargetRefId($value);
                 break;
             case $ilADT instanceof ilADTLocation:
-                $ilADT->setLatitude((float)$value['latitude']);
-                $ilADT->setLongitude((float)$value['longitude']);
-                $ilADT->setZoom($value['zoom']);
+
+                $clearLocation = static function (ilADTLocation $adt): void {
+                    $adt->setLatitude();
+                    $adt->setLongitude();
+                    $adt->setZoom(0);
+                };
+
+                if (!is_array($value)) {
+                    $clearLocation($ilADT);
+                    break;
+                }
+
+                $lat_raw = $value['latitude'] ?? null;
+                $lon_raw = $value['longitude'] ?? null;
+
+                if (
+                    $lat_raw === null || $lon_raw === null ||
+                    $lat_raw === '' || $lon_raw === '' ||
+                    !is_numeric($lat_raw) || !is_numeric($lon_raw)
+                ) {
+                    $clearLocation($ilADT);
+                    break;
+                }
+
+                $lat = (float) $lat_raw;
+                $lon = (float) $lon_raw;
+
+                if ($lat < -90.0 || $lat > 90.0 || $lon < -180.0 || $lon > 180.0) {
+                    $clearLocation($ilADT);
+                    break;
+                }
+
+                $ilADT->setLatitude($lat);
+                $ilADT->setLongitude($lon);
+
+                $zoom_raw = $value['zoom'] ?? null;
+                if ($zoom_raw === null || $zoom_raw === '' || !is_numeric($zoom_raw)) {
+                    $ilADT->setZoom(17);
+                } else {
+                    $ilADT->setZoom((int) $zoom_raw);
+                }
                 break;
         }
 
