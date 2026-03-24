@@ -67,9 +67,10 @@ class FakeOrgUnitMembershipObject extends FakeIliasMembershipObject
     /**
      *
      */
-    public function initId(): void
+    public function initId(): mixed
     {
         $this->setId(implode(self::GLUE, [$this->container_id_ilias, $this->user_id_ilias, $this->position_id]));
+        return true;
     }
 
     /**

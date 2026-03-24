@@ -101,7 +101,7 @@ class DataTableGUI extends ilTable2GUI
         $this->setTitle(ilHub2Plugin::getInstance()->txt('subtab_data'));
         parent::__construct($a_parent_obj, $a_parent_cmd);
         $this->setFormAction($this->ctrl->getFormAction($a_parent_obj));
-        $this->setRowTemplate('tpl.std_row_template.html', 'Services/ActiveRecord');
+        $this->setRowTemplate('tpl.std_row_template.html', 'components/ILIAS/ActiveRecord');
         $this->initFilter();
         $this->initColumns();
         $this->setExternalSegmentation(true);

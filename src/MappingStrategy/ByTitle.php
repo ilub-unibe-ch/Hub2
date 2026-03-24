@@ -30,6 +30,7 @@ use srag\Plugins\Hub2\Object\OrgUnitMembership\OrgUnitMembershipDTO;
 use srag\Plugins\Hub2\Object\User\UserDTO;
 use srag\Plugins\Hub2\Object\Course\ICourseDTO;
 use ilDBInterface;
+use ILIAS\DI\Container;
 
 /**
  * Class ByTitle
@@ -42,11 +43,7 @@ class ByTitle extends AMappingStrategy implements IMappingStrategy
 
     private \ilTree $tree;
 
-    public function __construct()
-    {
-        global $DIC;
-        $this->tree = $DIC['tree'];
-    }
+
     /**
      * @inheritdoc
      */

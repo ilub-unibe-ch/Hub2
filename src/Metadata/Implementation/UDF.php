@@ -45,7 +45,7 @@ class UDF extends AbstractImplementation implements IMetadataImplementation
     /**
      * @inheritdoc
      */
-    public function read()
+    public function read(): void
     {
         // no need for a read-Method since wo have to update them anyways due to performance-issues when reading all udfs everytime
     }

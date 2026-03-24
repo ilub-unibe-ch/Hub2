@@ -4,9 +4,9 @@ declare(strict_types=1);
  * Handler
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  */
-chdir(substr(__FILE__, 0, strpos(__FILE__, '/Customizing')));
+chdir(substr(__FILE__, 0, strpos(__FILE__, '/public')));
 
-require_once __DIR__ . '/vendor/autoload.php';
+include_once './vendor/composer/vendor/autoload.php';
 
 use srag\Plugins\Hub2\Shortlink\Handler;
 

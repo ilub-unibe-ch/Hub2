@@ -231,7 +231,7 @@ class Handler
     {
         $this->prepareILIASInit();
         /** @noRector */
-        require_once 'Services/Init/classes/class.ilInitialisation.php';
+        require_once 'components/ILIAS/Init/classes/class.ilInitialisation.php';
         ilInitialisation::initILIAS();
 
         $this->init = true;
@@ -245,10 +245,10 @@ class Handler
         global $DIC;
 
         /** @noRector */
-        require_once 'Services/Context/classes/class.ilContext.php';
+        require_once 'components/ILIAS/Context/classes/class.ilContext.php';
         ilContext::init(ilContext::CONTEXT_WAC);
         /** @noRector */
-        require_once 'Services/Init/classes/class.ilInitialisation.php';
+        require_once 'components/ILIAS/Init/classes/class.ilInitialisation.php';
         ilInitialisation::initILIAS();
         $ilAuthSession = $DIC['ilAuthSession'];
         //        $ilAuthSession->init();
