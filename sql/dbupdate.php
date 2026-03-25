@@ -165,3 +165,41 @@ $database->modifyTableColumn(
 <?php
 srag\Plugins\Hub2\Log\Log::updateDB();
 ?>
+<#17>
+<?php
+$table = "sr_hub2_ad_hoc_data_archive";
+
+if (!$ilDB->tableExists($table)) {
+    $fields = [
+        "id" => [
+            "type" => "integer",
+            "length" => 4,
+            "notnull" => true
+        ],
+        "xml_data" => [
+            "type" => "blob",
+            "notnull" => true
+        ],
+        "delivery_date" => [
+            "type" => "timestamp",
+            "notnull" => true
+        ],
+        "pickup_date" => [
+            "type" => "timestamp",
+            "notnull" => false
+        ],
+        "processed_date" => [
+            "type" => "timestamp",
+            "notnull" => false
+        ]
+    ];
+
+    $ilDB->createTable($table, $fields);
+    $ilDB->addPrimaryKey($table, ["id"]);
+    $ilDB->createSequence($table);
+
+    // Indizes
+    $ilDB->addIndex($table, ["pickup_date"], "pickup_date");
+    $ilDB->addIndex($table, ["processed_date"], "processed_date");
+}
+?>
