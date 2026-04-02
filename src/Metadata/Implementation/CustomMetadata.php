@@ -70,47 +70,7 @@ class CustomMetadata extends AbstractImplementation implements IMetadataImplemen
                 $ilADT->setTargetRefId($value);
                 break;
             case $ilADT instanceof ilADTLocation:
-
-                $clearLocation = static function (ilADTLocation $adt): void {
-                    $adt->setLatitude();
-                    $adt->setLongitude();
-                    $adt->setZoom(0);
-                };
-
-                if (!is_array($value)) {
-                    $clearLocation($ilADT);
-                    break;
-                }
-
-                $lat_raw = $value['latitude'] ?? null;
-                $lon_raw = $value['longitude'] ?? null;
-
-                if (
-                    $lat_raw === null || $lon_raw === null ||
-                    $lat_raw === '' || $lon_raw === '' ||
-                    !is_numeric($lat_raw) || !is_numeric($lon_raw)
-                ) {
-                    $clearLocation($ilADT);
-                    break;
-                }
-
-                $lat = (float) $lat_raw;
-                $lon = (float) $lon_raw;
-
-                if ($lat < -90.0 || $lat > 90.0 || $lon < -180.0 || $lon > 180.0) {
-                    $clearLocation($ilADT);
-                    break;
-                }
-
-                $ilADT->setLatitude($lat);
-                $ilADT->setLongitude($lon);
-
-                $zoom_raw = $value['zoom'] ?? null;
-                if ($zoom_raw === null || $zoom_raw === '' || !is_numeric($zoom_raw)) {
-                    $ilADT->setZoom(17);
-                } else {
-                    $ilADT->setZoom((int) $zoom_raw);
-                }
+                $this->applyLocationValue($ilADT, $value);
                 break;
         }
 
@@ -123,5 +83,60 @@ class CustomMetadata extends AbstractImplementation implements IMetadataImplemen
     public function read(): void
     {
         // no need for a read-Method since wo have to update them anyways due to performance-issues when reading all metadata everytime
+    }
+
+    private function clearLocation(ilADTLocation $adt): void
+    {
+        $adt->setLatitude();
+        $adt->setLongitude();
+        $adt->setZoom(0);
+    }
+
+    private function hasNumericCoordinates(mixed $latRaw, mixed $lonRaw): bool
+    {
+        return $latRaw !== null
+            && $lonRaw !== null
+            && $latRaw !== ''
+            && $lonRaw !== ''
+            && is_numeric($latRaw)
+            && is_numeric($lonRaw);
+    }
+
+    private function hasValidCoordinates(float $lat, float $lon): bool
+    {
+        return $lat >= -90.0
+            && $lat <= 90.0
+            && $lon >= -180.0
+            && $lon <= 180.0;
+    }
+
+    private function applyLocationValue(ilADTLocation $adt, mixed $value): void
+    {
+        if (!is_array($value)) {
+            $this->clearLocation($adt);
+            return;
+        }
+
+        $latRaw = $value['latitude'] ?? null;
+        $lonRaw = $value['longitude'] ?? null;
+
+        if (!$this->hasNumericCoordinates($latRaw, $lonRaw)) {
+            $this->clearLocation($adt);
+            return;
+        }
+
+        $lat = (float) $latRaw;
+        $lon = (float) $lonRaw;
+
+        if (!$this->hasValidCoordinates($lat, $lon)) {
+            $this->clearLocation($adt);
+            return;
+        }
+
+        $adt->setLatitude($lat);
+        $adt->setLongitude($lon);
+
+        $zoomRaw = $value['zoom'] ?? null;
+        $adt->setZoom($zoomRaw === null || $zoomRaw === '' || !is_numeric($zoomRaw) ? 17 : (int) $zoomRaw);
     }
 }
