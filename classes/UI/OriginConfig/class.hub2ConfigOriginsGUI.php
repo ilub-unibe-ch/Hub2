@@ -341,9 +341,10 @@ class hub2ConfigOriginsGUI extends hub2MainGUI
     protected function confirmDelete(): void
     {
         $f = new OriginFactory();
-        $o = $f->getById($this->request->getQueryParams()[self::ORIGIN_ID]);
+        $o = $f->getById((int)$this->request->getQueryParams()[self::ORIGIN_ID]);
 
         $c = new ilConfirmationGUI();
+        $c->setHeaderText($this->plugin->txt('confirm_delete_button'));
         $c->setFormAction($this->ctrl->getFormAction($this));
         $c->addItem(self::ORIGIN_ID, (string) $o->getId(), $o->getTitle());
         $c->setConfirm($this->plugin->txt('confirm_delete_button'), self::CMD_DELETE);

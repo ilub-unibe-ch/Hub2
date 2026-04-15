@@ -285,6 +285,39 @@ class DataTableGUI extends ilTable2GUI
             '',
             true
         ));
+        $ui_factory = $this->ui->factory();
+        $renderer = $this->ui->renderer();
+
+        $action_items= $ui_factory->dropdown()->standard([
+            $ui_factory->link()->standard(
+                ilHub2Plugin::getInstance()->txt('common_edit'),
+                $this->ctrl->getLinkTarget(
+                    $this->parent_obj,
+                    hub2ConfigOriginsGUI::CMD_EDIT_ORGIN
+                )
+            ),
+            $ui_factory->link()->standard(
+                ilHub2Plugin::getInstance()->txt('common_delete'),
+                $this->ctrl->getLinkTarget(
+                    $this->parent_obj,
+                    hub2ConfigOriginsGUI::CMD_CONFIRM_DELETE
+                )
+            ),
+            $ui_factory->link()->standard(
+                ilHub2Plugin::getInstance()->txt('origin_table_button_run'),
+                $this->ctrl->getLinkTarget(
+                    $this->parent_obj,
+                    hub2ConfigOriginsGUI::CMD_RUN_ORIGIN_SYNC
+                )
+            ),
+            $ui_factory->link()->standard(
+                ilHub2Plugin::getInstance()->txt('origin_table_button_run_force_update'),
+                $this->ctrl->getLinkTarget(
+                    $this->parent_obj,
+                    hub2ConfigOriginsGUI::CMD_RUN_ORIGIN_SYNC_FORCE_UPDATE
+                )
+            )
+        ]);
 
         $actions = new ilAdvancedSelectionListGUI();
         $actions->setListTitle(ilHub2Plugin::getInstance()->txt('data_table_header_actions'));

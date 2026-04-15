@@ -118,39 +118,51 @@ class OriginsTableGUI extends ilTable2GUI
      */
     protected function fillRow(array $a_set): void
     {
+        global $DIC;
+        $ui_factory = $DIC->ui()->factory();
+        $renderer = $DIC->ui()->renderer();
         foreach ($a_set as $value) {
             $this->tpl->setCurrentBlock('cell');
             $this->tpl->setVariable('VALUE', !is_null($value) ? $value : '&nbsp;');
             $this->tpl->parseCurrentBlock();
         }
-        $actions = new ilAdvancedSelectionListGUI();
-        $actions->setId('actions_' . $a_set['id']);
-        $actions->setListTitle(ilHub2Plugin::getInstance()->txt('common_actions'));
         $this->ctrl->setParameter($this->parent_obj, 'origin_id', $a_set['id']);
-        $actions->addItem(ilHub2Plugin::getInstance()->txt('common_edit'), 'edit', $this->ctrl
-                                                                                ->getLinkTarget(
-                                                                                    $this->parent_obj,
-                                                                                    hub2ConfigOriginsGUI::CMD_EDIT_ORGIN
-                                                                                ));
-        $actions->addItem(ilHub2Plugin::getInstance()->txt('common_delete'), 'delete', $this->ctrl
-                                                                                    ->getLinkTarget(
-                                                                                        $this->parent_obj,
-                                                                                        hub2ConfigOriginsGUI::CMD_CONFIRM_DELETE
-                                                                                    ));
-        $actions->addItem(ilHub2Plugin::getInstance()->txt('origin_table_button_run'), 'runOriginSync', $this->ctrl
-                                                                                                     ->getLinkTarget(
-                                                                                                         $this->parent_obj,
-                                                                                                         hub2ConfigOriginsGUI::CMD_RUN_ORIGIN_SYNC
-                                                                                                     ));
-        $actions->addItem(
-            ilHub2Plugin::getInstance()->txt('origin_table_button_run_force_update'),
-            'runOriginSyncForceUpdate',
-            $this->ctrl
-                ->getLinkTarget($this->parent_obj, hub2ConfigOriginsGUI::CMD_RUN_ORIGIN_SYNC_FORCE_UPDATE)
+        $action_items= $ui_factory->dropdown()->standard([
+            $ui_factory->link()->standard(
+                ilHub2Plugin::getInstance()->txt('common_edit'),
+                $this->ctrl->getLinkTarget(
+                        $this->parent_obj,
+                        hub2ConfigOriginsGUI::CMD_EDIT_ORGIN
+                )
+            ),
+                $ui_factory->link()->standard(
+                    ilHub2Plugin::getInstance()->txt('common_delete'),
+                    $this->ctrl->getLinkTarget(
+                        $this->parent_obj,
+                        hub2ConfigOriginsGUI::CMD_CONFIRM_DELETE
+                    )
+                ),
+                    $ui_factory->link()->standard(
+                        ilHub2Plugin::getInstance()->txt('origin_table_button_run'),
+                        $this->ctrl->getLinkTarget(
+                            $this->parent_obj,
+                            hub2ConfigOriginsGUI::CMD_RUN_ORIGIN_SYNC
+                        )
+                    ),
+            $ui_factory->link()->standard(
+                ilHub2Plugin::getInstance()->txt('origin_table_button_run_force_update'),
+                $this->ctrl->getLinkTarget(
+                    $this->parent_obj,
+                    hub2ConfigOriginsGUI::CMD_RUN_ORIGIN_SYNC_FORCE_UPDATE
+                )
+            )
+            ]
         );
+
+
         $this->ctrl->clearParameters($this->parent_obj);
         $this->tpl->setCurrentBlock('cell');
-        $this->tpl->setVariable('VALUE', $actions->getHTML());
+        $this->tpl->setVariable('VALUE', $renderer->render($action_items->withLabel(ilHub2Plugin::getInstance()->txt('common_actions'))));
         $this->tpl->parseCurrentBlock();
     }
 }
