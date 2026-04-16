@@ -105,10 +105,7 @@ abstract class OriginSyncSummaryBase implements IOriginSyncSummary
                 $mail->Send();
             }
 
-            if ($error_email !== [] && count(
-                $this->log_repo->getKeptLogs($originSync->getOrigin(), ILog::LEVEL_EXCEPTION)
-            )
-                    + count($this->log_repo->getKeptLogs($originSync->getOrigin(), ILog::LEVEL_CRITICAL))
+            if ($error_email !== [] && count($this->log_repo->getKeptLogs($originSync->getOrigin(), ILog::LEVEL_CRITICAL))
                 > 0) {
                 $mail->To($error_email);
                 $mail->Subject(
