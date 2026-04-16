@@ -19,6 +19,7 @@ use srag\Plugins\Hub2\Config\ArConfig;
 use srag\Plugins\Hub2\Config\ArConfigOld;
 use srag\Plugins\Hub2\Jobs\Log\DeleteOldLogsJob;
 use srag\Plugins\Hub2\Jobs\RunSync;
+use srag\Plugins\Hub2\Jobs\SyncCleanupJob;
 use srag\Plugins\Hub2\Log\Log;
 use srag\Plugins\Hub2\Object\Category\ARCategory;
 use srag\Plugins\Hub2\Object\Course\ARCourse;
@@ -68,7 +69,7 @@ class ilHub2Plugin extends ilCronHookPlugin
      */
     public function getCronJobInstances(): array
     {
-        return [new RunSync(new CronNotifier()), new DeleteOldLogsJob()];
+        return [new RunSync(new CronNotifier()), new DeleteOldLogsJob(), new SyncCleanupJob()];
     }
 
     public function getCronJobInstance(
@@ -80,6 +81,9 @@ class ilHub2Plugin extends ilCronHookPlugin
 
             case DeleteOldLogsJob::CRON_JOB_ID:
                 return new DeleteOldLogsJob();
+
+            case SyncCleanupJob::CRON_JOB_ID:
+                return new SyncCleanupJob();
 
             default:
                 throw new InvalidArgumentException('Unknown cron job id: ' . $jobId);

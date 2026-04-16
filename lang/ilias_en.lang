@@ -444,3 +444,12 @@ removeplugindataconfirm_keep_data#:#Keep %1$s data
 removeplugindataconfirm_msg_kept_data#:#The %1$s data was kept
 removeplugindataconfirm_msg_removed_data#:#The %1$s data was also removed
 removeplugindataconfirm_remove_data#:#Remove %1$s data
+cleanup_settings#:#Cleanup
+cleanup_retention_days#:#Retention (days)
+cleanup_batch_size#:#Batch size
+cleanup_max_batches#:#Max batches per cron run
+cleanup_batch_size_info#:#Max records per run = batch size × max batches.
+cleanup_max_batches_info#:#Limits runtime; next cron run will continue.
+settings_saved#:#Settings saved.
+Cleanup_Job_Title#:#Hub2 Sync Cleanup Job
+Cleanup_Job_Description#:#Deletes all sync jobs exceeding a specified retention period

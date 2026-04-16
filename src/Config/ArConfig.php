@@ -41,6 +41,10 @@ class ArConfig extends ActiveRecordConfig
     public const KEY_GLOBAL_HOCK_PATH = 'key_global_hock_path';
     public const KEY_GLOBAL_HOCK_CLASS = 'key_global_hock_class';
     public const KEY_KEEP_OLD_LOGS_TIME = 'keep_old_logs_time';
+    public const KEY_CLEANUP_RETENTION_DAYS = 'cleanup_retention_days';
+    public const KEY_CLEANUP_BATCH_SIZE     = 'cleanup_batch_size';
+    public const KEY_CLEANUP_MAX_BATCHES    = 'cleanup_max_batches';
+
     /**
      * @var array
      */
@@ -57,6 +61,10 @@ class ArConfig extends ActiveRecordConfig
         self::KEY_GLOBAL_HOCK_ACTIVE => self::TYPE_BOOLEAN,
         self::KEY_GLOBAL_HOCK_PATH => self::TYPE_STRING,
         self::KEY_GLOBAL_HOCK_CLASS => self::TYPE_STRING,
-        self::KEY_KEEP_OLD_LOGS_TIME => [self::TYPE_INTEGER, 7]
+        self::KEY_KEEP_OLD_LOGS_TIME => [self::TYPE_INTEGER, 7],
+        self::KEY_CLEANUP_RETENTION_DAYS => [self::TYPE_INTEGER, 7],
+        self::KEY_CLEANUP_BATCH_SIZE     => [self::TYPE_INTEGER, 200],
+        self::KEY_CLEANUP_MAX_BATCHES    => [self::TYPE_INTEGER, 10],
+
     ];
 }

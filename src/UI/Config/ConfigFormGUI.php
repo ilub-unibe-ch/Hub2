@@ -32,6 +32,7 @@ use ilTextAreaInputGUI;
 use ilTextInputGUI;
 
 use srag\Plugins\Hub2\Config\ArConfig;
+use srag\Plugins\Hub2\Jobs\Sync\Cleanup\CleanupSettings;
 
 
 /**
@@ -183,6 +184,37 @@ class ConfigFormGUI extends ilPropertyFormGUI
         $sub_item->setInfo(ilHub2Plugin::getInstance()->txt('admin_msg_' . ArConfig::KEY_CUSTOM_VIEWS_CLASS . '_info'));
         $cb->addSubItem($sub_item);
         $this->addItem($cb);
+
+
+        $header = new ilFormSectionHeaderGUI();
+        $header->setTitle(ilHub2Plugin::getInstance()->txt('cleanup_settings'));
+        $this->addItem($header);
+
+        $cleanup = new CleanupSettings();
+
+        $retention = new ilNumberInputGUI(ilHub2Plugin::getInstance()->txt('cleanup_retention_days'), ArConfig::KEY_CLEANUP_RETENTION_DAYS);
+        $retention->setRequired(true);
+        $retention->setMinValue(CleanupSettings::MIN_RETENTION_DAYS);
+        $retention->setMaxValue(CleanupSettings::MAX_RETENTION_DAYS);
+        $retention->setValue((string) $cleanup->getRetentionDays());
+        $this->addItem($retention);
+
+        $batchSize = new ilNumberInputGUI(ilHub2Plugin::getInstance()->txt('cleanup_batch_size'), ArConfig::KEY_CLEANUP_BATCH_SIZE);
+        $batchSize->setRequired(true);
+        $batchSize->setMinValue(CleanupSettings::MIN_BATCH_SIZE);
+        $batchSize->setMaxValue(CleanupSettings::MAX_BATCH_SIZE);
+        $batchSize->setInfo(ilHub2Plugin::getInstance()->txt('cleanup_batch_size_info'));
+        $batchSize->setValue((string) $cleanup->getBatchSize());
+        $this->addItem($batchSize);
+
+
+        $maxBatches = new ilNumberInputGUI(ilHub2Plugin::getInstance()->txt('cleanup_max_batches'), ArConfig::KEY_CLEANUP_MAX_BATCHES);
+        $maxBatches->setRequired(true);
+        $maxBatches->setMinValue(CleanupSettings::MIN_MAX_BATCHES);
+        $maxBatches->setMaxValue(CleanupSettings::MAX_MAX_BATCHES);
+        $maxBatches->setInfo(ilHub2Plugin::getInstance()->txt('cleanup_max_batches_info'));
+        $maxBatches->setValue((string) $cleanup->getMaxBatches());
+        $this->addItem($maxBatches);
 
         //		$h = new ilFormSectionHeaderGUI();
         //		$h->setTitle(ilHub2Plugin::getInstance()->txt('admin_membership'));
