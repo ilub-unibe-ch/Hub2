@@ -135,7 +135,7 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
      * @inheritdoc
      * @param GroupDTO $dto
      */
-    protected function handleCreate(IDataTransferObject $dto): void/*: void*/
+    protected function handleCreate(IDataTransferObject $dto): void
     {
         $this->current_ilias_object = $ilObjGroup = new ilObjGroup();
         $ilObjGroup->setImportId($this->getImportId($dto));
@@ -184,6 +184,8 @@ class GroupSyncProcessor extends ObjectSyncProcessor implements IGroupSyncProces
         $ilObjGroup->createReference();
         $ilObjGroup->putInTree($parentRefId);
         $ilObjGroup->setPermissions($parentRefId);
+        $ilObjGroup->setOfflineStatus(false);
+        $ilObjGroup->update();
 
         $this->handleAppointementsColor($ilObjGroup, $dto);
         $this->setLanguage($dto, $ilObjGroup);
